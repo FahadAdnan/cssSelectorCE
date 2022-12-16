@@ -1,4 +1,65 @@
+
 // #region Constants
+
+const defaultPropertyValueMap = new Map([
+    ['font-weight','400'],
+    ['font-variant','normal'],
+    ['font-style','normal'],
+    ['letter-spacing','normal'],
+    ['line-height','normal'],
+    ['text-decoration','none'],
+    ['text-align','start'],
+    ['text-indent','0px'],
+    ['text-transform','none'],
+    ['vertical-align','baseline'],
+    ['white-space','normal'],
+    ['word-spacing','normal'],
+    //Color And Background Stuff
+    ['background-color','transparent'],
+    ['background-attachment','scroll'],
+    ['background-image','none'],
+    // Background stuff
+    ['background-position',''],
+    ['background-repeat','repeat'],
+    ['border-top-style', 'none'],
+    ['margin','0 0 0 0'],
+    ['padding','0 0 0 0'],
+    ['min-height','0px'],
+    ['max-height','none'],
+    ['min-width','0px'],
+    ['max-width','none'],
+    // Positioning 
+    ['position','static'],
+    ['top','auto'],
+    ['bottom','auto'],
+    ['right','auto'],
+    ['left','auto'],
+    ['float','none'],
+    ['display'],
+    ['clear','none'],
+    ['z-index','auto'],
+    // Table 
+    ['border-collapse','separate'],
+    ['border-spacing','0px 0px'],
+    ['caption-side','top'],
+    ['empty-cells','show'],
+    ['table-layout','auto'],
+    ['overflow','visible'],
+    ['cursor','auto'],
+    ['visibility','visible'], 
+    ['outline-offset','0px'], 
+    ['box-sizing','content-box'], 
+    ['resize','none'], 
+    ['text-shadow' ,'none'], 
+    ['text-overflow' ,'clip'], 
+    ['word-wrap' ,'normal'], 
+    ['box-shadow','none'],
+    ['border-top-left-radius','0px'], 
+    ['border-top-right-radius' ,'0px'], 
+    ['border-bottom-left-radius' ,'0px'], 
+    ['border-bottom-right-radius','0px']
+]);
+
 const CSSViewer_pFont = new Array(
 	'font-family', 
 	'font-size', 
@@ -245,6 +306,7 @@ function SetCSSProperty(element, property)
 
 function SetCSSPropertyIf(element, property, condition)
 {
+	console.log("Property is: " + property)
 	var document = GetCurrentDocument();
 	var li = document.getElementById('CSSViewer_' + property);
 
@@ -312,26 +374,28 @@ function ShowCSSCategory(category)
 // #endregion 
 
 // #region Update Functions 
+
+function isPropertyEqualToDefault(element, type)
+{
+	if(defaultPropertyValueMap.has(type)){ 
+		console.log("Property is in map: " + type)
+		console.log("Actual: " + GetCSSProperty(element, type))
+		console.log("Expected: " + defaultPropertyValueMap.get(type))
+		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
+	}
+	else{ return GetCSSProperty(element, type); }
+}
+
 function UpdatefontText(element)
 {
-	// Font
-	SetCSSProperty(element, 'font-family');
-	SetCSSProperty(element, 'font-size');
-
-	SetCSSPropertyIf(element, 'font-weight'    , GetCSSProperty(element, 'font-weight') != '400');
-	SetCSSPropertyIf(element, 'font-variant'   , GetCSSProperty(element, 'font-variant') != 'normal');
-	SetCSSPropertyIf(element, 'font-style'     , GetCSSProperty(element, 'font-style') != 'normal');
-	
-	// Text
-	SetCSSPropertyIf(element, 'letter-spacing' , GetCSSProperty(element, 'letter-spacing') != 'normal');
-	SetCSSPropertyIf(element, 'line-height'    , GetCSSProperty(element, 'line-height') != 'normal');
-	SetCSSPropertyIf(element, 'text-decoration', GetCSSProperty(element, 'text-decoration') != 'none');
-	SetCSSPropertyIf(element, 'text-align'     , GetCSSProperty(element, 'text-align') != 'start');
-	SetCSSPropertyIf(element, 'text-indent'    , GetCSSProperty(element, 'text-indent') != '0px');
-	SetCSSPropertyIf(element, 'text-transform' , GetCSSProperty(element, 'text-transform') != 'none');
-	SetCSSPropertyIf(element, 'vertical-align' , GetCSSProperty(element, 'vertical-align') != 'baseline');
-	SetCSSPropertyIf(element, 'white-space'    , GetCSSProperty(element, 'white-space') != 'normal');
-	SetCSSPropertyIf(element, 'word-spacing'   , GetCSSProperty(element, 'word-spacing') != 'normal');
+	let assuredList = ['font-family','font-size']
+	let possibleList = [
+		'font-weight','font-variant','font-style','letter-spacing',
+		'line-height','text-decoration','text-align','text-indent','text-transform',
+		'vertical-align','white-space','word-spacing'
+	]
+	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
+	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyEqualToDefault(element, possibleList[prop]));}
 }
 
 function UpdateColorBg(element)
@@ -341,10 +405,11 @@ function UpdateColorBg(element)
 
 	// Background
 	SetCSSPropertyValueIf(element, 'background-color', RGBToHex(GetCSSProperty(element, 'background-color')), GetCSSProperty(element, 'background-color') != 'transparent');
-	SetCSSPropertyIf(element, 'background-attachment', GetCSSProperty(element, 'background-attachment') != 'scroll');
 	SetCSSPropertyValueIf(element, 'background-image', GetFileName(GetCSSProperty(element, 'background-image')), GetCSSProperty(element, 'background-image') != 'none');
-	SetCSSPropertyIf(element, 'background-position'  , GetCSSProperty(element, 'background-position') != '');
-	SetCSSPropertyIf(element, 'background-repeat'    , GetCSSProperty(element, 'background-repeat') != 'repeat');
+
+	// Other
+	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
+	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyEqualToDefault(element, possibleColorBgList[prop]));}
 }
 
 function UpdateBox(element)
@@ -395,25 +460,15 @@ function UpdateBox(element)
 	SetCSSPropertyValueIf(element, 'padding', padding, padding != '0 0 0 0');
 
 	// Max/Min Width/Height
-	SetCSSPropertyIf(element, 'min-height', GetCSSProperty(element, 'min-height') != '0px');
-	SetCSSPropertyIf(element, 'max-height', GetCSSProperty(element, 'max-height') != 'none');
-	SetCSSPropertyIf(element, 'min-width' , GetCSSProperty(element, 'min-width') != '0px');
-	SetCSSPropertyIf(element, 'max-width' , GetCSSProperty(element, 'max-width') != 'none');
+	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
+	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyEqualToDefault(element, possibleBoxList[prop]));}
 }
 
 function UpdatePositioning(element)
 {
-	SetCSSPropertyIf(element, 'position', GetCSSProperty(element, 'position') != 'static');
-	SetCSSPropertyIf(element, 'top'     , GetCSSProperty(element, 'top') != 'auto');
-	SetCSSPropertyIf(element, 'bottom'  , GetCSSProperty(element, 'bottom') != 'auto');
-	SetCSSPropertyIf(element, 'right'   , GetCSSProperty(element, 'right') != 'auto');
-	SetCSSPropertyIf(element, 'left'    , GetCSSProperty(element, 'left') != 'auto');
-	SetCSSPropertyIf(element, 'float'   , GetCSSProperty(element, 'float') != 'none');
-
 	SetCSSProperty(element, 'display');
-
-	SetCSSPropertyIf(element, 'clear'   , GetCSSProperty(element, 'clear') != 'none');
-	SetCSSPropertyIf(element, 'z-index' , GetCSSProperty(element, 'z-index') != 'auto');
+	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
+	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyEqualToDefault(element, possiblePositionList[prop]));}
 }
 
 function UpdateTable(element, tagName)
@@ -421,16 +476,11 @@ function UpdateTable(element, tagName)
 	if (IsInArray(CSSViewer_tableTagNames, tagName)) {
 		var nbProperties = 0;
 
-		nbProperties += SetCSSPropertyIf(element, 'border-collapse', GetCSSProperty(element, 'border-collapse') != 'separate');
-		nbProperties += SetCSSPropertyIf(element, 'border-spacing' , GetCSSProperty(element, 'border-spacing') != '0px 0px');
-		nbProperties += SetCSSPropertyIf(element, 'caption-side'   , GetCSSProperty(element, 'caption-side') != 'top');
-		nbProperties += SetCSSPropertyIf(element, 'empty-cells'    , GetCSSProperty(element, 'empty-cells') != 'show');
-		nbProperties += SetCSSPropertyIf(element, 'table-layout'   , GetCSSProperty(element, 'table-layout') != 'auto');
+		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
+		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyEqualToDefault(element, possibleTableList[prop]));}
 
-		if (nbProperties > 0)
-			ShowCSSCategory('pTable');
-		else
-			HideCSSCategory('pTable');
+		if (nbProperties > 0) ShowCSSCategory('pTable');
+		else HideCSSCategory('pTable');
 	}
 	else {
 		HideCSSCategory('pTable');
@@ -463,45 +513,28 @@ function UpdateMisc(element)
 {
 	var nbProperties = 0;
 
-	nbProperties += SetCSSPropertyIf(element, 'overflow'  , GetCSSProperty(element, 'overflow') != 'visible');
-	nbProperties += SetCSSPropertyIf(element, 'cursor'    , GetCSSProperty(element, 'cursor') != 'auto');
-	nbProperties += SetCSSPropertyIf(element, 'visibility', GetCSSProperty(element, 'visibility') != 'visible'); 
+	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
+	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyEqualToDefault(element, possibleMiscList[prop]));}
 
-	if (nbProperties > 0)
-		ShowCSSCategory('pMisc');
-	else
-		HideCSSCategory('pMisc');
+	if (nbProperties > 0) ShowCSSCategory('pMisc');
+	else HideCSSCategory('pMisc');
 }
 
 function UpdateEffects(element)
 {
 	var nbProperties = 0;
-	nbProperties += SetCSSPropertyIf(element, 'transform'                 , GetCSSProperty(element, 'transform') ); 
-	nbProperties += SetCSSPropertyIf(element, 'transition'                , GetCSSProperty(element, 'transition') ); 
-	nbProperties += SetCSSPropertyIf(element, 'outline'                   , GetCSSProperty(element, 'outline') ); 
-	nbProperties += SetCSSPropertyIf(element, 'outline-offset'            , GetCSSProperty(element, 'outline-offset') != '0px'); 
-	nbProperties += SetCSSPropertyIf(element, 'box-sizing'                , GetCSSProperty(element, 'box-sizing') != 'content-box'); 
-	nbProperties += SetCSSPropertyIf(element, 'resize'                    , GetCSSProperty(element, 'resize') != 'none'); 
+	var possibleEffectList = ['transform','transition','outline','outline-offset','box-sizing','resize',
+						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
+						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
 
-	nbProperties += SetCSSPropertyIf(element, 'text-shadow'               , GetCSSProperty(element, 'text-shadow') != 'none'); 
-	nbProperties += SetCSSPropertyIf(element, 'text-overflow'             , GetCSSProperty(element, 'text-overflow') != 'clip'); 
-	nbProperties += SetCSSPropertyIf(element, 'word-wrap'                 , GetCSSProperty(element, 'word-wrap') != 'normal'); 
-	nbProperties += SetCSSPropertyIf(element, 'box-shadow'                , GetCSSProperty(element, 'box-shadow') != 'none');  
-
-	nbProperties += SetCSSPropertyIf(element, 'border-top-left-radius'    , GetCSSProperty(element, 'border-top-left-radius') != '0px'); 
-	nbProperties += SetCSSPropertyIf(element, 'border-top-right-radius'   , GetCSSProperty(element, 'border-top-right-radius') != '0px'); 
-	nbProperties += SetCSSPropertyIf(element, 'border-bottom-left-radius' , GetCSSProperty(element, 'border-bottom-left-radius') != '0px'); 
-	nbProperties += SetCSSPropertyIf(element, 'border-bottom-right-radius', GetCSSProperty(element, 'border-bottom-right-radius') != '0px'); 
-
-	if (nbProperties > 0)
-		ShowCSSCategory('pEffect');
-	else
-		HideCSSCategory('pEffect');
+	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyEqualToDefault(element, possibleEffectList[prop]));}
+	if (nbProperties > 0) ShowCSSCategory('pEffect');
+	else HideCSSCategory('pEffect');
 }
 
 // #endregion 
 
-// #region  Event Handlers
+// #region Event Handlers
 
 function CSSViewerMouseOver(e)
 {
@@ -586,6 +619,7 @@ function CSSViewerMouseOut(e)
 	e.stopPropagation();
 }
 
+// #region Setting position of box 
 function CSSViewerMouseMove(e)
 {
 	var document = GetCurrentDocument();
@@ -613,23 +647,11 @@ function CSSViewerMouseMove(e)
 	else
 		block.style.left = (e.pageX + 20) + 'px';
 
-	if ((e.pageY + blockHeight) > pageHeight) {
-		if ((e.pageY - blockHeight - 10) > 0)
-			block.style.top = e.pageY - blockHeight - 20 + 'px';
-		else
-			block.style.top = 0 + 'px';
-	}
-	else
-		block.style.top = (e.pageY + 20) + 'px';
-
-	// adapt block top to screen offset
-	inView = CSSViewerIsElementInViewport(block);
-
-	if( ! inView )
-		block.style.top = ( window.pageYOffset  + 20 ) + 'px';
+	block.style.top = e.pageY + 'px';
 
 	e.stopPropagation();
 }
+// #endregion
 
 // http://stackoverflow.com/a/7557433
 function CSSViewerIsElementInViewport(el) {
@@ -657,7 +679,7 @@ function CSSViewer()
 			// Create a div block
 			block = document.createElement('div');
 			block.id = 'CSSViewer_block';
-			block.classList.add("container")
+			block.classList.add("container", "moving-glow")
 			
 			// Insert a title for CSS selector
 			var header = document.createElement('h1');
@@ -673,8 +695,8 @@ function CSSViewer()
 				var div = document.createElement('div');
 
 				div.id = 'CSSViewer_' + cat;
-				var h2 = document.createElement('h2');
-				h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
+				// var h2 = document.createElement('h2');
+				// h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
 
 				var ul = document.createElement('ul');
 				var properties = CSSViewer_categories[cat];
@@ -695,12 +717,9 @@ function CSSViewer()
 					li.appendChild(span_value)
 					ul.appendChild(li);
 				}
-
-				div.appendChild(h2);
 				div.appendChild(ul);
 				center.appendChild(div);
 			}
-
 			block.appendChild(center);
 
 			// Insert a footer
@@ -835,7 +854,6 @@ CSSViewer.prototype.Enable = function()
 		block = this.CreateBlock();
 		document.body.appendChild(block);
 		this.AddEventListeners();
-
 		return true;
 	}
 
@@ -892,7 +910,7 @@ CSSViewer.prototype.Unfreeze = function()
 
 // #endregion 
 
-// #region - Replace notification + clicking on item with a popup.html that shows freeze behaviour and current state
+// #region Replace notification + clicking on item with a popup.html that shows freeze behaviour and current state
 
 function cssViewerInsertMessage( msg )
 {
@@ -930,7 +948,7 @@ function cssViewerRemoveElement(divid)
 }
 // #endregion
 
-// #region - Unused code - look into it
+// #region Unused code - look into it
 /*
 * Copy current element css to chrome console
 */
@@ -984,7 +1002,7 @@ function CssViewerKeyMap(e) {
 }
 //#endregion
 
-// #region Entry point to application
+//#region Entry point to application
 cssViewer = new CSSViewer();
 
 if ( cssViewer.IsEnabled() ){

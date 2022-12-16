@@ -339,7 +339,10 @@ function UpdateColorBg(element)
 
 	// Possible Props 
 	var possiblePropertyList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (var prop in possiblePropertyList) { SetCSSPropertyIf(element, prop, isPropertyEqualToDefault(element, prop));}
+	for (var prop in possiblePropertyList) { 
+        var propStr = prop.toString()
+        SetCSSPropertyIf(element, propStr, isPropertyEqualToDefault(element, propStr));
+    }
 }
 
 function UpdateBox(element)

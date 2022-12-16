@@ -11,10 +11,10 @@
 	padding: 10px 10px 10px 10px;
 	position:absolute !important;
 
+	z-index: 9999; 
 	color:#555 !important;
 	background-color: rgba(31, 33, 45, 0.98) !important;
 	border-radius: 20px !important;
-
 }
 
 .primary
@@ -50,8 +50,14 @@
 
 .flex { display: flex !important; }
 .none { display: none !important; }
-.aqua_color { color: #61cbe0 !important; display: contents !important; }  
-.purple_color { color: #BD93F9 !important;}
+.aqua_color { 
+	color: #61cbe0 !important; 
+	display: contents !important;
+ }  
+.purple_color { 
+	color: #BD93F9 !important;
+	display: contents !important;
+}
 
 .footer
 {
@@ -63,12 +69,11 @@
 	display:flex !important;
 }
 
-
 #CSSViewer_block ul
 {
-	padding:5px 5px 10px 5px !important;
+	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
-	width:282px !important;
+	width:332px !important;
 }
 
 .containerItemValue {
