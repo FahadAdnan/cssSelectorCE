@@ -222,6 +222,11 @@ const CSSViewer_hexa = new Array(
 
 // #region Util Functoins
 // A file of Util functions
+
+function last(array) {
+    return array[array.length - 1];
+}
+
 function IsInArray(array, name)
 {
 	for (var i = 0; i < array.length; i++) {
@@ -302,7 +307,7 @@ function GetCSSProperty(element, property){ return element.getPropertyValue(prop
 function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.lastChild.innerHTML = ": " + element.getPropertyValue(property); // textContent
 }
 
@@ -310,7 +315,7 @@ function SetCSSPropertyIf(element, property, condition)
 {
 	console.log("Property is: " + property)
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
@@ -327,7 +332,7 @@ function SetCSSPropertyIf(element, property, condition)
 function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.lastChild.innerHTML =  ": " + value;
 	li.style.display = 'flex';
 }
@@ -335,7 +340,7 @@ function SetCSSPropertyValue(element, property, value)
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + value;
@@ -356,21 +361,21 @@ function SetCSSPropertyValueIf(element, property, value, condition)
 function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.style.display = 'none';
 }
 
 function HideCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = document.getElementById('CSSViewer_' + category);
+	var div = last(document.getElementsByClassName('CSSViewer_' + category));
 	div.style.display = 'none';
 }
 
 function ShowCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = document.getElementById('CSSViewer_' + category);
+	var div = last(document.getElementsByClassName('CSSViewer_' + category));
 	div.style.display = 'flex';
 }
 // #endregion 
@@ -550,7 +555,7 @@ function CSSViewerMouseOver(e)
 {
 	// Block
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if( ! block ){
 		return;
@@ -617,7 +622,7 @@ function CSSViewerMouseOut(e)
 function CSSViewerMouseMove(e)
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if( ! block ){
 		return;
@@ -648,7 +653,7 @@ function CSSViewerMouseMove(e)
 
 function setElementToBeDraggable() {
 	var document = GetCurrentDocument();
-	var elmnt = document.getElementById('CSSViewer_block');
+	var elmnt = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if( ! elmnt ){
 		return;
@@ -720,8 +725,7 @@ function CSSViewer()
 		if (document) {
 			// Create a div block
 			block = document.createElement('div');
-			block.id = 'CSSViewer_block';
-			block.classList.add("container", "moving-glow")
+			block.classList.add("container", "moving-glow", "CSSViewer_block")
 			
 			// Insert a title for CSS selector
 			var header = document.createElement('h1');
@@ -736,7 +740,7 @@ function CSSViewer()
 			for (var cat in CSSViewer_categories) {
 				var div = document.createElement('div');
 
-				div.id = 'CSSViewer_' + cat;
+				div.className = 'CSSViewer_' + cat;
 				// var h2 = document.createElement('h2');
 				// h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
 
@@ -746,7 +750,7 @@ function CSSViewer()
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.id = 'CSSViewer_' + properties[i];
+					li.className = 'CSSViewer_' + properties[i];
 
 					var span_property = document.createElement('span');
 					span_property.classList.add("primary", "aqua_color");
@@ -767,7 +771,7 @@ function CSSViewer()
 			// Insert a footer
 			var footer = document.createElement('div');
 
-			footer.id = 'CSSViewer_footer';
+			footer.className = 'CSSViewer_footer';
 
 			//< 
 			footer.appendChild( document.createTextNode('CSSViewer 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
@@ -879,7 +883,7 @@ CSSViewer.prototype.IsEnabled = function()
 {
 	var document = GetCurrentDocument();
 
-	if (document.getElementById('CSSViewer_block')) {
+	if (last(document.getElementsByClassName('CSSViewer_block'))) {
 		return true;
 	}
 
@@ -890,7 +894,7 @@ CSSViewer.prototype.IsEnabled = function()
 CSSViewer.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if (!block){
 		block = this.CreateBlock();
@@ -907,7 +911,7 @@ CSSViewer.prototype.Enable = function()
 CSSViewer.prototype.Disable = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
         var insertMessage = document.getElementById("cssViewerInsertMessage");
         
 	if (block || insertMessage) {
@@ -925,7 +929,7 @@ CSSViewer.prototype.Disable = function()
 CSSViewer.prototype.Freeze = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 	if ( block && this.haveEventListeners ) {
 		this.RemoveEventListeners();
 
@@ -939,7 +943,7 @@ CSSViewer.prototype.Freeze = function()
 CSSViewer.prototype.Unfreeze = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 	if ( block && !this.haveEventListeners ) {
 		// Remove the red outline
 		CSSViewer_current_element.style.outline = '';
