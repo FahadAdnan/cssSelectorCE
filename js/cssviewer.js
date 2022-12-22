@@ -377,7 +377,7 @@ function ShowCSSCategory(category)
 
 // #region Update Functions 
 
-function isPropertyEqualToDefault(element, type)
+function isPropertyNotEqualToDefault(element, type)
 {
 	if(defaultPropertyValueMap.has(type)){ 
 		console.log("Property is in map: " + type)
@@ -397,7 +397,7 @@ function UpdatefontText(element)
 		'vertical-align','white-space','word-spacing'
 	]
 	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyEqualToDefault(element, possibleList[prop]));}
+	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
 }
 
 function UpdateColorBg(element)
@@ -411,7 +411,7 @@ function UpdateColorBg(element)
 
 	// Other
 	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyEqualToDefault(element, possibleColorBgList[prop]));}
+	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
 }
 
 function UpdateBox(element)
@@ -463,14 +463,14 @@ function UpdateBox(element)
 
 	// Max/Min Width/Height
 	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
-	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyEqualToDefault(element, possibleBoxList[prop]));}
+	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyNotEqualToDefault(element, possibleBoxList[prop]));}
 }
 
 function UpdatePositioning(element)
 {
 	SetCSSProperty(element, 'display');
 	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
-	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyEqualToDefault(element, possiblePositionList[prop]));}
+	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyNotEqualToDefault(element, possiblePositionList[prop]));}
 }
 
 function UpdateTable(element, tagName)
@@ -479,7 +479,7 @@ function UpdateTable(element, tagName)
 		var nbProperties = 0;
 
 		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
-		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyEqualToDefault(element, possibleTableList[prop]));}
+		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyNotEqualToDefault(element, possibleTableList[prop]));}
 
 		if (nbProperties > 0) ShowCSSCategory('pTable');
 		else HideCSSCategory('pTable');
@@ -516,7 +516,7 @@ function UpdateMisc(element)
 	var nbProperties = 0;
 
 	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
-	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyEqualToDefault(element, possibleMiscList[prop]));}
+	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyNotEqualToDefault(element, possibleMiscList[prop]));}
 
 	if (nbProperties > 0) ShowCSSCategory('pMisc');
 	else HideCSSCategory('pMisc');
@@ -529,7 +529,7 @@ function UpdateEffects(element)
 						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
 						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
 
-	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyEqualToDefault(element, possibleEffectList[prop]));}
+	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyNotEqualToDefault(element, possibleEffectList[prop]));}
 	if (nbProperties > 0) ShowCSSCategory('pEffect');
 	else HideCSSCategory('pEffect');
 }
@@ -537,6 +537,14 @@ function UpdateEffects(element)
 // #endregion 
 
 // #region Event Handlers
+
+function AddPropertyValuesToCssDefinitions(typeArray, element){
+	for (var i = 0; i < typeArray.length; i++){
+		if(isPropertyNotEqualToDefault(element, typeArray[i])){
+			CSSViewer_element_cssDefinition += "\t" + typeArray[i] + ': ' + element.getPropertyValue( typeArray[i] ) + ";\n";
+		}
+	}
+}
 
 function CSSViewerMouseOver(e)
 {
@@ -574,40 +582,23 @@ function CSSViewerMouseOver(e)
 
 	e.stopPropagation();
 
+	var listOfHeaders = [
+		"\t/* Font & Text */\n",  "\n\t/* Color & Background */\n", "\n\t/* Box */\n", 
+		"\n\t/* Positioning */\n", "\n\t/* List */\n", "\n\t/* Table */\n",
+		"\n\t/* Miscellaneous */\n", "\n\t/* Effects */\n"
+	]
+	var listOfTypeArrays = [
+		CSSViewer_pFont, CSSViewer_pColorBg, CSSViewer_pBox, CSSViewer_pPositioning,
+		CSSViewer_pList, CSSViewer_pTable, CSSViewer_pMisc, CSSViewer_pEffect,
+	]
+
 	// generate simple css definition
 	CSSViewer_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
-	CSSViewer_element_cssDefinition += "\t/* Font & Text */\n"; 
-	for (var i = 0; i < CSSViewer_pFont.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pFont[i] + ': ' + element.getPropertyValue( CSSViewer_pFont[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Color & Background */\n";
-	for (var i = 0; i < CSSViewer_pColorBg.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pColorBg[i] + ': ' + element.getPropertyValue( CSSViewer_pColorBg[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Box */\n";
-	for (var i = 0; i < CSSViewer_pBox.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pBox[i] + ': ' + element.getPropertyValue( CSSViewer_pBox[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Positioning */\n";
-	for (var i = 0; i < CSSViewer_pPositioning.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pPositioning[i] + ': ' + element.getPropertyValue( CSSViewer_pPositioning[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* List */\n";
-	for (var i = 0; i < CSSViewer_pList.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pList[i] + ': ' + element.getPropertyValue( CSSViewer_pList[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Table */\n";
-	for (var i = 0; i < CSSViewer_pTable.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pTable[i] + ': ' + element.getPropertyValue( CSSViewer_pTable[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Miscellaneous */\n";
-	for (var i = 0; i < CSSViewer_pMisc.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pMisc[i] + ': ' + element.getPropertyValue( CSSViewer_pMisc[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Effects */\n"; 
-	for (var i = 0; i < CSSViewer_pEffect.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pEffect[i] + ': ' + element.getPropertyValue( CSSViewer_pEffect[i] ) + ";\n";
+	for(var i = 0; i < 8; i++){
+		CSSViewer_element_cssDefinition += listOfHeaders[i];
+		AddPropertyValuesToCssDefinitions(listOfTypeArrays[i], element);
+	}
 
 	CSSViewer_element_cssDefinition += "}";
 
