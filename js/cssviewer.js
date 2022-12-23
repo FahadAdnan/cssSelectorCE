@@ -222,6 +222,11 @@ const CSSViewer_hexa = new Array(
 
 // #region Util Functoins
 // A file of Util functions
+
+function last(array) {
+    return array[array.length - 1];
+}
+
 function IsInArray(array, name)
 {
 	for (var i = 0; i < array.length; i++) {
@@ -291,6 +296,7 @@ function RemoveExtraFloat(nb)
 var CSSViewer_element
 var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
+var CSSViewer_has_document_event_listeners = false
 // #endregion
 
 // #region Simple Helper Functions
@@ -302,15 +308,14 @@ function GetCSSProperty(element, property){ return element.getPropertyValue(prop
 function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.lastChild.innerHTML = ": " + element.getPropertyValue(property); // textContent
 }
 
 function SetCSSPropertyIf(element, property, condition)
 {
-	console.log("Property is: " + property)
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
@@ -327,7 +332,7 @@ function SetCSSPropertyIf(element, property, condition)
 function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.lastChild.innerHTML =  ": " + value;
 	li.style.display = 'flex';
 }
@@ -335,7 +340,7 @@ function SetCSSPropertyValue(element, property, value)
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + value;
@@ -356,21 +361,21 @@ function SetCSSPropertyValueIf(element, property, value, condition)
 function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
-	var li = document.getElementById('CSSViewer_' + property);
+	var li = last(document.getElementsByClassName('CSSViewer_' + property));
 	li.style.display = 'none';
 }
 
 function HideCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = document.getElementById('CSSViewer_' + category);
+	var div = last(document.getElementsByClassName('CSSViewer_' + category));
 	div.style.display = 'none';
 }
 
 function ShowCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = document.getElementById('CSSViewer_' + category);
+	var div = last(document.getElementsByClassName('CSSViewer_' + category));
 	div.style.display = 'flex';
 }
 // #endregion 
@@ -380,9 +385,6 @@ function ShowCSSCategory(category)
 function isPropertyEqualToDefault(element, type)
 {
 	if(defaultPropertyValueMap.has(type)){ 
-		console.log("Property is in map: " + type)
-		console.log("Actual: " + GetCSSProperty(element, type))
-		console.log("Expected: " + defaultPropertyValueMap.get(type))
 		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
 	}
 	else{ return GetCSSProperty(element, type); }
@@ -542,7 +544,7 @@ function CSSViewerMouseOver(e)
 {
 	// Block
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if( ! block ){
 		return;
@@ -628,7 +630,7 @@ function CSSViewerMouseOut(e)
 function CSSViewerMouseMove(e)
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
 	if( ! block ){
 		return;
@@ -657,23 +659,14 @@ function CSSViewerMouseMove(e)
 	e.stopPropagation();
 }
 
-function setElementToBeDraggable() {
+function setElementToBeDraggable(elmnt) {
 	var document = GetCurrentDocument();
-	var elmnt = document.getElementById('CSSViewer_block');
 
-	if( ! elmnt ){
-		return;
-	}
+	if( ! elmnt ){ return; }
 
 	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-	if (document.getElementById(elmnt.id + "header")) {
-	  // if present, the header is where you move the DIV from:
-	  document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-	} else {
-	  // otherwise, move the DIV from anywhere inside the DIV:
-	  elmnt.onmousedown = dragMouseDown;
-	}
-  
+	elmnt.onmousedown = dragMouseDown;
+	
 	function dragMouseDown(e) {
 	  e = e || window.event;
 	  e.preventDefault();
@@ -731,8 +724,7 @@ function CSSViewer()
 		if (document) {
 			// Create a div block
 			block = document.createElement('div');
-			block.id = 'CSSViewer_block';
-			block.classList.add("container", "moving-glow")
+			block.classList.add("container", "moving-glow", "CSSViewer_block")
 			
 			// Insert a title for CSS selector
 
@@ -796,7 +788,7 @@ function CSSViewer()
 			for (var cat in CSSViewer_categories) {
 				var div = document.createElement('div');
 
-				div.id = 'CSSViewer_' + cat;
+				div.className = 'CSSViewer_' + cat;
 				// var h2 = document.createElement('h2');
 				// h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
 
@@ -806,8 +798,8 @@ function CSSViewer()
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.id = 'CSSViewer_' + properties[i];
-
+					li.className = 'CSSViewer_' + properties[i];
+					li.style.display = 'none';
 					var span_property = document.createElement('span');
 					span_property.classList.add("primary", "aqua_color");
 					span_property.appendChild(document.createTextNode(properties[i]));
@@ -827,7 +819,7 @@ function CSSViewer()
 			// Insert a footer
 			var footer = document.createElement('div');
 
-			footer.id = 'CSSViewer_footer';
+			footer.className = 'CSSViewer_footer';
 
 			//< 
 			footer.appendChild( document.createTextNode('CSSViewer 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
@@ -839,61 +831,7 @@ function CSSViewer()
 		return block;
 	}
 	
-	// Get all elements within the given element
-	this.GetAllElements = function(element)
-	{
-		var elements = new Array();
-
-		if (element && element.hasChildNodes()) {
-			elements.push(element);
-
-			var childs = element.childNodes;
-
-			for (var i = 0; i < childs.length; i++) {
-				if (childs[i].hasChildNodes()) {
-					elements = elements.concat(this.GetAllElements(childs[i]));
-				}
-				else if (childs[i].nodeType == 1) {
-					elements.push(childs[i]);
-				}
-			}
-		}
-
-		return elements;
-	}
-	
-	// Add bool for knowing all elements having event listeners or not
-	this.haveEventListeners = false;
-
-	// Add event listeners for all elements in the current document
-	this.AddEventListeners = function()
-	{
-		var document = GetCurrentDocument();
-		var elements = this.GetAllElements(document.body);
-
-		for (var i = 0; i < elements.length; i++)	{
-			elements[i].addEventListener("mouseover", CSSViewerMouseOver, false);
-			elements[i].addEventListener("mouseout", CSSViewerMouseOut, false);
-			elements[i].addEventListener("mousemove", CSSViewerMouseMove, false);
-		}	
-		this.haveEventListeners = true;
-	}
-	
-	// Remove event listeners for all elements in the current document
-	this.RemoveEventListeners = function()
-	{
-		var document = GetCurrentDocument();
-		var elements = this.GetAllElements(document.body);
-
-		for (var i = 0; i < elements.length; i++){
-			elements[i].removeEventListener("mouseover", CSSViewerMouseOver, false);
-			elements[i].removeEventListener("mouseout", CSSViewerMouseOut, false);
-			elements[i].removeEventListener("mousemove", CSSViewerMouseMove, false);
-		}	
-		this.haveEventListeners = false;
-	}
-
-	// Set the title of the block
+		// Set the title of the block
 	this.SetTitle = function()
 	{}
 	
@@ -939,7 +877,7 @@ CSSViewer.prototype.IsEnabled = function()
 {
 	var document = GetCurrentDocument();
 
-	if (document.getElementById('CSSViewer_block')) {
+	if (last(document.getElementsByClassName('CSSViewer_block'))) {
 		return true;
 	}
 
@@ -950,31 +888,26 @@ CSSViewer.prototype.IsEnabled = function()
 CSSViewer.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
-	if (!block){
-		block = this.CreateBlock();
-		document.body.appendChild(block);
-		this.AddEventListeners();
-		setElementToBeDraggable()
-		return true;
-	}
-
-	return false;
+	new_block = this.CreateBlock();
+	document.body.appendChild(new_block);
+	setElementToBeDraggable(new_block)
+	return true;
 }
 
 // Disable CSSViewer
 CSSViewer.prototype.Disable = function()
 {
+	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
-        var insertMessage = document.getElementById("cssViewerInsertMessage");
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
+    var insertMessage = document.getElementById("cssViewerInsertMessage");
         
 	if (block || insertMessage) {
-                if(block) document.body.removeChild(block);
-                if(insertMessage) document.body.removeChild(insertMessage);
-		this.RemoveEventListeners();
-
+		if(block) document.body.removeChild(block);
+        if(insertMessage) document.body.removeChild(insertMessage);
+		RemoveDocumentEventListeners();
 		return true;
 	}
 
@@ -985,13 +918,13 @@ CSSViewer.prototype.Disable = function()
 CSSViewer.prototype.Freeze = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
-	if ( block && this.haveEventListeners ) {
-		this.RemoveEventListeners();
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
-		return true;
-	}
+	//Create a new block for all the updates
+	cssViewer = new CSSViewer();
+	cssViewer.Enable(); 
 
+	if ( block) { return true;}
 	return false;
 }
 
@@ -999,12 +932,10 @@ CSSViewer.prototype.Freeze = function()
 CSSViewer.prototype.Unfreeze = function()
 {
 	var document = GetCurrentDocument();
-	var block = document.getElementById('CSSViewer_block');
-	if ( block && !this.haveEventListeners ) {
+	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	if ( block ) {
 		// Remove the red outline
 		CSSViewer_current_element.style.outline = '';
-		this.AddEventListeners();
-
 		return true;
 	}
 
@@ -1074,6 +1005,9 @@ function cssViewerCopyCssToConsole(type)
 *  Freeze css viewer on clicking 'f' key
 */
 function CssViewerKeyMap(e) {
+
+	console.log("Got a click event with value: " + e );
+
 	if( ! cssViewer.IsEnabled() )
 		return;
 
@@ -1081,7 +1015,9 @@ function CssViewerKeyMap(e) {
 	if ( e.keyCode === 27 ){
 		// Remove the red outline
 		CSSViewer_current_element.style.outline = '';
-		cssViewer.Disable();
+		if(CSSViewer_has_document_event_listeners){
+			cssViewer.Disable();
+		}
 	}
 	
 	if( e.altKey || e.ctrlKey )
@@ -1089,14 +1025,15 @@ function CssViewerKeyMap(e) {
 
 	// f: Freeze or Unfreeze the css viewer if the cssViewer is enabled
 	if ( e.keyCode === 70 ){
-		if ( cssViewer.haveEventListeners ){
+		if(CSSViewer_has_document_event_listeners){
 			cssViewer.Freeze();
-		}
-		else {
-			cssViewer.Unfreeze();
+		}else{
+			// Was in a paused state - create a new block + return to scanable state 
+			cssViewer = new CSSViewer();
+			cssViewer.Enable(); 
+			AddDocumentEventListeners();
 		}
 	}
-
 	// c: Show code css for selected element. 
 	// window.prompt should suffice for now.
 	if ( e.keyCode === 67 ){
@@ -1105,6 +1042,63 @@ function CssViewerKeyMap(e) {
 }
 //#endregion
 
+//#region Document Functions 
+
+// Add event listeners for all elements in the current document
+function AddDocumentEventListeners()
+{
+	var document = GetCurrentDocument();
+	var elements = GetAllSubElements(document.body);
+	console.log("elements are" + elements)
+
+	for (var i = 0; i < elements.length; i++)	{
+		elements[i].addEventListener("mouseover", CSSViewerMouseOver, false);
+		elements[i].addEventListener("mouseout", CSSViewerMouseOut, false);
+		elements[i].addEventListener("mousemove", CSSViewerMouseMove, false);
+	}	
+	CSSViewer_has_document_event_listeners = true
+}
+
+// Remove event listeners for all elements in the current document
+function RemoveDocumentEventListeners()
+{
+	var document = GetCurrentDocument();
+	var elements = GetAllSubElements(document.body);
+
+	for (var i = 0; i < elements.length; i++){
+		elements[i].removeEventListener("mouseover", CSSViewerMouseOver, false);
+		elements[i].removeEventListener("mouseout", CSSViewerMouseOut, false);
+		elements[i].removeEventListener("mousemove", CSSViewerMouseMove, false);
+	}	
+	CSSViewer_has_document_event_listeners = false
+}
+// Get all elements within the given element
+function GetAllSubElements (element)
+{
+	var elemArr = new Array();
+
+	if (element && element.hasChildNodes()) {
+		elemArr.push(element);
+		
+		// Ignore all of our added CSS
+		if(element.classList.contains("CSSViewer_block")) return elemArr;
+
+		var childs = element.childNodes;
+
+		for (var i = 0; i < childs.length; i++) {
+			if (childs[i].hasChildNodes()) {
+				elemArr = elemArr.concat(GetAllSubElements(childs[i]));
+			}
+			else if (childs[i].nodeType == 1) {
+				elemArr.push(childs[i]);
+			}
+		}
+	}
+
+	return elemArr;
+}
+
+
 //#region Entry point to application
 cssViewer = new CSSViewer();
 
@@ -1112,6 +1106,7 @@ if ( cssViewer.IsEnabled() ){
 	cssViewer.Disable();  
 }
 else{
+	AddDocumentEventListeners();
 	cssViewer.Enable(); 
 }
 
