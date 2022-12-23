@@ -17,6 +17,11 @@ var cssCiewerContextMenusParent  = null;
 // 		chrome.tabs.create( {url: "option.html"} );
 // 	}
 // });
+chrome.runtime.onInstalled.addListener(function(details){
+	if(details.reason == "install" || details.reason == "update" ){
+		//chrome.tabs.create( {url: "option.html"} );
+	}
+});
 
 /*
 * Inject cssviewer.js/cssviewer.css into the current page
