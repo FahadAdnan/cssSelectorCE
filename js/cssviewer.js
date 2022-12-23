@@ -755,6 +755,7 @@ function CSSViewer()
 			var img3 = document.createElement("img");
 			img3.src = chrome.runtime.getURL("../img/trash.svg")
 			btn3.appendChild(img3)
+			btn3.addEventListener("click", function () {block.remove();});
 
 
 			head2.appendChild(title);
