@@ -1085,13 +1085,12 @@ function RemoveDocumentEventListeners()
 function GetAllSubElements (element)
 {
 	var elemArr = new Array();
+		
+	// Ignore all of our added CSS
+	if(element.classList.contains("CSSViewer_block")) return elemArr;
 
 	if (element && element.hasChildNodes()) {
 		elemArr.push(element);
-		
-		// Ignore all of our added CSS
-		if(element.classList.contains("CSSViewer_block")) return elemArr;
-
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
