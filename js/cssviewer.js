@@ -223,6 +223,14 @@ const CSSViewer_hexa = new Array(
 // #region Util Functoins
 // A file of Util functions
 
+function setBlockCursorStyle(cursorstyle){
+	Array.from(document.getElementsByClassName("CSSViewer_block")).forEach(
+		function(element, index, array) {
+			element.style.cursor = cursorstyle
+		}
+	)
+}
+
 function last(array) {
     return array[array.length - 1];
 }
@@ -1056,6 +1064,7 @@ function AddDocumentEventListeners()
 		elements[i].addEventListener("mousemove", CSSViewerMouseMove, false);
 	}	
 	CSSViewer_has_document_event_listeners = true
+	setBlockCursorStyle("auto")
 }
 
 // Remove event listeners for all elements in the current document
@@ -1070,18 +1079,18 @@ function RemoveDocumentEventListeners()
 		elements[i].removeEventListener("mousemove", CSSViewerMouseMove, false);
 	}	
 	CSSViewer_has_document_event_listeners = false
+	setBlockCursorStyle("move")
 }
 // Get all elements within the given element
 function GetAllSubElements (element)
 {
 	var elemArr = new Array();
+		
+	// Ignore all of our added CSS
+	if(element.classList.contains("CSSViewer_block")) return elemArr;
 
 	if (element && element.hasChildNodes()) {
 		elemArr.push(element);
-		
-		// Ignore all of our added CSS
-		if(element.classList.contains("CSSViewer_block")) return elemArr;
-
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
