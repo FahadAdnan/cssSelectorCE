@@ -549,10 +549,8 @@ function CSSViewerMouseOver(e)
 	if( ! block ){
 		return;
 	}
-
-	var h1 = document.getElementById('CSSViewer_title');
-	// this.tagName.toLowerCase() -> zayd
-	h1.innerHTML = '&lt;' + "zayd"+ '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
+	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
+	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
 
 	// Outline element
 	if (this.tagName != 'body') {
