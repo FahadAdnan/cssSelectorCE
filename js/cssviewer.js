@@ -740,7 +740,6 @@ function CSSViewer()
 					var li = document.createElement('li');
 					li.className = 'CSSViewer_' + properties[i];
 					li.style.display = 'none';
-					
 					var span_property = document.createElement('span');
 					span_property.classList.add("primary", "aqua_color");
 					span_property.appendChild(document.createTextNode(properties[i]));
@@ -1018,11 +1017,11 @@ function GetAllSubElements (element)
 {
 	var elemArr = new Array();
 
-	// Ignore all of our added CSS 
-	if(element.classList.contains("CSSViewer_block")) return elemArr;
-
 	if (element && element.hasChildNodes()) {
 		elemArr.push(element);
+		
+		// Ignore all of our added CSS
+		if(element.classList.contains("CSSViewer_block")) return elemArr;
 
 		var childs = element.childNodes;
 
