@@ -48,7 +48,7 @@
 .primary
 {
 	font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif !important; 
-	line-height: 24px;
+	line-height: 24px ;
 	font-size: 14px;
 
 	overflow:auto !important;
@@ -90,11 +90,10 @@
 }
 
 .white_color {
-	line-height: 18px !important;
-	font-size: 10px !important;
+	line-height: 20px !important;
+	font-size: 13px !important;
 	color: #dfdfdf !important;
 }
-
 
 .footer
 {
@@ -121,7 +120,7 @@
 	flex-wrap: wrap !important;
 }
 
-.btn {
+.cssViewerbtn {
   background-color: transparent;
   border: none; /* Remove borders */
   color: white; /* White text */
@@ -131,6 +130,6 @@
 }
 
 /* Darker background on mouse-over */
-.btn:hover {
+.cssViewerbtn:hover {
   background-color: rgba(46, 50, 71, 0.98)!important; ;
 }

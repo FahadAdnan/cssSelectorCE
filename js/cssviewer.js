@@ -548,7 +548,9 @@ function CSSViewerMouseOver(e)
 		return;
 	}
 
-	block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
+	var h1 = document.getElementById('CSSViewer_title');
+	// this.tagName.toLowerCase() -> zayd
+	h1.innerHTML = '&lt;' + "zayd"+ '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 
 	// Outline element
 	if (this.tagName != 'body') {
@@ -733,11 +735,60 @@ function CSSViewer()
 			block.classList.add("container", "moving-glow")
 			
 			// Insert a title for CSS selector
-			var header = document.createElement('h1');
-			header.classList.add("primary", "title")
 
-			header.appendChild(document.createTextNode(''));
-			block.appendChild(header);
+			var head1 = document.createElement('div');
+			var head2 = document.createElement('div');
+
+			head1.classList.add("header");
+			head2.classList.add("subheader");
+
+			var title = document.createElement('h1');
+			title.classList.add("primary", "title")
+			title.id = 'CSSViewer_title'; 
+			title.appendChild(document.createTextNode(''));
+			
+
+			var btn1 = document.createElement('button')
+			btn1.classList.add('cssViewerbtn')	 
+			var img1 = document.createElement("img");
+			img1.src = chrome.runtime.getURL("../img/code.svg")
+			btn1.appendChild(img1)
+
+			var btn2 = document.createElement('button')
+			btn2.classList.add('cssViewerbtn')		
+			var img2 = document.createElement("img");
+			img2.src = chrome.runtime.getURL("../img/copy.svg")
+			btn2.appendChild(img2)
+
+			var btn3 = document.createElement('button')
+			btn3.classList.add('cssViewerbtn')
+			var img3 = document.createElement("img");
+			img3.src = chrome.runtime.getURL("../img/trash.svg")
+			btn3.appendChild(img3)
+
+
+			head2.appendChild(title);
+			head2.appendChild(btn1);
+			head2.appendChild(btn2);
+			head2.appendChild(btn3);
+
+			//head2.appendChild(btn1);
+
+			head1.appendChild(head2); 
+
+			var span1 = document.createElement('span');
+			span1.classList.add("primary", "white_color");
+			span1.appendChild(document.createTextNode("1690.67x7996.91"));
+
+			var span2 = document.createElement('span');
+			span2.classList.add("primary", "white_color");
+			span2.appendChild(document.createTextNode("font-CerebriSans-Regular 16px"));
+
+
+			head1.appendChild(span1);
+			head1.appendChild(span2)
+
+			block.appendChild(head1);
 			
 			// Insert all properties
 			var center = document.createElement('div');
