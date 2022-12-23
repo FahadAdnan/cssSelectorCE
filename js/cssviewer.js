@@ -382,7 +382,7 @@ function ShowCSSCategory(category)
 
 // #region Update Functions 
 
-function isPropertyNotEqualToDefault(element, type)
+function isPropertyEqualToDefault(element, type)
 {
 	if(defaultPropertyValueMap.has(type)){ 
 		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
@@ -399,7 +399,7 @@ function UpdatefontText(element)
 		'vertical-align','white-space','word-spacing'
 	]
 	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
+	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyEqualToDefault(element, possibleList[prop]));}
 }
 
 function UpdateColorBg(element)
@@ -413,7 +413,7 @@ function UpdateColorBg(element)
 
 	// Other
 	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
+	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyEqualToDefault(element, possibleColorBgList[prop]));}
 }
 
 function UpdateBox(element)
@@ -465,14 +465,14 @@ function UpdateBox(element)
 
 	// Max/Min Width/Height
 	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
-	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyNotEqualToDefault(element, possibleBoxList[prop]));}
+	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyEqualToDefault(element, possibleBoxList[prop]));}
 }
 
 function UpdatePositioning(element)
 {
 	SetCSSProperty(element, 'display');
 	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
-	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyNotEqualToDefault(element, possiblePositionList[prop]));}
+	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyEqualToDefault(element, possiblePositionList[prop]));}
 }
 
 function UpdateTable(element, tagName)
@@ -481,7 +481,7 @@ function UpdateTable(element, tagName)
 		var nbProperties = 0;
 
 		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
-		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyNotEqualToDefault(element, possibleTableList[prop]));}
+		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyEqualToDefault(element, possibleTableList[prop]));}
 
 		if (nbProperties > 0) ShowCSSCategory('pTable');
 		else HideCSSCategory('pTable');
@@ -518,7 +518,7 @@ function UpdateMisc(element)
 	var nbProperties = 0;
 
 	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
-	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyNotEqualToDefault(element, possibleMiscList[prop]));}
+	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyEqualToDefault(element, possibleMiscList[prop]));}
 
 	if (nbProperties > 0) ShowCSSCategory('pMisc');
 	else HideCSSCategory('pMisc');
@@ -531,7 +531,7 @@ function UpdateEffects(element)
 						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
 						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
 
-	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyNotEqualToDefault(element, possibleEffectList[prop]));}
+	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyEqualToDefault(element, possibleEffectList[prop]));}
 	if (nbProperties > 0) ShowCSSCategory('pEffect');
 	else HideCSSCategory('pEffect');
 }
@@ -539,14 +539,6 @@ function UpdateEffects(element)
 // #endregion 
 
 // #region Event Handlers
-
-function AddPropertyValuesToCssDefinitions(typeArray, element){
-	for (var i = 0; i < typeArray.length; i++){
-		if(isPropertyNotEqualToDefault(element, typeArray[i])){
-			CSSViewer_element_cssDefinition += "\t" + typeArray[i] + ': ' + element.getPropertyValue( typeArray[i] ) + ";\n";
-		}
-	}
-}
 
 function CSSViewerMouseOver(e)
 {
@@ -558,7 +550,9 @@ function CSSViewerMouseOver(e)
 		return;
 	}
 
-	block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
+	var h1 = document.getElementById('CSSViewer_title');
+	// this.tagName.toLowerCase() -> zayd
+	h1.innerHTML = '&lt;' + "zayd"+ '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 
 	// Outline element
 	if (this.tagName != 'body') {
@@ -584,23 +578,40 @@ function CSSViewerMouseOver(e)
 
 	e.stopPropagation();
 
-	var listOfHeaders = [
-		"\t/* Font & Text */\n",  "\n\t/* Color & Background */\n", "\n\t/* Box */\n", 
-		"\n\t/* Positioning */\n", "\n\t/* List */\n", "\n\t/* Table */\n",
-		"\n\t/* Miscellaneous */\n", "\n\t/* Effects */\n"
-	]
-	var listOfTypeArrays = [
-		CSSViewer_pFont, CSSViewer_pColorBg, CSSViewer_pBox, CSSViewer_pPositioning,
-		CSSViewer_pList, CSSViewer_pTable, CSSViewer_pMisc, CSSViewer_pEffect,
-	]
-
 	// generate simple css definition
 	CSSViewer_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
-	for(var i = 0; i < 8; i++){
-		CSSViewer_element_cssDefinition += listOfHeaders[i];
-		AddPropertyValuesToCssDefinitions(listOfTypeArrays[i], element);
-	}
+	CSSViewer_element_cssDefinition += "\t/* Font & Text */\n"; 
+	for (var i = 0; i < CSSViewer_pFont.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pFont[i] + ': ' + element.getPropertyValue( CSSViewer_pFont[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Color & Background */\n";
+	for (var i = 0; i < CSSViewer_pColorBg.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pColorBg[i] + ': ' + element.getPropertyValue( CSSViewer_pColorBg[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Box */\n";
+	for (var i = 0; i < CSSViewer_pBox.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pBox[i] + ': ' + element.getPropertyValue( CSSViewer_pBox[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Positioning */\n";
+	for (var i = 0; i < CSSViewer_pPositioning.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pPositioning[i] + ': ' + element.getPropertyValue( CSSViewer_pPositioning[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* List */\n";
+	for (var i = 0; i < CSSViewer_pList.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pList[i] + ': ' + element.getPropertyValue( CSSViewer_pList[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Table */\n";
+	for (var i = 0; i < CSSViewer_pTable.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pTable[i] + ': ' + element.getPropertyValue( CSSViewer_pTable[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Miscellaneous */\n";
+	for (var i = 0; i < CSSViewer_pMisc.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pMisc[i] + ': ' + element.getPropertyValue( CSSViewer_pMisc[i] ) + ";\n";
+
+	CSSViewer_element_cssDefinition += "\n\t/* Effects */\n"; 
+	for (var i = 0; i < CSSViewer_pEffect.length; i++)
+		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pEffect[i] + ': ' + element.getPropertyValue( CSSViewer_pEffect[i] ) + ";\n";
 
 	CSSViewer_element_cssDefinition += "}";
 
@@ -716,11 +727,60 @@ function CSSViewer()
 			block.classList.add("container", "moving-glow", "CSSViewer_block")
 			
 			// Insert a title for CSS selector
-			var header = document.createElement('h1');
-			header.classList.add("primary", "title")
 
-			header.appendChild(document.createTextNode(''));
-			block.appendChild(header);
+			var head1 = document.createElement('div');
+			var head2 = document.createElement('div');
+
+			head1.classList.add("header");
+			head2.classList.add("subheader");
+
+			var title = document.createElement('h1');
+			title.classList.add("primary", "title")
+			title.id = 'CSSViewer_title'; 
+			title.appendChild(document.createTextNode(''));
+			
+
+			var btn1 = document.createElement('button')
+			btn1.classList.add('cssViewerbtn')	 
+			var img1 = document.createElement("img");
+			img1.src = chrome.runtime.getURL("../img/code.svg")
+			btn1.appendChild(img1)
+
+			var btn2 = document.createElement('button')
+			btn2.classList.add('cssViewerbtn')		
+			var img2 = document.createElement("img");
+			img2.src = chrome.runtime.getURL("../img/copy.svg")
+			btn2.appendChild(img2)
+
+			var btn3 = document.createElement('button')
+			btn3.classList.add('cssViewerbtn')
+			var img3 = document.createElement("img");
+			img3.src = chrome.runtime.getURL("../img/trash.svg")
+			btn3.appendChild(img3)
+
+
+			head2.appendChild(title);
+			head2.appendChild(btn1);
+			head2.appendChild(btn2);
+			head2.appendChild(btn3);
+
+			//head2.appendChild(btn1);
+
+			head1.appendChild(head2); 
+
+			var span1 = document.createElement('span');
+			span1.classList.add("primary", "white_color");
+			span1.appendChild(document.createTextNode("1690.67x7996.91"));
+
+			var span2 = document.createElement('span');
+			span2.classList.add("primary", "white_color");
+			span2.appendChild(document.createTextNode("font-CerebriSans-Regular 16px"));
+
+
+			head1.appendChild(span1);
+			head1.appendChild(span2)
+
+			block.appendChild(head1);
 			
 			// Insert all properties
 			var center = document.createElement('div');
