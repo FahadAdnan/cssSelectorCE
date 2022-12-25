@@ -62,6 +62,40 @@ const defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
+
+const CSSViewer_newVals = new Array(
+	'accent-color', //auto 
+	'align-content', //stretch
+	'align-items', //stretch
+	'align-self', //auto 
+	'all', //none
+	'animation', //none 0 ease 0 1 normal none running
+	'animation-delay', //0s 
+	'animation-direction', //normal
+	'animation-duration', //0
+	'animation-fill-mode', //none
+	'animation-iteration-count', //1
+	'animation-name', //none
+	'animation-play-state', //running
+	'animation-timing-function', //ease
+	'aspect-ratio', //auto
+	'backdrop-filter', //none
+	'backface-visibility', //visible
+	'background', //auto
+	'background-attachment', //scroll
+	'background-blend-mode', //normal
+	'background-clip', //border-box
+	'background-color', //transparent
+	'background-image', //none
+	'background-origin', //padding-box
+	'background-position', //0% 0%
+	'background-position-x', //0%
+	'background-position-y', //padding-box
+	'background-repeat', //repeat
+	'background-size', //auto
+	'block-size', //auto
+	//continue from here 
+);
 const CSSViewer_pFont = new Array(
 	'font-family', 
 	'font-size', 
@@ -85,7 +119,7 @@ const CSSViewer_pColorBg = new Array(
 	'background-image',
 	'background-position',
 	'background-repeat',
-	'color'
+	'color', 
 );
 
 const CSSViewer_pBox = new Array(
@@ -101,7 +135,7 @@ const CSSViewer_pBox = new Array(
 	'max-height',
 	'min-height',
 	'max-width',
-	'min-width'
+	'min-width',
 );
 
 const CSSViewer_pPositioning = new Array(
@@ -113,7 +147,7 @@ const CSSViewer_pPositioning = new Array(
 	'float', 
 	'display', 
 	'clear', 
-	'z-index'
+	'z-index', 
 );
 
 const CSSViewer_pList = new Array(
