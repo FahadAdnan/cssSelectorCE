@@ -608,6 +608,13 @@ function CSSViewerMouseOver(e)
 	if( ! block ){
 		return;
 	}
+
+	
+	//GETTING HTML::: 
+	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
+	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
+
+
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
 
