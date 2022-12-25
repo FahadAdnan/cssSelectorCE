@@ -75,6 +75,13 @@
 	color: #CCCCCC !important; 
 }
 
+.flex_subheading {
+	display: flex;
+	flex-direction: row;
+	align-items: center; 
+	align-content: flex-start;
+}
+
 .flex { display: flex !important; }
 .none { display: none !important; }
 
