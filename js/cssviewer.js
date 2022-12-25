@@ -304,7 +304,7 @@ function RemoveExtraFloat(nb)
 var CSSViewer_element
 var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
-var CSSViewer_has_document_event_listeners = false
+var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 // #endregion
 
 // #region Simple Helper Functions
@@ -317,7 +317,8 @@ function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSSViewer_' + property));
-	li.lastChild.innerHTML = ": " + element.getPropertyValue(property); // textContent
+	li.style.display = 'flex';
+	li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
 }
 
 function SetCSSPropertyIf(element, property, condition)
@@ -396,6 +397,22 @@ function isPropertyEqualToDefault(element, type)
 		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
 	}
 	else{ return GetCSSProperty(element, type); }
+}
+
+function UpdateSubHeadings(element){
+	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
+	var fontSize = element.getPropertyValue('font-size');
+
+	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
+	var width = ((element.naturalWidth == undefined) ? element.getPropertyValue('width') : element.naturalWidth + "px");
+
+	var header = last(document.getElementsByClassName('CSSViewer_block')).firstChild;
+	try {
+		header.childNodes[1].lastChild.innerHTML = '&nbsp;' + height + " " + width; 
+		header.childNodes[2].lastChild.innerHTML = '&nbsp;' + fontStyle + " " + fontSize;
+	} catch(err) {
+		console.log("Error: CSSViewer: error setting subtitles " + err);
+	}
 }
 
 function UpdatefontText(element)
@@ -569,6 +586,7 @@ function CSSViewerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 
+	UpdateSubHeadings(element)
 	UpdatefontText(element);
 	UpdateColorBg(element);
 	UpdateBox(element);
@@ -720,6 +738,25 @@ function CSSViewerIsElementInViewport(el) {
 
 // #region Main CSSViewer item Class
 
+function header_button(image_path){
+	var btn = document.createElement('button')
+	btn.classList.add('cssViewerbtn')		
+	var img = document.createElement("img");
+	img.src = chrome.runtime.getURL(image_path)
+	btn.appendChild(img)
+	return btn 
+}
+
+function sub_headings_text(image_path){
+	var div = document.createElement('div');
+	div.classList.add("primary", "white_color", "flex_subheading");
+	var img = document.createElement("img")
+	img.src = chrome.runtime.getURL(image_path)
+	div.appendChild(img)
+	div.appendChild(document.createElement('span'));
+	return div
+}
+
 function CSSViewer()
 {
 	// Create a block to display informations
@@ -734,60 +771,34 @@ function CSSViewer()
 			
 			// Insert a title for CSS selector
 
-			var head1 = document.createElement('div');
-			var head2 = document.createElement('div');
+			var header = document.createElement('div');
+			var subheader = document.createElement('div');
 
-			head1.classList.add("header");
-			head2.classList.add("subheader");
+			header.classList.add("header");
+			subheader.classList.add("subheader");
 
 			var title = document.createElement('h1');
 			title.classList.add("primary", "title")
 			title.id = 'CSSViewer_title'; 
 			title.appendChild(document.createTextNode(''));
 			
+			var code_btn = header_button("../img/code.svg")
+			var copy_btn = header_button("../img/copy.svg")
+			var trash_btn = header_button("../img/trash.svg")
 
-			var btn1 = document.createElement('button')
-			btn1.classList.add('cssViewerbtn')	 
-			var img1 = document.createElement("img");
-			img1.src = chrome.runtime.getURL("../img/code.svg")
-			btn1.appendChild(img1)
+			//TODO - Add On-Clicks for code_btn and copy_btn
+			trash_btn.addEventListener("click", function () {block.remove();});
+			subheader.append(title, code_btn, copy_btn, trash_btn);
 
-			var btn2 = document.createElement('button')
-			btn2.classList.add('cssViewerbtn')		
-			var img2 = document.createElement("img");
-			img2.src = chrome.runtime.getURL("../img/copy.svg")
-			btn2.appendChild(img2)
+			header.appendChild(subheader); 
 
-			var btn3 = document.createElement('button')
-			btn3.classList.add('cssViewerbtn')
-			var img3 = document.createElement("img");
-			img3.src = chrome.runtime.getURL("../img/trash.svg")
-			btn3.appendChild(img3)
-			btn3.addEventListener("click", function () {block.remove();});
+ 			var size_sub_heading = sub_headings_text("../img/size.svg")
+			var font_sub_heading = sub_headings_text("../img/font.svg");
 
+			header.appendChild(size_sub_heading);
+			header.appendChild(font_sub_heading);
 
-			head2.appendChild(title);
-			head2.appendChild(btn1);
-			head2.appendChild(btn2);
-			head2.appendChild(btn3);
-
-			//head2.appendChild(btn1);
-
-			head1.appendChild(head2); 
-
-			var span1 = document.createElement('span');
-			span1.classList.add("primary", "white_color");
-			span1.appendChild(document.createTextNode("1690.67x7996.91"));
-
-			var span2 = document.createElement('span');
-			span2.classList.add("primary", "white_color");
-			span2.appendChild(document.createTextNode("font-CerebriSans-Regular 16px"));
-
-
-			head1.appendChild(span1);
-			head1.appendChild(span2)
-
-			block.appendChild(head1);
+			block.appendChild(header);
 			
 			// Insert all properties
 			var center = document.createElement('div');

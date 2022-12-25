@@ -37,5 +37,5 @@
 			}
 		}
 	},
-	"web_accessible_resources": ["img/trash.svg", "img/copy.svg", "img/code.svg"]
+	"web_accessible_resources": ["img/trash.svg", "img/copy.svg", "img/code.svg", "img/size.svg", "img/font.svg"]
 }
