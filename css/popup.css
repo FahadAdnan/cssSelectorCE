@@ -1,0 +1,36 @@
+
+.cssscan-buttons-container{
+  display:flex !important;
+	align-items: flex-start !important; 
+	justify-content: end; 
+
+	width:auto !important;
+	height:auto !important;
+
+	background-color: transparent !important;
+  z-index: 999999 !important; 
+}
+
+.cssscan-button{
+  display: flex;
+  flex-direction: row;
+
+  height: auto;
+  width: auto;
+  padding: 10px 10px;
+  margin: 0px 5px;
+
+  font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+	font-size: 14px;
+  font-weight: 500;
+
+  border-radius: 20px;
+  border-width: 0px;
+
+  z-index: 2147483647;
+  color: #fff; 
+  background-color: rgba(30, 32, 44, .9) !important;
+}
+.cssscan-button:hover{
+  background-color: rgba(30, 32, 44, 1) !important;
+}
