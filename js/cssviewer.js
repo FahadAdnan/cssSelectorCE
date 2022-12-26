@@ -257,6 +257,10 @@ const CSSViewer_hexa = new Array(
 // #region Util Functoins
 // A file of Util functions
 
+
+var elementMap = new Map([]); 
+
+
 function setBlockCursorStyle(cursorstyle){
 	Array.from(document.getElementsByClassName("CSSViewer_block")).forEach(
 		function(element, index, array) {
@@ -604,19 +608,21 @@ function CSSViewerMouseOver(e)
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	elementMap.set(block, this)
 
 	if( ! block ){
 		return;
 	}
 
-	
 	//GETTING HTML::: 
 	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
 	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
-
-
+	
+	//console.log('zayd' + this.classList)
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
+
+
 
 	// Outline element
 	if (this.tagName != 'body') {
@@ -829,6 +835,10 @@ function CSSViewer()
 
 			//TODO - Add On-Clicks for code_btn and copy_btn
 			trash_btn.addEventListener("click", function () {block.remove();});
+
+			copy_btn.addEventListener("click", function(){
+				parseStyleSheets(document, block)
+			}); 
 			subheader.append(title, code_btn, copy_btn, trash_btn);
 
 			header.appendChild(subheader); 
@@ -1172,4 +1182,52 @@ else{
 
 // Handle any downclick  
 document.onkeydown = CssViewerKeyMap;
+// #endregion
+
+
+//#region StyleSheet Functions 
+
+function parseStyleSheets(document, block){
+	var element = elementMap.get(block); 
+	var classList = element.classList; 	//TO DO: parse through innerHTML to get inner HTML class list
+	
+	var classMap = parseClassList(element); 
+
+	var css = ""; 
+	for(let s = 0; s < document.styleSheets.length; s++){
+		var sheet = document.styleSheets.item(s); 
+
+		for (let i = 0; i < sheet.cssRules.length; i++) { 
+
+				//TO DO: parse selectorText to better check for prefix match 
+				var className  = sheet.cssRules.item(i).selectorText;
+				//diff words 
+				//for each word as loop, filter for everything before hello: -> hello class 
+				//if matches in map, add 
+				if(className != null && className.length > 1 && classMap.has(className.substr(1))){
+					//check if same prefix 
+					css += "\n" + sheet.cssRules.item(i).cssText;
+				} 
+		}	
+	}	
+	//console.log(css); 
+	//console.log("::::::::CSS:::::::::::");
+}
+
+function parseClassList(element){
+	arr = GetAllSubElements(element); 
+	var classList = new Set();
+
+	for(let i =0; i < arr.length; i++){
+		var list = arr[i].classList; 
+		for(let j = 0; j < list.length; j++){
+			if(!classList.has(list.item(j))){
+				classList.add(list.item(j))
+				console.log(list.item(j)) 
+			}
+		}
+	}
+	return classList; 
+}
+
 // #endregion
