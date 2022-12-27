@@ -305,6 +305,7 @@ var CSSViewer_element
 var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
 var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
+var CSSViewer_on_custom_element = false
 // #endregion
 
 // #region Simple Helper Functions
@@ -570,20 +571,17 @@ function CSSViewerMouseOver(e)
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	if( ! block ){ return; }
 
-	console.log("Element is: " + this.id)
-	if(this == undefined || this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options"){
-		console.log("Setting display to none")
+	// Initial Logic to decide whether to show the popup:
+	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
+		CSSViewer_on_custom_element = true 
 		block.style.display = "none"
 		return;
-	}else{
-		console.log("Setting display to flex")
-		block.style.display = "flex"
-	}
+	}else if(CSSViewer_on_custom_element){ return; } // Ignore all elements while you're on a custom element
+	else{ block.style.display = "flex" }
 
-	if( ! block ){
-		return;
-	}
+
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
 
@@ -654,7 +652,10 @@ function CSSViewerMouseOver(e)
 
 function CSSViewerMouseOut(e)
 {
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")) return;
+	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
+		CSSViewer_on_custom_element = false 
+		return;
+	}
 	this.style.outline = '';
 
 	e.stopPropagation();
@@ -664,13 +665,12 @@ function CSSViewerMouseOut(e)
 
 function CSSViewerMouseMove(e)
 {
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")) return;
+	if(this == undefined || CSSViewer_on_custom_element || this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options" ){return;}
+	
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
-	if( ! block ){
-		return;
-	}
+	if( ! block ){ return; }
 
 	block.style.display = 'flex';
 	
@@ -1096,7 +1096,7 @@ function AddDocumentEventListeners()
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 
-	for (var i = 1; i < elements.length; i++){ AddEventListners(elements[i]) }	
+	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
 	CSSViewer_has_document_event_listeners = true
 	setBlockCursorStyle("auto")
 }
@@ -1107,7 +1107,7 @@ function RemoveDocumentEventListeners()
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 
-	for (var i = 1; i < elements.length; i++){ RemoveEventListners(elements[i]) }
+	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
 	CSSViewer_has_document_event_listeners = false
 	setBlockCursorStyle("move")
 }
