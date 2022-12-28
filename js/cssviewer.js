@@ -1254,6 +1254,25 @@ function setStateOfSwitches(){ addEventListener
     })
 }
 
+function setOnClicksOfDropDown(){
+
+	document.getElementById("cssscan-pause").addEventListener("click", function(){
+		// Pause / Play
+	})
+	document.getElementById("cssscan-move").addEventListener("click", function(){
+		// Move Up/Down
+	})	
+
+	var dropdown = document.getElementById("cssscan-options-dropdown")
+	document.getElementById("cssscan-options").addEventListener("click", function(){
+		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
+	})
+
+	document.getElementById("cssscan-close").addEventListener("click", function(){
+		// Close Extension
+	})	
+}
+
 function floatingHeaderOptions(){
 	var parent_container = document.createElement("div")
 	parent_container.id = "cssscan-floating-options"
@@ -1267,7 +1286,9 @@ function floatingHeaderOptions(){
 	dropdownDiv.appendChild(floatingHeaderButton("options", "Options", "../img/options.svg"))
 
 	var innerSubDiv = document.createElement("div")
+	innerSubDiv.id = "cssscan-options-dropdown"
 	innerSubDiv.className = "cssscan-col-container"
+	innerSubDiv.style.display = 'none'
 
 	var onclick_sub = dropdownContainer()
 	onclick_sub.appendChild(dropdownHeader("On-Click Behaviour:"))
@@ -1294,12 +1315,12 @@ function floatingHeaderOptions(){
 
 	innerSubDiv.append(onclick_sub, other_sub, display_sub, shortcuts_sub)
 	dropdownDiv.appendChild(innerSubDiv)
-
 	parent_container.appendChild(dropdownDiv)
 	parent_container.appendChild(floatingHeaderButton("close", "Close the Extension", "../img/close.svg"))
 
 	document.body.appendChild(parent_container)
 	setStateOfSwitches()
+	setOnClicksOfDropDown()
 }
 
 // #endregion
