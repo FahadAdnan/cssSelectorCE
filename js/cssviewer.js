@@ -62,7 +62,7 @@ var defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-const CSSViewer_newVals = new Array(
+let CSSViewer_newVals = new Array(
 	'accent-color', //auto 
 	'align-content', //stretch
 	'align-items', //stretch
@@ -95,7 +95,7 @@ const CSSViewer_newVals = new Array(
 	'block-size', //auto
 	//continue from here 
 );
-const CSSViewer_pFont = new Array(
+var CSSViewer_pFont = new Array(
 	'font-family', 
 	'font-size', 
 	'font-style', 
@@ -112,7 +112,7 @@ const CSSViewer_pFont = new Array(
 	'word-spacing'
 );
 
-let CSSViewer_pColorBg = new Array(
+var CSSViewer_pColorBg = new Array(
 	'background-attachment', 
 	'background-color', 
 	'background-image',
@@ -121,7 +121,7 @@ let CSSViewer_pColorBg = new Array(
 	'color', 
 );
 
-let CSSViewer_pBox = new Array(
+var CSSViewer_pBox = new Array(
 	'height',
 	'width',
 	'border',
@@ -137,7 +137,7 @@ let CSSViewer_pBox = new Array(
 	'min-width',
 );
 
-let CSSViewer_pPositioning = new Array(
+var CSSViewer_pPositioning = new Array(
 	'position', 
 	'top', 
 	'bottom', 
@@ -149,13 +149,13 @@ let CSSViewer_pPositioning = new Array(
 	'z-index', 
 );
 
-let CSSViewer_pList = new Array(
+var CSSViewer_pList = new Array(
 	'list-style-image', 
 	'list-style-type', 
 	'list-style-position'
 );
 
-let CSSViewer_pTable = new Array(
+var CSSViewer_pTable = new Array(
 	'border-collapse',
 	'border-spacing',
 	'caption-side',
@@ -163,13 +163,13 @@ let CSSViewer_pTable = new Array(
 	'table-layout'
 );
 
-let CSSViewer_pMisc = new Array(
+var CSSViewer_pMisc = new Array(
 	'overflow', 
 	'cursor', 
 	'visibility'
 );
 
-let CSSViewer_pEffect = new Array(
+var CSSViewer_pEffect = new Array(
 	'transform',
 	'transition',
 	'outline',
@@ -187,7 +187,7 @@ let CSSViewer_pEffect = new Array(
 );
 
 // CSS Property categories
-let CSSViewer_categories = { 
+var CSSViewer_categories = { 
 	'pFontText'    : CSSViewer_pFont, 
 	'pColorBg'     : CSSViewer_pColorBg, 
 	'pBox'         : CSSViewer_pBox, 
@@ -198,7 +198,7 @@ let CSSViewer_categories = {
 	'pEffect'      : CSSViewer_pEffect 
 };
 
-let CSSViewer_categoriesTitle = { 
+var CSSViewer_categoriesTitle = { 
 	'pFontText'    : 'Font & Text', 
 	'pColorBg'     : 'Color & Background', 
 	'pBox'         : 'Box', 
@@ -210,7 +210,7 @@ let CSSViewer_categoriesTitle = {
 };
 
 // Table tagnames
-let CSSViewer_tableTagNames = new Array(
+var CSSViewer_tableTagNames = new Array(
 	'table',
 	'caption',
 	'thread',
@@ -223,7 +223,7 @@ let CSSViewer_tableTagNames = new Array(
 	'td'
 );
 
-let CSSViewer_listTagNames = new Array(
+var CSSViewer_listTagNames = new Array(
 	'ul',
 	'li',
 	'dd',
@@ -232,7 +232,7 @@ let CSSViewer_listTagNames = new Array(
 );
 
 // Hexadecimal
-let CSSViewer_hexa = new Array(
+var CSSViewer_hexa = new Array(
 	'0',
 	'1',
 	'2',
@@ -969,8 +969,9 @@ CSSViewer.prototype.Enable = function()
 
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
-	setElementToBeDraggable(new_block)
-	AddEventListners(new_block)
+	setElementToBeDraggable(new_block);
+	AddEventListners(new_block);
+	AddDocumentEventListeners();
 
 	return true;
 }
@@ -993,32 +994,10 @@ CSSViewer.prototype.Disable = function()
 	return false;
 }
 
-// Freeze CSSViewer
 CSSViewer.prototype.Freeze = function()
 {
-	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-
-	//Create a new block for all the updates
 	cssViewer = new CSSViewer();
 	cssViewer.Enable(); 
-
-	if ( block) { return true;}
-	return false;
-}
-
-// Unfreeze CSSViewer
-CSSViewer.prototype.Unfreeze = function()
-{
-	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-	if ( block ) {
-		// Remove the red outline
-		CSSViewer_current_element.style.outline = '';
-		return true;
-	}
-
-	return false;
 }
 
 // #endregion 
@@ -1083,38 +1062,37 @@ function cssViewerCopyCssToConsole(type)
 *  Close css viewer on clicking 'esc' key
 *  Freeze css viewer on clicking 'f' key
 */
+
+function PauseCSSViewer(){
+	var state_btn = document.getElementById("cssscan-pause-continue")
+	state_btn.firstChild.innerHTML = "Continue&nbsp;"
+	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
+	CSSViewer_current_element.style.outline = '';
+	cssViewer.Disable();
+}
+
+function ContinueCSSViewer(){
+	var state_btn = document.getElementById("cssscan-pause-continue")
+	state_btn.firstChild.innerHTML = "Pause&nbsp;"
+	state_btn.lastChild.src = chrome.runtime.getURL("../img/pause.svg")
+	cssViewer = new CSSViewer();
+	cssViewer.Enable(); 
+}
+
 function CssViewerKeyMap(e) {
 
-	console.log("Got a click event with value: " + e );
-
-	if( ! cssViewer.IsEnabled() )
-		return;
-
-	// ESC: Close the css viewer if the cssViewer is enabled.
-	if ( e.keyCode === 27 ){
-		// Remove the red outline
-		CSSViewer_current_element.style.outline = '';
-		if(CSSViewer_has_document_event_listeners){
-			cssViewer.Disable();
-		}
+	if( e.keyCode === 83 && (e.key === "S" || e.key === "s")){
+		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
+		else{ ContinueCSSViewer() }
 	}
-	
-	if( e.altKey || e.ctrlKey )
-		return;
 
-	// f: Freeze or Unfreeze the css viewer if the cssViewer is enabled
-	if ( e.keyCode === 70 ){
-		if(CSSViewer_has_document_event_listeners){
-			cssViewer.Freeze();
-		}else{
-			// Was in a paused state - create a new block + return to scanable state 
-			cssViewer = new CSSViewer();
-			cssViewer.Enable(); 
-			AddDocumentEventListeners();
-		}
+	/* Space Bar */
+	if (e.keyCode === 32 && e.key == " " && CSSViewer_has_document_event_listeners){
+		cssViewer = new CSSViewer();
+		cssViewer.Enable(); 
+		return false; // Prevent default behaviour of scrolling down
 	}
 	// c: Show code css for selected element. 
-	// window.prompt should suffice for now.
 	if ( e.keyCode === 67 ){
 		window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition);
 	}
@@ -1195,7 +1173,7 @@ function floatingHeaderButton(type, inner_text, image_path){
 
 	var inner_img = document.createElement("img")
 	inner_img.id = "cssscan-image-" + type
-	//inner_img.src = chrome.runtime.getUrl(image_path)
+	inner_img.src = chrome.runtime.getURL(image_path)
 
 	btn.appendChild(inner_span);
 	btn.appendChild(inner_img);
@@ -1300,8 +1278,9 @@ function setStateOfSwitches(){ addEventListener
 
 function setOnClicksOfDropDown(){
 
-	document.getElementById("cssscan-pause").addEventListener("click", function(){
-		// Pause / Play
+	document.getElementById("cssscan-pause-continue").addEventListener("click", function(){
+		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
+		else{ ContinueCSSViewer() }
 	})
 	document.getElementById("cssscan-move").addEventListener("click", function(){
 		// Move Up/Down
@@ -1321,7 +1300,7 @@ function floatingHeaderOptions(){
 	var parent_container = document.createElement("div")
 	parent_container.id = "cssscan-floating-options"
 	
-	parent_container.appendChild(floatingHeaderButton("pause", "Pause", "../img/pause.svg"))
+	parent_container.appendChild(floatingHeaderButton("pause-continue", "Pause", "../img/pause.svg"))
 	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
 
 	var dropdownDiv = document.createElement("div")
@@ -1377,7 +1356,6 @@ if ( cssViewer.IsEnabled() ){
 	cssViewer.Disable();  
 }
 else{
-	AddDocumentEventListeners();
 	cssViewer.Enable(); 
 }
 // Handle any downclick  
