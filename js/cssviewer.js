@@ -1241,7 +1241,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.onclick_copy; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
         });
@@ -1251,7 +1251,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.onclick_pin; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_pin': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_pin': true}); }
         });
@@ -1261,7 +1261,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.other_child_css; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
         });
@@ -1271,7 +1271,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.other_html_copy; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
         });
@@ -1281,7 +1281,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.display_grid; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_grid': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_grid': true}); }
         });
@@ -1291,7 +1291,7 @@ function setStateOfSwitches(){ addEventListener
 	    var tmp = result.display_guidelines; 
         perf.firstChild.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
         });
