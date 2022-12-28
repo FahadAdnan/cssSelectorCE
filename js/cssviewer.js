@@ -62,7 +62,40 @@ var defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-let CSSViewer_pFont = new Array(
+const CSSViewer_newVals = new Array(
+	'accent-color', //auto 
+	'align-content', //stretch
+	'align-items', //stretch
+	'align-self', //auto 
+	'all', //none
+	'animation', //none 0 ease 0 1 normal none running
+	'animation-delay', //0s 
+	'animation-direction', //normal
+	'animation-duration', //0
+	'animation-fill-mode', //none
+	'animation-iteration-count', //1
+	'animation-name', //none
+	'animation-play-state', //running
+	'animation-timing-function', //ease
+	'aspect-ratio', //auto
+	'backdrop-filter', //none
+	'backface-visibility', //visible
+	'background', //auto
+	'background-attachment', //scroll
+	'background-blend-mode', //normal
+	'background-clip', //border-box
+	'background-color', //transparent
+	'background-image', //none
+	'background-origin', //padding-box
+	'background-position', //0% 0%
+	'background-position-x', //0%
+	'background-position-y', //padding-box
+	'background-repeat', //repeat
+	'background-size', //auto
+	'block-size', //auto
+	//continue from here 
+);
+const CSSViewer_pFont = new Array(
 	'font-family', 
 	'font-size', 
 	'font-style', 
@@ -85,7 +118,7 @@ let CSSViewer_pColorBg = new Array(
 	'background-image',
 	'background-position',
 	'background-repeat',
-	'color'
+	'color', 
 );
 
 let CSSViewer_pBox = new Array(
@@ -101,7 +134,7 @@ let CSSViewer_pBox = new Array(
 	'max-height',
 	'min-height',
 	'max-width',
-	'min-width'
+	'min-width',
 );
 
 let CSSViewer_pPositioning = new Array(
@@ -113,7 +146,7 @@ let CSSViewer_pPositioning = new Array(
 	'float', 
 	'display', 
 	'clear', 
-	'z-index'
+	'z-index', 
 );
 
 let CSSViewer_pList = new Array(
@@ -222,6 +255,10 @@ let CSSViewer_hexa = new Array(
 
 // #region Util Functoins
 // A file of Util functions
+
+
+var elementMap = new Map([]); 
+
 
 function setBlockCursorStyle(cursorstyle){
 	Array.from(document.getElementsByClassName("CSSViewer_block")).forEach(
@@ -572,7 +609,7 @@ function CSSViewerMouseOver(e)
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
 	if( ! block ){ return; }
-
+	elementMap.set(block, this)
 	// Initial Logic to decide whether to show the popup:
 	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
 		CSSViewer_on_custom_element = true 
@@ -581,7 +618,11 @@ function CSSViewerMouseOver(e)
 	}else if(CSSViewer_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
 
-
+	//GETTING HTML::: 
+	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
+	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
+	
+	//console.log('zayd' + this.classList)
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
 
@@ -803,6 +844,9 @@ function CSSViewer()
 				RemoveEventListners(block)
 				block.remove();
 			});
+			copy_btn.addEventListener("click", function(){
+				parseStyleSheets(document, block)
+			}); 
 			subheader.append(title, code_btn, copy_btn, trash_btn);
 
 			header.appendChild(subheader); 
@@ -1338,4 +1382,52 @@ else{
 }
 // Handle any downclick  
 document.onkeydown = CssViewerKeyMap;
+// #endregion
+
+
+//#region StyleSheet Functions 
+
+function parseStyleSheets(document, block){
+	var element = elementMap.get(block); 
+	var classList = element.classList; 	//TO DO: parse through innerHTML to get inner HTML class list
+	
+	var classMap = parseClassList(element); 
+
+	var css = ""; 
+	for(let s = 0; s < document.styleSheets.length; s++){
+		var sheet = document.styleSheets.item(s); 
+
+		for (let i = 0; i < sheet.cssRules.length; i++) { 
+
+				//TO DO: parse selectorText to better check for prefix match 
+				var className  = sheet.cssRules.item(i).selectorText;
+				//diff words 
+				//for each word as loop, filter for everything before hello: -> hello class 
+				//if matches in map, add 
+				if(className != null && className.length > 1 && classMap.has(className.substr(1))){
+					//check if same prefix 
+					css += "\n" + sheet.cssRules.item(i).cssText;
+				} 
+		}	
+	}	
+	//console.log(css); 
+	//console.log("::::::::CSS:::::::::::");
+}
+
+function parseClassList(element){
+	arr = GetAllSubElements(element); 
+	var classList = new Set();
+
+	for(let i =0; i < arr.length; i++){
+		var list = arr[i].classList; 
+		for(let j = 0; j < list.length; j++){
+			if(!classList.has(list.item(j))){
+				classList.add(list.item(j))
+				console.log(list.item(j)) 
+			}
+		}
+	}
+	return classList; 
+}
+
 // #endregion
