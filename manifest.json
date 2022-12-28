@@ -25,7 +25,8 @@
 		"http://*/*",
 		"https://*/*",
 		"file://*/*",
-		"contextMenus"
+		"contextMenus",
+		"storage"
 	],
 	"commands": {
 		"_execute_browser_action": {
@@ -37,5 +38,10 @@
 			}
 		}
 	},
-	"web_accessible_resources": ["img/trash.svg", "img/copy.svg", "img/code.svg", "img/size.svg", "img/font.svg"]
+	"web_accessible_resources": [
+		"img/trash.svg", "img/copy.svg", "img/code.svg",
+		"img/size.svg", "img/font.svg", "img/close.svg",
+		"img/options.svg", "img/pause.svg", "img/play.svg",
+		"img/arrow_down.svg"
+	]
 }
