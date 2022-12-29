@@ -15,6 +15,10 @@
 	border-radius: 20px !important;
 }
 
+.css-scanner-red-outline{
+	outline: rgba(255, 0, 0, .15) solid 1px;
+}
+
 .header, .subheader
 {
 	display:flex !important;
@@ -210,16 +214,16 @@
   
   .cssscan-row-container{
 	display:flex !important;
-	  align-items: center !important; 
-	  justify-content: start; 
-	  width:auto !important;
-	  height:auto !important;
+	align-items: center !important; 
+	justify-content: start; 
+	width:auto !important;
+	height:auto !important;
 	z-index: 99999 !important; 
   }
   
   .cssscan-simple-text{
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
-	  font-size: 14px !important;
+	font-size: 14px !important;
 	font-weight: 500 !important;
 	color: #fff !important; 
   }

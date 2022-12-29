@@ -1100,6 +1100,13 @@ function OpenCSSViewer(){
 	CSSViewer_is_closed = false 
 }
 
+function ToggleGrid(enable){
+	console.log("Toggling the grid " + enable)
+	let elements = GetAllSubElements(document.body)
+	if(enable){ for (var i = 0; i < elements.length; i++){ elements[i].classList.add("css-scanner-red-outline") }}
+	else { for (var i = 0; i < elements.length; i++){ elements[i].classList.remove("css-scanner-red-outline") }}
+}
+
 function CssViewerKeyMap(e) {
 
 	if(CSSViewer_is_closed){ 
@@ -1122,7 +1129,12 @@ function CssViewerKeyMap(e) {
 		cssViewer.Enable(); 
 		return false; // Prevent default behaviour of scrolling down
 	}
-	
+
+	if( e.keyCode === 88 && (e.key === "X" || e.key === "x") && e.shiftKey && e.ctrlKey){
+		var perf= document.getElementById('cssscan-display-grid').firstChild;
+		perf.checked = !perf.checked
+		ToggleGrid(perf.checked)
+	}
 	// REMOVE!!! -  c: Show code css for selected element. -
 	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition); }
 }
@@ -1244,9 +1256,9 @@ function dropdownShortcuts(command, inner_text){
 
 function setStateOfSwitches(){ addEventListener
 	chrome.storage.sync.get('onclick_copy', function(result) {
-        var perf= document.getElementById('cssscan-onclick-copy');
+        var perf= document.getElementById('cssscan-onclick-copy').firstChild;
 	    var tmp = result.onclick_copy; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
@@ -1254,9 +1266,9 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('onclick_pin', function(result) {
-        var perf= document.getElementById('cssscan-onclick-pin');
+        var perf= document.getElementById('cssscan-onclick-pin').firstChild;
 	    var tmp = result.onclick_pin; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_pin': false}); }
@@ -1264,9 +1276,9 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('other_child_css', function(result) {
-        var perf= document.getElementById('cssscan-other-child-css');
+        var perf= document.getElementById('cssscan-other-child-css').firstChild;
 	    var tmp = result.other_child_css; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
@@ -1274,9 +1286,9 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('other_html_copy', function(result) {
-        var perf= document.getElementById('cssscan-other-html-copy');
+        var perf= document.getElementById('cssscan-other-html-copy').firstChild;
 	    var tmp = result.other_html_copy; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
@@ -1284,19 +1296,21 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('display_grid', function(result) {
-        var perf= document.getElementById('cssscan-display-grid');
+        var perf= document.getElementById('cssscan-display-grid').firstChild;
 	    var tmp = result.display_grid; 
-        perf.firstChild.checked = tmp;
-        
+        perf.checked = tmp;
+		if(tmp) { ToggleGrid(true) } 
+
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_grid': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_grid': true}); }
+			ToggleGrid(perf.checked)
         });
     })
 	chrome.storage.sync.get('display_guidelines', function(result) {
-        var perf= document.getElementById('cssscan-display-guidelines');
+        var perf= document.getElementById('cssscan-display-guidelines').firstChild;
 	    var tmp = result.display_guidelines; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
