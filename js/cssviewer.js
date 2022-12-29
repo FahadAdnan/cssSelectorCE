@@ -1,7 +1,7 @@
 
 // #region Constants
 
-const defaultPropertyValueMap = new Map([
+var defaultPropertyValueMap = new Map([
     ['font-weight','400'],
     ['font-variant','normal'],
     ['font-style','normal'],
@@ -62,7 +62,6 @@ const defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-
 const CSSViewer_newVals = new Array(
 	'accent-color', //auto 
 	'align-content', //stretch
@@ -113,7 +112,7 @@ const CSSViewer_pFont = new Array(
 	'word-spacing'
 );
 
-const CSSViewer_pColorBg = new Array(
+let CSSViewer_pColorBg = new Array(
 	'background-attachment', 
 	'background-color', 
 	'background-image',
@@ -122,7 +121,7 @@ const CSSViewer_pColorBg = new Array(
 	'color', 
 );
 
-const CSSViewer_pBox = new Array(
+let CSSViewer_pBox = new Array(
 	'height',
 	'width',
 	'border',
@@ -138,7 +137,7 @@ const CSSViewer_pBox = new Array(
 	'min-width',
 );
 
-const CSSViewer_pPositioning = new Array(
+let CSSViewer_pPositioning = new Array(
 	'position', 
 	'top', 
 	'bottom', 
@@ -150,13 +149,13 @@ const CSSViewer_pPositioning = new Array(
 	'z-index', 
 );
 
-const CSSViewer_pList = new Array(
+let CSSViewer_pList = new Array(
 	'list-style-image', 
 	'list-style-type', 
 	'list-style-position'
 );
 
-const CSSViewer_pTable = new Array(
+let CSSViewer_pTable = new Array(
 	'border-collapse',
 	'border-spacing',
 	'caption-side',
@@ -164,13 +163,13 @@ const CSSViewer_pTable = new Array(
 	'table-layout'
 );
 
-const CSSViewer_pMisc = new Array(
+let CSSViewer_pMisc = new Array(
 	'overflow', 
 	'cursor', 
 	'visibility'
 );
 
-const CSSViewer_pEffect = new Array(
+let CSSViewer_pEffect = new Array(
 	'transform',
 	'transition',
 	'outline',
@@ -188,7 +187,7 @@ const CSSViewer_pEffect = new Array(
 );
 
 // CSS Property categories
-const CSSViewer_categories = { 
+let CSSViewer_categories = { 
 	'pFontText'    : CSSViewer_pFont, 
 	'pColorBg'     : CSSViewer_pColorBg, 
 	'pBox'         : CSSViewer_pBox, 
@@ -199,7 +198,7 @@ const CSSViewer_categories = {
 	'pEffect'      : CSSViewer_pEffect 
 };
 
-const CSSViewer_categoriesTitle = { 
+let CSSViewer_categoriesTitle = { 
 	'pFontText'    : 'Font & Text', 
 	'pColorBg'     : 'Color & Background', 
 	'pBox'         : 'Box', 
@@ -211,7 +210,7 @@ const CSSViewer_categoriesTitle = {
 };
 
 // Table tagnames
-const CSSViewer_tableTagNames = new Array(
+let CSSViewer_tableTagNames = new Array(
 	'table',
 	'caption',
 	'thread',
@@ -224,7 +223,7 @@ const CSSViewer_tableTagNames = new Array(
 	'td'
 );
 
-const CSSViewer_listTagNames = new Array(
+let CSSViewer_listTagNames = new Array(
 	'ul',
 	'li',
 	'dd',
@@ -233,7 +232,7 @@ const CSSViewer_listTagNames = new Array(
 );
 
 // Hexadecimal
-const CSSViewer_hexa = new Array(
+let CSSViewer_hexa = new Array(
 	'0',
 	'1',
 	'2',
@@ -343,6 +342,7 @@ var CSSViewer_element
 var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
 var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
+var CSSViewer_on_custom_element = false
 // #endregion
 
 // #region Simple Helper Functions
@@ -608,11 +608,15 @@ function CSSViewerMouseOver(e)
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	if( ! block ){ return; }
 	elementMap.set(block, this)
-
-	if( ! block ){
+	// Initial Logic to decide whether to show the popup:
+	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
+		CSSViewer_on_custom_element = true 
+		block.style.display = "none"
 		return;
-	}
+	}else if(CSSViewer_on_custom_element){ return; } // Ignore all elements while you're on a custom element
+	else{ block.style.display = "flex" }
 
 	//GETTING HTML::: 
 	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
@@ -621,8 +625,6 @@ function CSSViewerMouseOver(e)
 	//console.log('zayd' + this.classList)
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
-
-
 
 	// Outline element
 	if (this.tagName != 'body') {
@@ -691,6 +693,10 @@ function CSSViewerMouseOver(e)
 
 function CSSViewerMouseOut(e)
 {
+	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
+		CSSViewer_on_custom_element = false 
+		return;
+	}
 	this.style.outline = '';
 
 	e.stopPropagation();
@@ -700,12 +706,12 @@ function CSSViewerMouseOut(e)
 
 function CSSViewerMouseMove(e)
 {
+	if(this == undefined || CSSViewer_on_custom_element || this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options" ){return;}
+	
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('CSSViewer_block'));
 
-	if( ! block ){
-		return;
-	}
+	if( ! block ){ return; }
 
 	block.style.display = 'flex';
 	
@@ -834,8 +840,10 @@ function CSSViewer()
 			var trash_btn = header_button("../img/trash.svg")
 
 			//TODO - Add On-Clicks for code_btn and copy_btn
-			trash_btn.addEventListener("click", function () {block.remove();});
-
+			trash_btn.addEventListener("click", function () {
+				RemoveEventListners(block)
+				block.remove();
+			});
 			copy_btn.addEventListener("click", function(){
 				parseStyleSheets(document, block)
 			}); 
@@ -962,6 +970,8 @@ CSSViewer.prototype.Enable = function()
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
 	setElementToBeDraggable(new_block)
+	AddEventListners(new_block)
+
 	return true;
 }
 
@@ -1113,18 +1123,24 @@ function CssViewerKeyMap(e) {
 
 //#region Document Functions 
 
+function AddEventListners(element){
+	element.addEventListener("mouseover", CSSViewerMouseOver, false);
+	element.addEventListener("mouseout", CSSViewerMouseOut, false);
+	element.addEventListener("mousemove", CSSViewerMouseMove, false);
+}
+function RemoveEventListners(element){
+	element.removeEventListener("mouseover", CSSViewerMouseOver, false);
+	element.removeEventListener("mouseout", CSSViewerMouseOut, false);
+	element.removeEventListener("mousemove", CSSViewerMouseMove, false);
+}
+
 // Add event listeners for all elements in the current document
 function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-	console.log("elements are" + elements)
 
-	for (var i = 0; i < elements.length; i++)	{
-		elements[i].addEventListener("mouseover", CSSViewerMouseOver, false);
-		elements[i].addEventListener("mouseout", CSSViewerMouseOut, false);
-		elements[i].addEventListener("mousemove", CSSViewerMouseMove, false);
-	}	
+	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
 	CSSViewer_has_document_event_listeners = true
 	setBlockCursorStyle("auto")
 }
@@ -1135,11 +1151,7 @@ function RemoveDocumentEventListeners()
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 
-	for (var i = 0; i < elements.length; i++){
-		elements[i].removeEventListener("mouseover", CSSViewerMouseOver, false);
-		elements[i].removeEventListener("mouseout", CSSViewerMouseOut, false);
-		elements[i].removeEventListener("mousemove", CSSViewerMouseMove, false);
-	}	
+	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
 	CSSViewer_has_document_event_listeners = false
 	setBlockCursorStyle("move")
 }
@@ -1149,10 +1161,11 @@ function GetAllSubElements (element)
 	var elemArr = new Array();
 		
 	// Ignore all of our added CSS
-	if(element.classList.contains("CSSViewer_block")) return elemArr;
-
 	if (element && element.hasChildNodes()) {
+
 		elemArr.push(element);
+		if(element.classList.contains("CSSViewer_block") || element.id == "cssscan-floating-options") return elemArr;
+
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
@@ -1168,8 +1181,196 @@ function GetAllSubElements (element)
 	return elemArr;
 }
 
+// #region Floating Menu Header 
+
+function floatingHeaderButton(type, inner_text, image_path){
+
+	var btn = document.createElement("button")
+	btn.id = "cssscan-" + type
+	btn.className = "cssscan-button"
+
+	var inner_span = document.createElement("span")
+	inner_span.id = "cssscan-span-" + type
+	inner_span.innerHTML = inner_text +  "&nbsp;"
+
+	var inner_img = document.createElement("img")
+	inner_img.id = "cssscan-image-" + type
+	//inner_img.src = chrome.runtime.getUrl(image_path)
+
+	btn.appendChild(inner_span);
+	btn.appendChild(inner_img);
+	return btn
+}
+function dropdownContainer(){
+	var container = document.createElement("div")
+	container.classList = ["spacing-7", "cssscan-full-width"]
+	return container
+}
+function dropdownHeader(inner_text){
+	var header = document.createElement("div")
+	header.className = "cssscan-header-text"
+	header.innerHTML = inner_text
+	return header
+}
+function dropdownSwitch(type, inner_text){
+	var divSwitch = document.createElement("div")
+	divSwitch.id = "cssscan-" + type
+	divSwitch.className = "cssscan-row-container"
+
+	var inputSwitch = document.createElement("input");
+	inputSwitch.className = "cssscan-switch"
+	inputSwitch.type = "checkbox"
+
+	var spanSwitch = document.createElement("switch")
+	spanSwitch.className = "cssscan-simple-text"
+	spanSwitch.innerHTML = inner_text
+
+	divSwitch.append(inputSwitch, spanSwitch)
+	return divSwitch
+}
+function dropdownShortcuts(command, inner_text){
+	var divShortcut = document.createElement("div")
+	divShortcut.className = "cssscan-simple-text spacing-3"
+	divShortcut.innerHTML = "<b>" + command + "</b> " + inner_text
+	return divShortcut
+}
+
+function setStateOfSwitches(){ addEventListener
+	chrome.storage.sync.get('onclick_copy', function(result) {
+        var perf= document.getElementById('cssscan-onclick-copy');
+	    var tmp = result.onclick_copy; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
+        });
+    })
+	chrome.storage.sync.get('onclick_pin', function(result) {
+        var perf= document.getElementById('cssscan-onclick-pin');
+	    var tmp = result.onclick_pin; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_pin': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_pin': true}); }
+        });
+    })
+	chrome.storage.sync.get('other_child_css', function(result) {
+        var perf= document.getElementById('cssscan-other-child-css');
+	    var tmp = result.other_child_css; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
+        });
+    })
+	chrome.storage.sync.get('other_html_copy', function(result) {
+        var perf= document.getElementById('cssscan-other-html-copy');
+	    var tmp = result.other_html_copy; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
+        });
+    })
+	chrome.storage.sync.get('display_grid', function(result) {
+        var perf= document.getElementById('cssscan-display-grid');
+	    var tmp = result.display_grid; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_grid': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_grid': true}); }
+        });
+    })
+	chrome.storage.sync.get('display_guidelines', function(result) {
+        var perf= document.getElementById('cssscan-display-guidelines');
+	    var tmp = result.display_guidelines; 
+        perf.firstChild.checked = tmp;
+        
+        perf.addEventListener("click", function() {
+            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
+            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
+        });
+    })
+}
+
+function setOnClicksOfDropDown(){
+
+	document.getElementById("cssscan-pause").addEventListener("click", function(){
+		// Pause / Play
+	})
+	document.getElementById("cssscan-move").addEventListener("click", function(){
+		// Move Up/Down
+	})	
+
+	var dropdown = document.getElementById("cssscan-options-dropdown")
+	document.getElementById("cssscan-options").addEventListener("click", function(){
+		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
+	})
+
+	document.getElementById("cssscan-close").addEventListener("click", function(){
+		// Close Extension
+	})	
+}
+
+function floatingHeaderOptions(){
+	var parent_container = document.createElement("div")
+	parent_container.id = "cssscan-floating-options"
+	
+	parent_container.appendChild(floatingHeaderButton("pause", "Pause", "../img/pause.svg"))
+	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
+
+	var dropdownDiv = document.createElement("div")
+	dropdownDiv.className = "cssscan-btn-dropdown-container"
+
+	dropdownDiv.appendChild(floatingHeaderButton("options", "Options", "../img/options.svg"))
+
+	var innerSubDiv = document.createElement("div")
+	innerSubDiv.id = "cssscan-options-dropdown"
+	innerSubDiv.className = "cssscan-col-container"
+	innerSubDiv.style.display = 'none'
+
+	var onclick_sub = dropdownContainer()
+	onclick_sub.appendChild(dropdownHeader("On-Click Behaviour:"))
+	onclick_sub.appendChild(dropdownSwitch("onclick-copy", " Copy Code"))
+	onclick_sub.appendChild(dropdownSwitch("onclick-pin", " Pin the CSS Window"))
+
+	var other_sub = dropdownContainer()
+	other_sub.appendChild(dropdownHeader("Other Behaviour:"))
+	other_sub.appendChild(dropdownSwitch("other-child-css", " Copy Child Element CSS"))
+	other_sub.appendChild(dropdownSwitch("other-html-copy", " Copy HTML Code (Seperately)"))
+
+	var display_sub = dropdownContainer()
+	display_sub.appendChild(dropdownHeader("Display Behaviour:"))
+	display_sub.appendChild(dropdownSwitch("display-grid", " Grid"))
+	display_sub.appendChild(dropdownSwitch("display-guidelines", " Guidelines"))
+
+	var shortcuts_sub = dropdownContainer()
+	shortcuts_sub.appendChild(dropdownHeader("Shortcuts:"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+S:", "Activate Extension"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Alt+Shift+S:", "Pause/Continue"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+X::", "Toggle Grid"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Arrow Keys:", "Navigate through DOM"))
+	shortcuts_sub.appendChild(dropdownShortcuts("ESC Key:", "Close the Extension"))
+
+	innerSubDiv.append(onclick_sub, other_sub, display_sub, shortcuts_sub)
+	dropdownDiv.appendChild(innerSubDiv)
+	parent_container.appendChild(dropdownDiv)
+	parent_container.appendChild(floatingHeaderButton("close", "Close the Extension", "../img/close.svg"))
+
+	document.body.appendChild(parent_container)
+	setStateOfSwitches()
+	setOnClicksOfDropDown()
+}
+
+// #endregion
 
 //#region Entry point to application
+floatingHeaderOptions()
 cssViewer = new CSSViewer();
 
 if ( cssViewer.IsEnabled() ){
@@ -1179,7 +1380,6 @@ else{
 	AddDocumentEventListeners();
 	cssViewer.Enable(); 
 }
-
 // Handle any downclick  
 document.onkeydown = CssViewerKeyMap;
 // #endregion
