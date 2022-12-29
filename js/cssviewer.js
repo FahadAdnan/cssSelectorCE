@@ -1189,7 +1189,6 @@ document.onkeydown = CssViewerKeyMap;
 
 function parseStyleSheets(document, block){
 	var element = elementMap.get(block); 
-	var classList = element.classList; 	//TO DO: parse through innerHTML to get inner HTML class list
 	
 	var classMap = parseClassList(element); 
 
@@ -1198,36 +1197,63 @@ function parseStyleSheets(document, block){
 		var sheet = document.styleSheets.item(s); 
 
 		for (let i = 0; i < sheet.cssRules.length; i++) { 
-
-				//TO DO: parse selectorText to better check for prefix match 
-				var className  = sheet.cssRules.item(i).selectorText;
-				//diff words 
-				//for each word as loop, filter for everything before hello: -> hello class 
-				//if matches in map, add 
-				if(className != null && className.length > 1 && classMap.has(className.substr(1))){
-					//check if same prefix 
-					css += "\n" + sheet.cssRules.item(i).cssText;
-				} 
-		}	
-	}	
+				var text = sheet.cssRules.item(i).selectorText; 
+				if(text != null && 
+						text.length > 1 && 
+						(classMap.has(text.substring(1)) || 
+						classMap.has(getMainClass(text.substring(1))))){
+						//classMap.has(removeExtra(text.substring(1)))
+						//check if same prefix 
+						css += "\n" + sheet.cssRules.item(i).cssText;
+					} 
+				}
+			}
 	//console.log(css); 
-	//console.log("::::::::CSS:::::::::::");
 }
 
 function parseClassList(element){
 	arr = GetAllSubElements(element); 
 	var classList = new Set();
-
 	for(let i =0; i < arr.length; i++){
 		var list = arr[i].classList; 
 		for(let j = 0; j < list.length; j++){
 			if(!classList.has(list.item(j))){
 				classList.add(list.item(j))
-				console.log(list.item(j)) 
+				console.log("item: " + list.item(j))
 			}
 		}
 	}
 	return classList; 
+}
+
+function parseSelectText(text){
+	var arr = []; 
+	if(text === undefined){
+		return arr; 
+	}
+	for(let i =0; i < text.length; i++){
+		var tmp = ""; 
+  		if(text[i] == '.'){
+    		while(text[i] != ' ' && i < text.length){
+				if(text[i] != ','){
+					tmp += text[i]; 
+				}
+      			i++
+			}
+			arr.push(tmp); 
+		}
+	}	
+	return arr; 
+}
+
+function getMainClass(text){
+	let i = 0; 
+	var tmp = ""; 
+	while(text[i] != ':' && i < text.length){
+		tmp += text[i];
+		i++; 
+	}
+	return tmp; 
 }
 
 // #endregion
