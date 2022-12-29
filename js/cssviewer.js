@@ -343,7 +343,7 @@ var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
 var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSSViewer_on_custom_element = false
-var CSSViewer_is_closed = false 
+var CSSViewer_is_closed = true 
 // #endregion
 
 // #region Simple Helper Functions
@@ -1091,31 +1091,40 @@ function CloseCSSViewer(){
 	CSSViewer_is_closed = true
 }
 
+function OpenCSSViewer(){
+	console.log("Opening CSS Viewer!!")
+	floatingHeaderOptions()
+	cssViewer = new CSSViewer();
+	if ( cssViewer.IsEnabled() ){ cssViewer.Disable(); }
+	else{ cssViewer.Enable(); }
+	CSSViewer_is_closed = false 
+}
+
 function CssViewerKeyMap(e) {
 
-	if(CSSViewer_is_closed) return 
-	
-	// Close Extension: Escape
-	if(e.keyCode === 27 && e.key == "Escape"){
-		CloseCSSViewer()
+	if(CSSViewer_is_closed){ 
+		// Open Extension(Ctrl+Shift+S) - Run Content Script 
+		if(e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.ctrlKey){ OpenCSSViewer() }
+		return
 	}
+	// Close Extension(Escape) - delete custom added elements + event listeners 
+	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSSViewer() }
 
 	// Pause/Continue: Alt+Shift+S
-	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.altKey && e.shiftKey){
+	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.altKey){
 		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
-		else{ ContinueCSSViewer() }
+		else{ ContinueCSSViewer() }	
 	}
 
-	// Freeze Current Block: Space 
+	// Freeze Current Block(Space) - create a new one and forget the old one
 	if (e.keyCode === 32 && e.key == " " && CSSViewer_has_document_event_listeners){
 		cssViewer = new CSSViewer();
 		cssViewer.Enable(); 
 		return false; // Prevent default behaviour of scrolling down
 	}
-	// c: Show code css for selected element. 
-	if ( e.keyCode === 67 ){
-		window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition);
-	}
+	
+	// REMOVE!!! -  c: Show code css for selected element. -
+	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition); }
 }
 //#endregion
 
@@ -1385,19 +1394,8 @@ function floatingHeaderOptions(){
 
 // #endregion
 
-//#region Entry point to application
-floatingHeaderOptions()
-cssViewer = new CSSViewer();
-
-if ( cssViewer.IsEnabled() ){
-	cssViewer.Disable();  
-}
-else{
-	cssViewer.Enable(); 
-}
-// Handle any downclick  
+// Handle Clicks
 document.onkeydown = CssViewerKeyMap;
-// #endregion
 
 
 //#region StyleSheet Functions 

@@ -40,11 +40,8 @@ chrome.browserAction.onClicked.addListener(function(tab)
 	// 	chrome.contextMenus.create( { "title": "element.getComputedStyle"   , contexts:["all"] , "parentId": cssCiewerContextMenusParent, "onclick": cssCiewerDebugElGetComputedStyle } );
 	// 	chrome.contextMenus.create( { "title": "element.simpleCssDefinition", contexts:["all"] , "parentId": cssCiewerContextMenusParent, "onclick": cssCiewerDebugElSimpleCssDefinition } );
 	// }
-
-	chrome.tabs.executeScript(tab.id, {file:'js/cssviewer.js'});
+	chrome.tabs.executeScript(tab.id, {code:'OpenCSSViewer()'});
 	chrome.tabs.insertCSS(tab.id, {file:'css/cssviewer.css'});
-
-	cssViewerLoaded = true;
 });
 
 function cssCiewerDebugEl( info, tab )
