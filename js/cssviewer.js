@@ -1283,7 +1283,24 @@ function setOnClicksOfDropDown(){
 		else{ ContinueCSSViewer() }
 	})
 	document.getElementById("cssscan-move").addEventListener("click", function(){
-		// Move Up/Down
+
+		var option_menu = document.getElementById("cssscan-floating-options")
+		var dropdown = document.getElementById("cssscan-btn-dropdown-container")
+		var dropdown_menu = document.getElementById("cssscan-options-dropdown")
+		// At top of page 
+		if(option_menu.style.top == 'auto'){
+			option_menu.style.top = '10px'
+			option_menu.style.bottom = 'auto'
+			this.lastChild.style.transform = 'rotate(0deg)';
+			dropdown.style.flexDirection = "column"
+			dropdown_menu.style.margin = "40px 0px 0px 0px"
+		}else{
+			option_menu.style.top = 'auto'
+			option_menu.style.bottom = '10px'
+			this.lastChild.style.transform = 'rotate(180deg)';
+			dropdown.style.flexDirection = "column-reverse"
+			dropdown_menu.style.margin = "0px 0px 40px 0px"
+		}
 	})	
 
 	var dropdown = document.getElementById("cssscan-options-dropdown")
@@ -1304,13 +1321,12 @@ function floatingHeaderOptions(){
 	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
 
 	var dropdownDiv = document.createElement("div")
-	dropdownDiv.className = "cssscan-btn-dropdown-container"
+	dropdownDiv.id = "cssscan-btn-dropdown-container"
 
 	dropdownDiv.appendChild(floatingHeaderButton("options", "Options", "../img/options.svg"))
 
 	var innerSubDiv = document.createElement("div")
 	innerSubDiv.id = "cssscan-options-dropdown"
-	innerSubDiv.className = "cssscan-col-container"
 	innerSubDiv.style.display = 'none'
 
 	var onclick_sub = dropdownContainer()

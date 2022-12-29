@@ -185,27 +185,27 @@
 	cursor: pointer !important;
   }
   
-  .cssscan-btn-dropdown-container{
+  #cssscan-btn-dropdown-container{
 	display:flex !important;
 	align-items: flex-end !important;
-	flex-direction: column !important; 
+	flex-direction: column; 
 	justify-content: flex-start !important;
   }
   
-  .cssscan-col-container{
+  #cssscan-options-dropdown{
 	display:flex;
 	align-items: flex-start !important;
 	flex-direction: column !important;
 	justify-content: flex-start !important;
   
-	margin-top: 40px !important;
-	  padding: 10px 10px 10px 10px !important;
-	  position:absolute !important;
-	  z-index: 99999; 
+	margin: 40px 0px 0px 0px;
+	padding: 10px 10px 10px 10px !important;
+	position:absolute !important;
+	z-index: 99999; 
   
-	  color:#555 !important;
-	  background-color: rgba(30, 32, 44, .9) !important;
-	  border-radius: 20px !important;
+	color:#555 !important;
+	background-color: rgba(30, 32, 44, .9) !important;
+	border-radius: 20px !important;
   }
   
   .cssscan-row-container{
