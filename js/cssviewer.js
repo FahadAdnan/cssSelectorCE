@@ -629,7 +629,7 @@ function CSSViewerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
-		this.style.outline = '2px dashed #f00';
+		this.style.outline = '1px dashed #f00';
 		CSSViewer_current_element = this;
 	}
 	
@@ -971,7 +971,7 @@ CSSViewer.prototype.Enable = function()
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
 	setElementToBeDraggable(new_block);
-	AddEventListners(new_block);
+	AddEventListners(new_block);	
 	AddDocumentEventListeners();
 
 	return true;
@@ -1100,11 +1100,25 @@ function OpenCSSViewer(){
 	CSSViewer_is_closed = false 
 }
 
+function FreezeCurrentBlock(){
+	cssViewer = new CSSViewer();
+	cssViewer.Enable(); 
+}
+
 function ToggleGrid(enable){
 	console.log("Toggling the grid " + enable)
 	let elements = GetAllSubElements(document.body)
 	if(enable){ for (var i = 0; i < elements.length; i++){ elements[i].classList.add("css-scanner-red-outline") }}
 	else { for (var i = 0; i < elements.length; i++){ elements[i].classList.remove("css-scanner-red-outline") }}
+}
+
+function ClickEvent(e){
+	if(CSSViewer_is_closed || !CSSViewer_has_document_event_listeners) return 
+	var isCopyEnabled= (document.getElementById('cssscan-onclick-copy').firstChild.checked == true);
+	var isPinEnabled= (document.getElementById('cssscan-onclick-pin').firstChild.checked == true);
+
+	if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
+	if(isPinEnabled){ FreezeCurrentBlock()}
 }
 
 function CssViewerKeyMap(e) {
@@ -1146,11 +1160,13 @@ function AddEventListners(element){
 	element.addEventListener("mouseover", CSSViewerMouseOver, false);
 	element.addEventListener("mouseout", CSSViewerMouseOut, false);
 	element.addEventListener("mousemove", CSSViewerMouseMove, false);
+	element.addEventListener("click", ClickEvent, false);
 }
 function RemoveEventListners(element){
 	element.removeEventListener("mouseover", CSSViewerMouseOver, false);
 	element.removeEventListener("mouseout", CSSViewerMouseOut, false);
 	element.removeEventListener("mousemove", CSSViewerMouseMove, false);
+	element.addEventListener("click", ClickEvent, false);
 }
 
 // Add event listeners for all elements in the current document
