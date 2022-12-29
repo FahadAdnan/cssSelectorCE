@@ -1389,8 +1389,7 @@ document.onkeydown = CssViewerKeyMap;
 
 function parseStyleSheets(document, block){
 	var element = elementMap.get(block); 
-	
-	var classMap = parseClassList(element); 
+	var classList = parseClassList(element); 
 
 	var css = ""; 
 	for(let s = 0; s < document.styleSheets.length; s++){
@@ -1398,62 +1397,35 @@ function parseStyleSheets(document, block){
 
 		for (let i = 0; i < sheet.cssRules.length; i++) { 
 				var text = sheet.cssRules.item(i).selectorText; 
-				if(text != null && 
-						text.length > 1 && 
-						(classMap.has(text.substring(1)) || 
-						classMap.has(getMainClass(text.substring(1))))){
-						//classMap.has(removeExtra(text.substring(1)))
-						//check if same prefix 
-						css += "\n" + sheet.cssRules.item(i).cssText;
-					} 
+
+				for(let j =0; j < classList.length; j++){
+					include = false; 
+					if(text != undefined && 
+						((text.includes(classList[j] + '') && 
+						 !(text.includes(classList[j] + '.'))) || 
+						   text.includes(classList[j] + ':'))){
+							include = true; 
+						}
+				}
+				if(include){
+					css += "\n" + sheet.cssRules.item(i).cssText;
 				}
 			}
-	//console.log(css); 
+	}
+	console.log(css); 
 }
 
 function parseClassList(element){
 	arr = GetAllSubElements(element); 
-	var classList = new Set();
+	var classList = [];
 	for(let i =0; i < arr.length; i++){
 		var list = arr[i].classList; 
 		for(let j = 0; j < list.length; j++){
-			if(!classList.has(list.item(j))){
-				classList.add(list.item(j))
-				console.log("item: " + list.item(j))
+				classList.push(list.item(j))
+				//console.log("item: " + list.item(j))
 			}
-		}
 	}
 	return classList; 
-}
-
-function parseSelectText(text){
-	var arr = []; 
-	if(text === undefined){
-		return arr; 
-	}
-	for(let i =0; i < text.length; i++){
-		var tmp = ""; 
-  		if(text[i] == '.'){
-    		while(text[i] != ' ' && i < text.length){
-				if(text[i] != ','){
-					tmp += text[i]; 
-				}
-      			i++
-			}
-			arr.push(tmp); 
-		}
-	}	
-	return arr; 
-}
-
-function getMainClass(text){
-	let i = 0; 
-	var tmp = ""; 
-	while(text[i] != ':' && i < text.length){
-		tmp += text[i];
-		i++; 
-	}
-	return tmp; 
 }
 
 // #endregion
