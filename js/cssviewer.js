@@ -62,7 +62,7 @@ var defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-let CSSViewer_newVals = new Array(
+var CSSViewer_newVals = new Array(
 	'accent-color', //auto 
 	'align-content', //stretch
 	'align-items', //stretch
@@ -343,6 +343,7 @@ var CSSViewer_element_cssDefinition
 var CSSViewer_current_element
 var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSSViewer_on_custom_element = false
+var CSSViewer_is_closed = false 
 // #endregion
 
 // #region Simple Helper Functions
@@ -1079,14 +1080,33 @@ function ContinueCSSViewer(){
 	cssViewer.Enable(); 
 }
 
+function CloseCSSViewer(){
+	PauseCSSViewer()
+	// Remove all the Blocks 
+	var blocks = document.getElementsByClassName("CSSViewer_block")
+    while(blocks.length > 0){ blocks[0].parentNode.removeChild(blocks[0]); }
+	// Remove option menu 
+	var option_menu = document.getElementById("cssscan-floating-options")
+	option_menu.parentNode.removeChild(option_menu)
+	CSSViewer_is_closed = true
+}
+
 function CssViewerKeyMap(e) {
 
-	if( e.keyCode === 83 && (e.key === "S" || e.key === "s")){
+	if(CSSViewer_is_closed) return 
+	
+	// Close Extension: Escape
+	if(e.keyCode === 27 && e.key == "Escape"){
+		CloseCSSViewer()
+	}
+
+	// Pause/Continue: Alt+Shift+S
+	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.altKey && e.shiftKey){
 		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
 		else{ ContinueCSSViewer() }
 	}
 
-	/* Space Bar */
+	// Freeze Current Block: Space 
 	if (e.keyCode === 32 && e.key == " " && CSSViewer_has_document_event_listeners){
 		cssViewer = new CSSViewer();
 		cssViewer.Enable(); 
@@ -1277,17 +1297,18 @@ function setStateOfSwitches(){ addEventListener
 }
 
 function setOnClicksOfDropDown(){
-
+	// Pause/Continue Button: 
 	document.getElementById("cssscan-pause-continue").addEventListener("click", function(){
 		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
 		else{ ContinueCSSViewer() }
 	})
+	// Move Button: 
 	document.getElementById("cssscan-move").addEventListener("click", function(){
 
 		var option_menu = document.getElementById("cssscan-floating-options")
 		var dropdown = document.getElementById("cssscan-btn-dropdown-container")
 		var dropdown_menu = document.getElementById("cssscan-options-dropdown")
-		// At top of page 
+
 		if(option_menu.style.top == 'auto'){
 			option_menu.style.top = '10px'
 			option_menu.style.bottom = 'auto'
@@ -1302,14 +1323,14 @@ function setOnClicksOfDropDown(){
 			dropdown_menu.style.margin = "0px 0px 40px 0px"
 		}
 	})	
-
+	// Option Button 
 	var dropdown = document.getElementById("cssscan-options-dropdown")
 	document.getElementById("cssscan-options").addEventListener("click", function(){
 		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
 	})
-
+	// Close Button
 	document.getElementById("cssscan-close").addEventListener("click", function(){
-		// Close Extension
+		CloseCSSViewer();
 	})	
 }
 
