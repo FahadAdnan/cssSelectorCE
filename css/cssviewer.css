@@ -1,4 +1,4 @@
-.container
+.css-scanner-viewer-block
 {
 	display:flex;
 	align-items: flex-start !important;
@@ -16,10 +16,10 @@
 }
 
 .css-scanner-red-outline{
-	outline: rgba(255, 0, 0, .15) solid 1px;
+	outline: rgba(255, 0, 0, .10) solid 1px;
 }
 
-.header, .subheader
+.css-scanner-header, .css-scanner-subheader
 {
 	display:flex !important;
 	align-items: flex-start !important;
@@ -37,17 +37,12 @@
 	border-radius: 10px !important;
 }
 
-.header {
-	flex-direction: column;
-}
+.css-scanner-header { flex-direction: column; }
 
-.subheader 
-{
-	flex-direction: row;
-}
+.css-scanner-subheader { flex-direction: row; }
 
 
-.primary
+.css-scanner-primary-text
 {
 	font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif !important; 
 	line-height: 24px ;
@@ -66,70 +61,42 @@
 	z-index:9999 !important;
 }
 
-.title
+.css-scanner-title
 {
 	font-size: 16px !important;
 	color: #4ADC71 !important; 
 	flex: 3;
 }
 
-.subtitle
-{
-	font-size: 13px !important;
-	color: #CCCCCC !important; 
-}
-
-.flex_subheading {
+.css-scanner-flex-subheading {
 	display: flex;
 	flex-direction: row;
 	align-items: center; 
 	align-content: flex-start;
 }
-
-.flex { display: flex !important; }
-.none { display: none !important; }
-
-.aqua_color { 
+.css-scanner-property-name { 
 	color: #61cbe0 !important; 
 	display: contents !important;
  }  
-.purple_color { 
+.css-scanner-property-value { 
 	color: #BD93F9 !important;
 	display: contents !important;
 }
 
-.white_color {
+.css-scanner-subheading-text {
 	line-height: 20px !important;
 	font-size: 13px !important;
 	color: #dfdfdf !important;
 }
 
-.footer
-{
-	padding-top:5px;
-	color:#555 !important;
-	text-align:center !important;
-	width:332px !important;
-	height:30px !important;
-	display:flex !important;
-}
-
-.CSSViewer_block ul
+.css-scanner-ul
 {
 	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
 	width:332px !important;
 }
 
-.containerItemValue {
-	display: flex; 
-	width: 100%;
-	flex-direction: row !important;
-	align-items: flex-start !important;
-	flex-wrap: wrap !important;
-}
-
-.cssViewerbtn {
+.css-scanner-viewer-btn {
   background-color: transparent;
   border: none; /* Remove borders */
   color: white; /* White text */
@@ -139,13 +106,13 @@
 }
 
 /* Darker background on mouse-over */
-.cssViewerbtn:hover {
+.css-scanner-viewer-btn:hover {
   background-color: rgba(46, 50, 71, 0.98)!important; ;
 }
 
 /* CSS Displays for the Floating Options Menu*/ 
 
-#cssscan-floating-options{
+#css-scanner-floating-options{
 	display:flex !important;
 	align-items: flex-start !important; 
 	justify-content: end; 
@@ -160,7 +127,7 @@
 	z-index: 99999 !important; 
   }
   
-  .cssscan-button{
+  .css-scanner-menu-button{
 	display: flex;
 	flex-direction: row !important;
   
@@ -181,22 +148,18 @@
 	background-color: rgba(30, 32, 44, .9) !important;
   }
   
-  .cssscan-button:hover{
+  .css-scanner-menu-button:hover{
 	background-color: rgb(215, 127, 127) !important;
   }
   
-  .cssscan-drop-btn {
-	cursor: pointer !important;
-  }
-  
-  #cssscan-btn-dropdown-container{
+  #css-scanner-btn-dropdown-container{
 	display:flex !important;
 	align-items: flex-end !important;
 	flex-direction: column; 
 	justify-content: flex-start !important;
   }
   
-  #cssscan-options-dropdown{
+  #css-scanner-options-dropdown{
 	display:flex;
 	align-items: flex-start !important;
 	flex-direction: column !important;
@@ -212,7 +175,7 @@
 	border-radius: 20px !important;
   }
   
-  .cssscan-row-container{
+  .css-scanner-row-container{
 	display:flex !important;
 	align-items: center !important; 
 	justify-content: start; 
@@ -221,14 +184,14 @@
 	z-index: 99999 !important; 
   }
   
-  .cssscan-simple-text{
+  .css-scanner-simple-text{
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
 	font-size: 14px !important;
 	font-weight: 500 !important;
 	color: #fff !important; 
   }
 
-  .cssscan-header-text{
+  .css-scanner-header-text{
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
 	text-align: center !important;
 	font-size: 16px !important;
@@ -237,14 +200,14 @@
 	color: #fff !important;  
   }
   
-  .spacing-7{
+  .css-scanner-spacing-7{
 	padding: 7px 7px 7px 7px !important;
   }
-  .spacing-3{
+  .css-scanner-spacing-3{
 	padding: 3px 3px 3px 3px !important;
   }
   
-  .cssscan-switch {
+  .css-scanner-switch {
 	position: relative !important;
 	width: 32px !important;
 	height: 16px !important;
@@ -257,7 +220,7 @@
 	cursor: pointer !important;
   }
   
-  .cssscan-switch::before {
+  .css-scanner-switch::before {
 	content: "" !important;
 	width: 16px !important;
 	height: 16px !important;
@@ -269,12 +232,12 @@
 	transition: 0.5s !important;
   }
   
-  .cssscan-switch:checked::before {
+  .css-scanner-switch:checked::before {
 	transform: translateX(100%) !important;
 	background: #fff !important;
   }
   
-  .cssscan-switch:checked {
+  .css-scanner-switch:checked {
 	background: #7dffb3 !important;
   }
   
