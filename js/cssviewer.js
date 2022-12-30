@@ -254,11 +254,18 @@ var CSS_Scanner_hexa = new Array(
 // #endregion
 
 // #region Util Functoins
-// A file of Util functions
+
+function GetCurrentDocument() { return window.document; }
+function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
 
 
-var elementMap = new Map([]); 
-
+function isPropertyNotEqualToDefault(element, type)
+{
+	if(defaultPropertyValueMap.has(type)){ 
+		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
+	}
+	else{ return GetCSSProperty(element, type); }
+}
 
 function setBlockCursorStyle(cursorstyle){
 	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
@@ -344,14 +351,10 @@ var CSS_Scanner_current_element
 var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
+var elementMap = new Map([]); 
 // #endregion
 
-// #region Simple Helper Functions
-function GetCurrentDocument() { return window.document; }
-function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
-// #endregion
-
-// #region CSS Property:Value Setter Functions
+// #region CSS Property: Value Setter Functions
 function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
@@ -372,7 +375,6 @@ function SetCSSPropertyIf(element, property, condition)
 	}
 	else {
 		li.style.display = 'none';
-
 		return 0;
 	}
 }
@@ -393,12 +395,10 @@ function SetCSSPropertyValueIf(element, property, value, condition)
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + value;
 		li.style.display = 'flex';
-
 		return 1;
 	}
 	else {
 		li.style.display = 'none';
-
 		return 0;
 	}
 }
@@ -430,14 +430,6 @@ function ShowCSSCategory(category)
 
 // #region Update Functions 
 
-function isPropertyEqualToDefault(element, type)
-{
-	if(defaultPropertyValueMap.has(type)){ 
-		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
-	}
-	else{ return GetCSSProperty(element, type); }
-}
-
 function UpdateSubHeadings(element){
 	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
 	var fontSize = element.getPropertyValue('font-size');
@@ -463,7 +455,7 @@ function UpdatefontText(element)
 		'vertical-align','white-space','word-spacing'
 	]
 	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyEqualToDefault(element, possibleList[prop]));}
+	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
 }
 
 function UpdateColorBg(element)
@@ -477,7 +469,7 @@ function UpdateColorBg(element)
 
 	// Other
 	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyEqualToDefault(element, possibleColorBgList[prop]));}
+	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
 }
 
 function UpdateBox(element)
@@ -529,14 +521,14 @@ function UpdateBox(element)
 
 	// Max/Min Width/Height
 	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
-	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyEqualToDefault(element, possibleBoxList[prop]));}
+	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyNotEqualToDefault(element, possibleBoxList[prop]));}
 }
 
 function UpdatePositioning(element)
 {
 	SetCSSProperty(element, 'display');
 	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
-	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyEqualToDefault(element, possiblePositionList[prop]));}
+	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyNotEqualToDefault(element, possiblePositionList[prop]));}
 }
 
 function UpdateTable(element, tagName)
@@ -545,7 +537,7 @@ function UpdateTable(element, tagName)
 		var nbProperties = 0;
 
 		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
-		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyEqualToDefault(element, possibleTableList[prop]));}
+		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyNotEqualToDefault(element, possibleTableList[prop]));}
 
 		if (nbProperties > 0) ShowCSSCategory('pTable');
 		else HideCSSCategory('pTable');
@@ -582,7 +574,7 @@ function UpdateMisc(element)
 	var nbProperties = 0;
 
 	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
-	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyEqualToDefault(element, possibleMiscList[prop]));}
+	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyNotEqualToDefault(element, possibleMiscList[prop]));}
 
 	if (nbProperties > 0) ShowCSSCategory('pMisc');
 	else HideCSSCategory('pMisc');
@@ -595,7 +587,7 @@ function UpdateEffects(element)
 						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
 						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
 
-	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyEqualToDefault(element, possibleEffectList[prop]));}
+	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyNotEqualToDefault(element, possibleEffectList[prop]));}
 	if (nbProperties > 0) ShowCSSCategory('pEffect');
 	else HideCSSCategory('pEffect');
 }
@@ -603,6 +595,14 @@ function UpdateEffects(element)
 // #endregion 
 
 // #region Event Handlers
+
+function AddPropertyValuesToCssDefinitions(typeArray, element){
+	for (var i = 0; i < typeArray.length; i++){
+		if(isPropertyNotEqualToDefault(element, typeArray[i])){
+			CSS_Scanner_element_cssDefinition += "\t" + typeArray[i] + ': ' + element.getPropertyValue( typeArray[i] ) + ";\n";
+		}
+	}
+}
 
 function CSS_ScannerMouseOver(e)
 {
@@ -655,38 +655,19 @@ function CSS_ScannerMouseOver(e)
 	// generate simple css definition
 	CSS_Scanner_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
-	CSS_Scanner_element_cssDefinition += "\t/* Font & Text */\n"; 
-	for (var i = 0; i < CSS_Scanner_pFont.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pFont[i] + ': ' + element.getPropertyValue( CSS_Scanner_pFont[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Color & Background */\n";
-	for (var i = 0; i < CSS_Scanner_pColorBg.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pColorBg[i] + ': ' + element.getPropertyValue( CSS_Scanner_pColorBg[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Box */\n";
-	for (var i = 0; i < CSS_Scanner_pBox.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pBox[i] + ': ' + element.getPropertyValue( CSS_Scanner_pBox[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Positioning */\n";
-	for (var i = 0; i < CSS_Scanner_pPositioning.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pPositioning[i] + ': ' + element.getPropertyValue( CSS_Scanner_pPositioning[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* List */\n";
-	for (var i = 0; i < CSS_Scanner_pList.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pList[i] + ': ' + element.getPropertyValue( CSS_Scanner_pList[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Table */\n";
-	for (var i = 0; i < CSS_Scanner_pTable.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pTable[i] + ': ' + element.getPropertyValue( CSS_Scanner_pTable[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Miscellaneous */\n";
-	for (var i = 0; i < CSS_Scanner_pMisc.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pMisc[i] + ': ' + element.getPropertyValue( CSS_Scanner_pMisc[i] ) + ";\n";
-
-	CSS_Scanner_element_cssDefinition += "\n\t/* Effects */\n"; 
-	for (var i = 0; i < CSS_Scanner_pEffect.length; i++)
-		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pEffect[i] + ': ' + element.getPropertyValue( CSS_Scanner_pEffect[i] ) + ";\n";
-
+	var listOfHeaders = [
+		"\t/* Font & Text */\n",  "\n\t/* Color & Background */\n", "\n\t/* Box */\n", 
+		"\n\t/* Positioning */\n", "\n\t/* List */\n", "\n\t/* Table */\n",
+		"\n\t/* Miscellaneous */\n", "\n\t/* Effects */\n"
+	]
+	var listOfTypeArrays = [
+		CSS_Scanner_pFont, CSS_Scanner_pColorBg, CSS_Scanner_pBox, CSS_Scanner_pPositioning,
+		CSS_Scanner_pList, CSS_Scanner_pTable, CSS_Scanner_pMisc, CSS_Scanner_pEffect,
+	]
+	for(var i = 0; i < listOfHeaders.length; i++){
+		CSS_Scanner_element_cssDefinition += listOfHeaders[i];
+		AddPropertyValuesToCssDefinitions(listOfTypeArrays[i], element);
+	}
 	CSS_Scanner_element_cssDefinition += "}";
 
 	// console.log( element.cssText ); //< debug the hovered el css
@@ -702,8 +683,6 @@ function CSS_ScannerMouseOut(e)
 
 	e.stopPropagation();
 }
-
-// #region Setting position of box (XY Position) and secondary function to make the div movable
 
 function CSS_ScannerMouseMove(e)
 {
@@ -777,20 +756,7 @@ function setElementToBeDraggable(elmnt) {
 }
 // #endregion
 
-// http://stackoverflow.com/a/7557433
-function CSS_ScannerIsElementInViewport(el) {
-    var rect = el.getBoundingClientRect();
-
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
-}
-// #endregion
-
-// #region Main CSS_Scanner item Class
+// #region Helper Divs for CSS Scanner 
 
 function header_button(image_path){
 	var btn = document.createElement('button')
@@ -810,7 +776,9 @@ function sub_headings_text(image_path){
 	div.appendChild(document.createElement('span'));
 	return div
 }
+//#endregion
 
+// #region Main CSS_Scanner 
 function CSS_Scanner()
 {
 	// Create a block to display informations
@@ -909,46 +877,6 @@ function CSS_Scanner()
 
 		return block;
 	}
-	
-		// Set the title of the block
-	this.SetTitle = function()
-	{}
-	
-	// Add a stylesheet to the current document
-	this.AddCSS = function(cssFile)
-	{
-		var document = GetCurrentDocument();
-		var link = document.createElement("link");
-
-		link.setAttribute("href", cssFile);
-		link.setAttribute("rel", "stylesheet");
-		link.setAttribute("type", "text/css");
-
-		var heads = document.getElementsByTagName("head");
-
-		if(heads.length > 0)
-		    heads[0].appendChild(link);
-		else
-		    document.documentElement.appendChild(link);
-	}
-	
-	this.RemoveCSS = function(cssFile)
-	{
-		var document = GetCurrentDocument();
-		var links = document.getElementsByTagName('link');
-
-		for (var i = 0; i < links.length; i++) {
-			if (links[i].rel == "stylesheet" && links[i].href == cssFile) {
-				var heads = document.getElementsByTagName("head");
-
-				if(heads.length > 0) {
-					heads[0].removeChild(links[i]);
-				}
-
-				return;
-			}
-		}
-	}
 }
 
 //Check if CSS_Scanner is enabled
@@ -996,15 +924,9 @@ CSS_Scanner.prototype.Disable = function()
 	return false;
 }
 
-CSS_Scanner.prototype.Freeze = function()
-{
-	cssScanner = new CSS_Scanner();
-	cssScanner.Enable(); 
-}
-
 // #endregion 
 
-// #region Replace notification + clicking on item with a popup.html that shows freeze behaviour and current state
+// #region Notification Code - replace with cleaner version 
 
 function cssScannerInsertMessage( msg )
 {
@@ -1036,28 +958,7 @@ function cssScannerRemoveElement(divid)
 }
 // #endregion
 
-// #region Unused code - look into it
-/*
-* Copy current element css to chrome console
-*/
-function cssScannerCopyCssToConsole(type)
-{   
-	if( 'el' == type ) return console.log( CSS_Scanner_element );
-	if( 'id' == type ) return console.log( CSS_Scanner_element.id );
-	if( 'tagName' == type ) return console.log( CSS_Scanner_element.tagName );
-	if( 'className' == type ) return console.log( CSS_Scanner_element.className );
-	if( 'style' == type ) return console.log( CSS_Scanner_element.style ); 
-	if( 'cssText' == type ) return console.log( document.defaultView.getComputedStyle(CSS_Scanner_element, null).cssText );
-	if( 'getComputedStyle' == type ) return console.log( document.defaultView.getComputedStyle(CSS_Scanner_element, null) );
-	if( 'simpleCssDefinition' == type ) return console.log( CSS_Scanner_element_cssDefinition );
-}
-// #endregion
-
-//#region TODO - Replace Key Mapping with one the same as css snap + refactor some key mapping aspects to popup.html
-/*
-*  Close css viewer on clicking 'esc' key
-*  Freeze css viewer on clicking 'f' key
-*/
+//#region Main State Functions (Pause/Continue/Open/Close/Freeze/Grid)
 
 function PauseCSS_Scanner(){
 	var state_btn = document.getElementById("css-scanner-pause-continue")
@@ -1106,6 +1007,9 @@ function ToggleGrid(enable){
 	if(enable){ for (var i = 0; i < elements.length; i++){ elements[i].classList.add("css-scanner-red-outline") }}
 	else { for (var i = 0; i < elements.length; i++){ elements[i].classList.remove("css-scanner-red-outline") }}
 }
+// #endregion 
+
+// #region Click Event and Key Mapping 
 
 function ClickEvent(e){
 	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
@@ -1119,14 +1023,14 @@ function ClickEvent(e){
 function CssScannerKeyMap(e) {
 
 	if(CSS_Scanner_is_closed){ 
-		// Open Extension(Ctrl+Shift+S) - Run Content Script 
+		// Open Extension: (Ctrl+Shift+S) - Run Content Script 
 		if(e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.ctrlKey){ OpenCSS_Scanner() }
 		return
 	}
 	// Close Extension(Escape) - delete custom added elements + event listeners 
 	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSS_Scanner() }
 
-	// Pause/Continue: Alt+Shift+S
+	// Pause/Continue: (Alt+Shift+S)
 	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.altKey){
 		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
 		else{ ContinueCSS_Scanner() }	
@@ -1164,7 +1068,6 @@ function RemoveEventListners(element){
 	element.addEventListener("click", ClickEvent, false);
 }
 
-// Add event listeners for all elements in the current document
 function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
@@ -1175,7 +1078,6 @@ function AddDocumentEventListeners()
 	setBlockCursorStyle("auto")
 }
 
-// Remove event listeners for all elements in the current document
 function RemoveDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
@@ -1185,7 +1087,7 @@ function RemoveDocumentEventListeners()
 	CSS_Scanner_has_document_event_listeners = false
 	setBlockCursorStyle("move")
 }
-// Get all elements within the given element
+
 function GetAllSubElements (element)
 {
 	var elemArr = new Array();
@@ -1210,6 +1112,7 @@ function GetAllSubElements (element)
 
 	return elemArr;
 }
+// #endregion 
 
 // #region Floating Menu Header 
 
@@ -1419,10 +1322,6 @@ function floatingHeaderOptions(){
 
 // #endregion
 
-// Handle Clicks
-document.onkeydown = CssScannerKeyMap;
-
-
 //#region StyleSheet Functions 
 
 function parseStyleSheets(document, block){
@@ -1467,3 +1366,6 @@ function parseClassList(element){
 }
 
 // #endregion
+
+// Handle Clicks
+document.onkeydown = CssScannerKeyMap;
