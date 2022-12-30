@@ -62,7 +62,7 @@ var defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-var CSSViewer_newVals = new Array(
+var CSS_Scanner_newVals = new Array(
 	'accent-color', //auto 
 	'align-content', //stretch
 	'align-items', //stretch
@@ -95,7 +95,7 @@ var CSSViewer_newVals = new Array(
 	'block-size', //auto
 	//continue from here 
 );
-var CSSViewer_pFont = new Array(
+var CSS_Scanner_pFont = new Array(
 	'font-family', 
 	'font-size', 
 	'font-style', 
@@ -112,7 +112,7 @@ var CSSViewer_pFont = new Array(
 	'word-spacing'
 );
 
-var CSSViewer_pColorBg = new Array(
+var CSS_Scanner_pColorBg = new Array(
 	'background-attachment', 
 	'background-color', 
 	'background-image',
@@ -121,7 +121,7 @@ var CSSViewer_pColorBg = new Array(
 	'color', 
 );
 
-var CSSViewer_pBox = new Array(
+var CSS_Scanner_pBox = new Array(
 	'height',
 	'width',
 	'border',
@@ -137,7 +137,7 @@ var CSSViewer_pBox = new Array(
 	'min-width',
 );
 
-var CSSViewer_pPositioning = new Array(
+var CSS_Scanner_pPositioning = new Array(
 	'position', 
 	'top', 
 	'bottom', 
@@ -149,13 +149,13 @@ var CSSViewer_pPositioning = new Array(
 	'z-index', 
 );
 
-var CSSViewer_pList = new Array(
+var CSS_Scanner_pList = new Array(
 	'list-style-image', 
 	'list-style-type', 
 	'list-style-position'
 );
 
-var CSSViewer_pTable = new Array(
+var CSS_Scanner_pTable = new Array(
 	'border-collapse',
 	'border-spacing',
 	'caption-side',
@@ -163,13 +163,13 @@ var CSSViewer_pTable = new Array(
 	'table-layout'
 );
 
-var CSSViewer_pMisc = new Array(
+var CSS_Scanner_pMisc = new Array(
 	'overflow', 
 	'cursor', 
 	'visibility'
 );
 
-var CSSViewer_pEffect = new Array(
+var CSS_Scanner_pEffect = new Array(
 	'transform',
 	'transition',
 	'outline',
@@ -187,18 +187,18 @@ var CSSViewer_pEffect = new Array(
 );
 
 // CSS Property categories
-var CSSViewer_categories = { 
-	'pFontText'    : CSSViewer_pFont, 
-	'pColorBg'     : CSSViewer_pColorBg, 
-	'pBox'         : CSSViewer_pBox, 
-	'pPositioning' : CSSViewer_pPositioning, 
-	'pList'        : CSSViewer_pList, 
-	'pTable'       : CSSViewer_pTable, 
-	'pMisc'        : CSSViewer_pMisc, 
-	'pEffect'      : CSSViewer_pEffect 
+var CSS_Scanner_categories = { 
+	'pFontText'    : CSS_Scanner_pFont, 
+	'pColorBg'     : CSS_Scanner_pColorBg, 
+	'pBox'         : CSS_Scanner_pBox, 
+	'pPositioning' : CSS_Scanner_pPositioning, 
+	'pList'        : CSS_Scanner_pList, 
+	'pTable'       : CSS_Scanner_pTable, 
+	'pMisc'        : CSS_Scanner_pMisc, 
+	'pEffect'      : CSS_Scanner_pEffect 
 };
 
-var CSSViewer_categoriesTitle = { 
+var CSS_Scanner_categoriesTitle = { 
 	'pFontText'    : 'Font & Text', 
 	'pColorBg'     : 'Color & Background', 
 	'pBox'         : 'Box', 
@@ -210,7 +210,7 @@ var CSSViewer_categoriesTitle = {
 };
 
 // Table tagnames
-var CSSViewer_tableTagNames = new Array(
+var CSS_Scanner_tableTagNames = new Array(
 	'table',
 	'caption',
 	'thread',
@@ -223,7 +223,7 @@ var CSSViewer_tableTagNames = new Array(
 	'td'
 );
 
-var CSSViewer_listTagNames = new Array(
+var CSS_Scanner_listTagNames = new Array(
 	'ul',
 	'li',
 	'dd',
@@ -232,7 +232,7 @@ var CSSViewer_listTagNames = new Array(
 );
 
 // Hexadecimal
-var CSSViewer_hexa = new Array(
+var CSS_Scanner_hexa = new Array(
 	'0',
 	'1',
 	'2',
@@ -261,7 +261,7 @@ var elementMap = new Map([]);
 
 
 function setBlockCursorStyle(cursorstyle){
-	Array.from(document.getElementsByClassName("CSSViewer_block")).forEach(
+	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
 		function(element, index, array) {
 			element.style.cursor = cursorstyle
 		}
@@ -286,9 +286,9 @@ function DecToHex(nb)
 {
 	var nbHexa = '';
 
-	nbHexa += CSSViewer_hexa[Math.floor(nb / 16)];
+	nbHexa += CSS_Scanner_hexa[Math.floor(nb / 16)];
 	nb = nb % 16;
-	nbHexa += CSSViewer_hexa[nb];
+	nbHexa += CSS_Scanner_hexa[nb];
 	
 	return nbHexa;
 }
@@ -338,12 +338,12 @@ function RemoveExtraFloat(nb)
 // #endregion
 
 // #region Globals variables
-var CSSViewer_element
-var CSSViewer_element_cssDefinition
-var CSSViewer_current_element
-var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
-var CSSViewer_on_custom_element = false
-var CSSViewer_is_closed = true 
+var CSS_Scanner_element
+var CSS_Scanner_element_cssDefinition
+var CSS_Scanner_current_element
+var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
+var CSS_Scanner_on_custom_element = false
+var CSS_Scanner_is_closed = true 
 // #endregion
 
 // #region Simple Helper Functions
@@ -355,7 +355,7 @@ function GetCSSProperty(element, property){ return element.getPropertyValue(prop
 function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.style.display = 'flex';
 	li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
 }
@@ -363,7 +363,7 @@ function SetCSSProperty(element, property)
 function SetCSSPropertyIf(element, property, condition)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
@@ -380,7 +380,7 @@ function SetCSSPropertyIf(element, property, condition)
 function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.lastChild.innerHTML =  ": " + value;
 	li.style.display = 'flex';
 }
@@ -388,7 +388,7 @@ function SetCSSPropertyValue(element, property, value)
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + value;
@@ -409,21 +409,21 @@ function SetCSSPropertyValueIf(element, property, value, condition)
 function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.style.display = 'none';
 }
 
 function HideCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSSViewer_' + category));
+	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
 	div.style.display = 'none';
 }
 
 function ShowCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSSViewer_' + category));
+	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
 	div.style.display = 'flex';
 }
 // #endregion 
@@ -445,12 +445,12 @@ function UpdateSubHeadings(element){
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
 	var width = ((element.naturalWidth == undefined) ? element.getPropertyValue('width') : element.naturalWidth + "px");
 
-	var header = last(document.getElementsByClassName('CSSViewer_block')).firstChild;
+	var header = last(document.getElementsByClassName('css-scanner-viewer-block')).firstChild;
 	try {
 		header.childNodes[1].lastChild.innerHTML = '&nbsp;' + height + " " + width; 
 		header.childNodes[2].lastChild.innerHTML = '&nbsp;' + fontStyle + " " + fontSize;
 	} catch(err) {
-		console.log("Error: CSSViewer: error setting subtitles " + err);
+		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
 }
 
@@ -541,7 +541,7 @@ function UpdatePositioning(element)
 
 function UpdateTable(element, tagName)
 {
-	if (IsInArray(CSSViewer_tableTagNames, tagName)) {
+	if (IsInArray(CSS_Scanner_tableTagNames, tagName)) {
 		var nbProperties = 0;
 
 		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
@@ -557,7 +557,7 @@ function UpdateTable(element, tagName)
 
 function UpdateList(element, tagName)
 {
-	if (IsInArray(CSSViewer_listTagNames, tagName)) {
+	if (IsInArray(CSS_Scanner_listTagNames, tagName)) {
 		ShowCSSCategory('pList');
 
 		var listStyleImage = GetCSSProperty(element, 'list-style-image');
@@ -604,19 +604,19 @@ function UpdateEffects(element)
 
 // #region Event Handlers
 
-function CSSViewerMouseOver(e)
+function CSS_ScannerMouseOver(e)
 {
 	// Block
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 	if( ! block ){ return; }
 	elementMap.set(block, this)
 	// Initial Logic to decide whether to show the popup:
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
-		CSSViewer_on_custom_element = true 
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+		CSS_Scanner_on_custom_element = true 
 		block.style.display = "none"
 		return;
-	}else if(CSSViewer_on_custom_element){ return; } // Ignore all elements while you're on a custom element
+	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
 
 	//GETTING HTML::: 
@@ -630,7 +630,7 @@ function CSSViewerMouseOver(e)
 	// Outline element
 	if (this.tagName != 'body') {
 		this.style.outline = '1px dashed #f00';
-		CSSViewer_current_element = this;
+		CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
@@ -646,56 +646,56 @@ function CSSViewerMouseOver(e)
 	UpdateMisc(element);
 	UpdateEffects(element);
 
-	CSSViewer_element = this;
+	CSS_Scanner_element = this;
 
-	cssViewerRemoveElement("cssViewerInsertMessage");
+	cssScannerRemoveElement("cssScannerInsertMessage");
 
 	e.stopPropagation();
 
 	// generate simple css definition
-	CSSViewer_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
+	CSS_Scanner_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
-	CSSViewer_element_cssDefinition += "\t/* Font & Text */\n"; 
-	for (var i = 0; i < CSSViewer_pFont.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pFont[i] + ': ' + element.getPropertyValue( CSSViewer_pFont[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\t/* Font & Text */\n"; 
+	for (var i = 0; i < CSS_Scanner_pFont.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pFont[i] + ': ' + element.getPropertyValue( CSS_Scanner_pFont[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Color & Background */\n";
-	for (var i = 0; i < CSSViewer_pColorBg.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pColorBg[i] + ': ' + element.getPropertyValue( CSSViewer_pColorBg[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Color & Background */\n";
+	for (var i = 0; i < CSS_Scanner_pColorBg.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pColorBg[i] + ': ' + element.getPropertyValue( CSS_Scanner_pColorBg[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Box */\n";
-	for (var i = 0; i < CSSViewer_pBox.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pBox[i] + ': ' + element.getPropertyValue( CSSViewer_pBox[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Box */\n";
+	for (var i = 0; i < CSS_Scanner_pBox.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pBox[i] + ': ' + element.getPropertyValue( CSS_Scanner_pBox[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Positioning */\n";
-	for (var i = 0; i < CSSViewer_pPositioning.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pPositioning[i] + ': ' + element.getPropertyValue( CSSViewer_pPositioning[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Positioning */\n";
+	for (var i = 0; i < CSS_Scanner_pPositioning.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pPositioning[i] + ': ' + element.getPropertyValue( CSS_Scanner_pPositioning[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* List */\n";
-	for (var i = 0; i < CSSViewer_pList.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pList[i] + ': ' + element.getPropertyValue( CSSViewer_pList[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* List */\n";
+	for (var i = 0; i < CSS_Scanner_pList.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pList[i] + ': ' + element.getPropertyValue( CSS_Scanner_pList[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Table */\n";
-	for (var i = 0; i < CSSViewer_pTable.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pTable[i] + ': ' + element.getPropertyValue( CSSViewer_pTable[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Table */\n";
+	for (var i = 0; i < CSS_Scanner_pTable.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pTable[i] + ': ' + element.getPropertyValue( CSS_Scanner_pTable[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Miscellaneous */\n";
-	for (var i = 0; i < CSSViewer_pMisc.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pMisc[i] + ': ' + element.getPropertyValue( CSSViewer_pMisc[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Miscellaneous */\n";
+	for (var i = 0; i < CSS_Scanner_pMisc.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pMisc[i] + ': ' + element.getPropertyValue( CSS_Scanner_pMisc[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "\n\t/* Effects */\n"; 
-	for (var i = 0; i < CSSViewer_pEffect.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pEffect[i] + ': ' + element.getPropertyValue( CSSViewer_pEffect[i] ) + ";\n";
+	CSS_Scanner_element_cssDefinition += "\n\t/* Effects */\n"; 
+	for (var i = 0; i < CSS_Scanner_pEffect.length; i++)
+		CSS_Scanner_element_cssDefinition += "\t" + CSS_Scanner_pEffect[i] + ': ' + element.getPropertyValue( CSS_Scanner_pEffect[i] ) + ";\n";
 
-	CSSViewer_element_cssDefinition += "}";
+	CSS_Scanner_element_cssDefinition += "}";
 
 	// console.log( element.cssText ); //< debug the hovered el css
 }
 
-function CSSViewerMouseOut(e)
+function CSS_ScannerMouseOut(e)
 {
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
-		CSSViewer_on_custom_element = false 
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+		CSS_Scanner_on_custom_element = false 
 		return;
 	}
 	this.style.outline = '';
@@ -705,12 +705,12 @@ function CSSViewerMouseOut(e)
 
 // #region Setting position of box (XY Position) and secondary function to make the div movable
 
-function CSSViewerMouseMove(e)
+function CSS_ScannerMouseMove(e)
 {
-	if(this == undefined || CSSViewer_on_custom_element || this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options" ){return;}
+	if(this == undefined || CSS_Scanner_on_custom_element || this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" ){return;}
 	
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 
 	if( ! block ){ return; }
 
@@ -778,7 +778,7 @@ function setElementToBeDraggable(elmnt) {
 // #endregion
 
 // http://stackoverflow.com/a/7557433
-function CSSViewerIsElementInViewport(el) {
+function CSS_ScannerIsElementInViewport(el) {
     var rect = el.getBoundingClientRect();
 
     return (
@@ -790,11 +790,11 @@ function CSSViewerIsElementInViewport(el) {
 }
 // #endregion
 
-// #region Main CSSViewer item Class
+// #region Main CSS_Scanner item Class
 
 function header_button(image_path){
 	var btn = document.createElement('button')
-	btn.classList.add('cssViewerbtn')		
+	btn.classList.add("css-scanner-viewer-btn")		
 	var img = document.createElement("img");
 	img.src = chrome.runtime.getURL(image_path)
 	btn.appendChild(img)
@@ -803,7 +803,7 @@ function header_button(image_path){
 
 function sub_headings_text(image_path){
 	var div = document.createElement('div');
-	div.classList.add("primary", "white_color", "flex_subheading");
+	div.classList.add("css-scanner-primary-text", "css-scanner-subheading-text", "css-scanner-flex-subheading");
 	var img = document.createElement("img")
 	img.src = chrome.runtime.getURL(image_path)
 	div.appendChild(img)
@@ -811,7 +811,7 @@ function sub_headings_text(image_path){
 	return div
 }
 
-function CSSViewer()
+function CSS_Scanner()
 {
 	// Create a block to display informations
 	this.CreateBlock = function() {
@@ -821,19 +821,19 @@ function CSSViewer()
 		if (document) {
 			// Create a div block
 			block = document.createElement('div');
-			block.classList.add("container", "moving-glow", "CSSViewer_block")
+			block.classList.add("css-scanner-viewer-block")
 			
 			// Insert a title for CSS selector
 
 			var header = document.createElement('div');
 			var subheader = document.createElement('div');
 
-			header.classList.add("header");
-			subheader.classList.add("subheader");
+			header.classList.add("css-scanner-header");
+			subheader.classList.add("css-scanner-subheader");
 
 			var title = document.createElement('h1');
-			title.classList.add("primary", "title")
-			title.id = 'CSSViewer_title'; 
+			title.classList.add("css-scanner-primary-text", "css-scanner-title")
+			title.id = 'CSS_Scanner_title'; 
 			title.appendChild(document.createTextNode(''));
 			
 			var code_btn = header_button("../img/code.svg")
@@ -863,27 +863,28 @@ function CSSViewer()
 			// Insert all properties
 			var center = document.createElement('div');
 
-			for (var cat in CSSViewer_categories) {
+			for (var cat in CSS_Scanner_categories) {
 				var div = document.createElement('div');
 
-				div.className = 'CSSViewer_' + cat;
+				div.className = 'CSS_Scanner_' + cat;
 				// var h2 = document.createElement('h2');
-				// h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
+				// h2.appendChild(document.createTextNode(CSS_Scanner_categoriesTitle[cat]));
 
 				var ul = document.createElement('ul');
-				var properties = CSSViewer_categories[cat];
+				ul.classList.add("css-scanner-ul")
+				var properties = CSS_Scanner_categories[cat];
 
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.className = 'CSSViewer_' + properties[i];
+					li.className = 'CSS_Scanner_' + properties[i];
 					li.style.display = 'none';
 					var span_property = document.createElement('span');
-					span_property.classList.add("primary", "aqua_color");
+					span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
 					span_property.appendChild(document.createTextNode(properties[i]));
 
 					var span_value = document.createElement('span'); 
-					span_value.classList.add("primary", "purple_color");
+					span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
 
 					li.appendChild(span_property);
 					li.appendChild(span_value)
@@ -897,14 +898,14 @@ function CSSViewer()
 			// Insert a footer
 			var footer = document.createElement('div');
 
-			footer.className = 'CSSViewer_footer';
+			footer.className = 'CSS_Scanner_footer';
 
 			//< 
-			footer.appendChild( document.createTextNode('CSSViewer 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
+			footer.appendChild( document.createTextNode('CSS_Scanner 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
 			// TODO - add back in: block.appendChild(footer);
 		}
 		
-		cssViewerInsertMessage( "CSSViewer loaded! Hover any element you want to inspect in the page." );
+		cssScannerInsertMessage( "CSS_Scanner loaded! Hover any element you want to inspect in the page." );
 
 		return block;
 	}
@@ -950,23 +951,23 @@ function CSSViewer()
 	}
 }
 
-//Check if CSSViewer is enabled
-CSSViewer.prototype.IsEnabled = function()
+//Check if CSS_Scanner is enabled
+CSS_Scanner.prototype.IsEnabled = function()
 {
 	var document = GetCurrentDocument();
 
-	if (last(document.getElementsByClassName('CSSViewer_block'))) {
+	if (last(document.getElementsByClassName('css-scanner-viewer-block'))) {
 		return true;
 	}
 
 	return false;
 }
 
-// Enable CSSViewer
-CSSViewer.prototype.Enable = function()
+// Enable CSS_Scanner
+CSS_Scanner.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
@@ -977,13 +978,13 @@ CSSViewer.prototype.Enable = function()
 	return true;
 }
 
-// Disable CSSViewer
-CSSViewer.prototype.Disable = function()
+// Disable CSS_Scanner
+CSS_Scanner.prototype.Disable = function()
 {
 	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-    var insertMessage = document.getElementById("cssViewerInsertMessage");
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
+    var insertMessage = document.getElementById("cssScannerInsertMessage");
         
 	if (block || insertMessage) {
 		if(block) document.body.removeChild(block);
@@ -995,24 +996,24 @@ CSSViewer.prototype.Disable = function()
 	return false;
 }
 
-CSSViewer.prototype.Freeze = function()
+CSS_Scanner.prototype.Freeze = function()
 {
-	cssViewer = new CSSViewer();
-	cssViewer.Enable(); 
+	cssScanner = new CSS_Scanner();
+	cssScanner.Enable(); 
 }
 
 // #endregion 
 
 // #region Replace notification + clicking on item with a popup.html that shows freeze behaviour and current state
 
-function cssViewerInsertMessage( msg )
+function cssScannerInsertMessage( msg )
 {
 	// Display the notification message
 	var oNewP = document.createElement("p");
 	var oText = document.createTextNode( msg );
 
 	oNewP.appendChild(oText);
-	oNewP.id                    = 'cssViewerInsertMessage';
+	oNewP.id                    = 'cssScannerInsertMessage';
 	oNewP.style.backgroundColor = '#b40000';
 	oNewP.style.color           = '#ffffff';
 	oNewP.style.position        = "fixed";
@@ -1021,16 +1022,10 @@ function cssViewerInsertMessage( msg )
 	oNewP.style.zIndex          = '9999';
 	oNewP.style.padding         = '3px';
 
-	// https://github.com/miled/cssviewer/issues/5
-	// https://github.com/miled/cssviewer/issues/6
-	// var beforeMe = document.getElementsByTagName("body");
-	// document.body.insertBefore( oNewP, beforeMe[0] );
-
-	// https://github.com/zchee/cssviewer/commit/dad107d27e94aabeb6e11b935ad28c4ff251f895
 	document.body.appendChild(oNewP);
 }
 
-function cssViewerRemoveElement(divid)
+function cssScannerRemoveElement(divid)
 {   
 	//Removes and element from the dom, used to remove the notification message
 	var n = document.getElementById(divid);
@@ -1045,16 +1040,16 @@ function cssViewerRemoveElement(divid)
 /*
 * Copy current element css to chrome console
 */
-function cssViewerCopyCssToConsole(type)
+function cssScannerCopyCssToConsole(type)
 {   
-	if( 'el' == type ) return console.log( CSSViewer_element );
-	if( 'id' == type ) return console.log( CSSViewer_element.id );
-	if( 'tagName' == type ) return console.log( CSSViewer_element.tagName );
-	if( 'className' == type ) return console.log( CSSViewer_element.className );
-	if( 'style' == type ) return console.log( CSSViewer_element.style ); 
-	if( 'cssText' == type ) return console.log( document.defaultView.getComputedStyle(CSSViewer_element, null).cssText );
-	if( 'getComputedStyle' == type ) return console.log( document.defaultView.getComputedStyle(CSSViewer_element, null) );
-	if( 'simpleCssDefinition' == type ) return console.log( CSSViewer_element_cssDefinition );
+	if( 'el' == type ) return console.log( CSS_Scanner_element );
+	if( 'id' == type ) return console.log( CSS_Scanner_element.id );
+	if( 'tagName' == type ) return console.log( CSS_Scanner_element.tagName );
+	if( 'className' == type ) return console.log( CSS_Scanner_element.className );
+	if( 'style' == type ) return console.log( CSS_Scanner_element.style ); 
+	if( 'cssText' == type ) return console.log( document.defaultView.getComputedStyle(CSS_Scanner_element, null).cssText );
+	if( 'getComputedStyle' == type ) return console.log( document.defaultView.getComputedStyle(CSS_Scanner_element, null) );
+	if( 'simpleCssDefinition' == type ) return console.log( CSS_Scanner_element_cssDefinition );
 }
 // #endregion
 
@@ -1064,45 +1059,45 @@ function cssViewerCopyCssToConsole(type)
 *  Freeze css viewer on clicking 'f' key
 */
 
-function PauseCSSViewer(){
-	var state_btn = document.getElementById("cssscan-pause-continue")
+function PauseCSS_Scanner(){
+	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Continue&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
-	CSSViewer_current_element.style.outline = '';
-	cssViewer.Disable();
+	CSS_Scanner_current_element.style.outline = '';
+	cssScanner.Disable();
 }
 
-function ContinueCSSViewer(){
-	var state_btn = document.getElementById("cssscan-pause-continue")
+function ContinueCSS_Scanner(){
+	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Pause&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/pause.svg")
-	cssViewer = new CSSViewer();
-	cssViewer.Enable(); 
+	cssScanner = new CSS_Scanner();
+	cssScanner.Enable(); 
 }
 
-function CloseCSSViewer(){
-	PauseCSSViewer()
+function CloseCSS_Scanner(){
+	PauseCSS_Scanner()
 	// Remove all the Blocks 
-	var blocks = document.getElementsByClassName("CSSViewer_block")
+	var blocks = document.getElementsByClassName("css-scanner-viewer-block")
     while(blocks.length > 0){ blocks[0].parentNode.removeChild(blocks[0]); }
 	// Remove option menu 
-	var option_menu = document.getElementById("cssscan-floating-options")
+	var option_menu = document.getElementById("css-scanner-floating-options")
 	option_menu.parentNode.removeChild(option_menu)
-	CSSViewer_is_closed = true
+	CSS_Scanner_is_closed = true
 }
 
-function OpenCSSViewer(){
+function OpenCSS_Scanner(){
 	console.log("Opening CSS Viewer!!")
 	floatingHeaderOptions()
-	cssViewer = new CSSViewer();
-	if ( cssViewer.IsEnabled() ){ cssViewer.Disable(); }
-	else{ cssViewer.Enable(); }
-	CSSViewer_is_closed = false 
+	cssScanner = new CSS_Scanner();
+	if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
+	else{ cssScanner.Enable(); }
+	CSS_Scanner_is_closed = false 
 }
 
 function FreezeCurrentBlock(){
-	cssViewer = new CSSViewer();
-	cssViewer.Enable(); 
+	cssScanner = new CSS_Scanner();
+	cssScanner.Enable(); 
 }
 
 function ToggleGrid(enable){
@@ -1113,59 +1108,59 @@ function ToggleGrid(enable){
 }
 
 function ClickEvent(e){
-	if(CSSViewer_is_closed || !CSSViewer_has_document_event_listeners) return 
-	var isCopyEnabled= (document.getElementById('cssscan-onclick-copy').firstChild.checked == true);
-	var isPinEnabled= (document.getElementById('cssscan-onclick-pin').firstChild.checked == true);
+	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
+	var isCopyEnabled= (document.getElementById('css-scanner-onclick-copy').firstChild.checked == true);
+	var isPinEnabled= (document.getElementById('css-scanner-onclick-pin').firstChild.checked == true);
 
 	if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
 	if(isPinEnabled){ FreezeCurrentBlock()}
 }
 
-function CssViewerKeyMap(e) {
+function CssScannerKeyMap(e) {
 
-	if(CSSViewer_is_closed){ 
+	if(CSS_Scanner_is_closed){ 
 		// Open Extension(Ctrl+Shift+S) - Run Content Script 
-		if(e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.ctrlKey){ OpenCSSViewer() }
+		if(e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.ctrlKey){ OpenCSS_Scanner() }
 		return
 	}
 	// Close Extension(Escape) - delete custom added elements + event listeners 
-	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSSViewer() }
+	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSS_Scanner() }
 
 	// Pause/Continue: Alt+Shift+S
 	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.altKey){
-		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
-		else{ ContinueCSSViewer() }	
+		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
+		else{ ContinueCSS_Scanner() }	
 	}
 
 	// Freeze Current Block(Space) - create a new one and forget the old one
-	if (e.keyCode === 32 && e.key == " " && CSSViewer_has_document_event_listeners){
-		cssViewer = new CSSViewer();
-		cssViewer.Enable(); 
+	if (e.keyCode === 32 && e.key == " " && CSS_Scanner_has_document_event_listeners){
+		cssScanner = new CSS_Scanner();
+		cssScanner.Enable(); 
 		return false; // Prevent default behaviour of scrolling down
 	}
 
 	if( e.keyCode === 88 && (e.key === "X" || e.key === "x") && e.shiftKey && e.ctrlKey){
-		var perf= document.getElementById('cssscan-display-grid').firstChild;
+		var perf= document.getElementById('css-scanner-display-grid').firstChild;
 		perf.checked = !perf.checked
 		ToggleGrid(perf.checked)
 	}
 	// REMOVE!!! -  c: Show code css for selected element. -
-	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition); }
+	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSS_Scanner_element_cssDefinition); }
 }
 //#endregion
 
 //#region Document Functions 
 
 function AddEventListners(element){
-	element.addEventListener("mouseover", CSSViewerMouseOver, false);
-	element.addEventListener("mouseout", CSSViewerMouseOut, false);
-	element.addEventListener("mousemove", CSSViewerMouseMove, false);
+	element.addEventListener("mouseover", CSS_ScannerMouseOver, false);
+	element.addEventListener("mouseout", CSS_ScannerMouseOut, false);
+	element.addEventListener("mousemove", CSS_ScannerMouseMove, false);
 	element.addEventListener("click", ClickEvent, false);
 }
 function RemoveEventListners(element){
-	element.removeEventListener("mouseover", CSSViewerMouseOver, false);
-	element.removeEventListener("mouseout", CSSViewerMouseOut, false);
-	element.removeEventListener("mousemove", CSSViewerMouseMove, false);
+	element.removeEventListener("mouseover", CSS_ScannerMouseOver, false);
+	element.removeEventListener("mouseout", CSS_ScannerMouseOut, false);
+	element.removeEventListener("mousemove", CSS_ScannerMouseMove, false);
 	element.addEventListener("click", ClickEvent, false);
 }
 
@@ -1176,7 +1171,7 @@ function AddDocumentEventListeners()
 	var elements = GetAllSubElements(document.body);
 
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
-	CSSViewer_has_document_event_listeners = true
+	CSS_Scanner_has_document_event_listeners = true
 	setBlockCursorStyle("auto")
 }
 
@@ -1187,7 +1182,7 @@ function RemoveDocumentEventListeners()
 	var elements = GetAllSubElements(document.body);
 
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
-	CSSViewer_has_document_event_listeners = false
+	CSS_Scanner_has_document_event_listeners = false
 	setBlockCursorStyle("move")
 }
 // Get all elements within the given element
@@ -1199,7 +1194,7 @@ function GetAllSubElements (element)
 	if (element && element.hasChildNodes()) {
 
 		elemArr.push(element);
-		if(element.classList.contains("CSSViewer_block") || element.id == "cssscan-floating-options") return elemArr;
+		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
 
 		var childs = element.childNodes;
 
@@ -1221,15 +1216,15 @@ function GetAllSubElements (element)
 function floatingHeaderButton(type, inner_text, image_path){
 
 	var btn = document.createElement("button")
-	btn.id = "cssscan-" + type
-	btn.className = "cssscan-button"
+	btn.id = "css-scanner-" + type
+	btn.className = "css-scanner-menu-button"
 
 	var inner_span = document.createElement("span")
-	inner_span.id = "cssscan-span-" + type
+	inner_span.id = "css-scanner-span-" + type
 	inner_span.innerHTML = inner_text +  "&nbsp;"
 
 	var inner_img = document.createElement("img")
-	inner_img.id = "cssscan-image-" + type
+	inner_img.id = "css-scanner-image-" + type
 	inner_img.src = chrome.runtime.getURL(image_path)
 
 	btn.appendChild(inner_span);
@@ -1237,27 +1232,27 @@ function floatingHeaderButton(type, inner_text, image_path){
 	return btn
 }
 function dropdownContainer(){
-	var container = document.createElement("div")
-	container.classList = ["spacing-7", "cssscan-full-width"]
-	return container
+	var cntr = document.createElement("div")
+	cntr.classList = ["css-scanner-spacing-7", "css-scanner-full-width"]
+	return cntr
 }
 function dropdownHeader(inner_text){
 	var header = document.createElement("div")
-	header.className = "cssscan-header-text"
+	header.className = "css-scanner-header-text"
 	header.innerHTML = inner_text
 	return header
 }
 function dropdownSwitch(type, inner_text){
 	var divSwitch = document.createElement("div")
-	divSwitch.id = "cssscan-" + type
-	divSwitch.className = "cssscan-row-container"
+	divSwitch.id = "css-scanner-" + type
+	divSwitch.className = "css-scanner-row-container"
 
 	var inputSwitch = document.createElement("input");
-	inputSwitch.className = "cssscan-switch"
+	inputSwitch.className = "css-scanner-switch"
 	inputSwitch.type = "checkbox"
 
 	var spanSwitch = document.createElement("switch")
-	spanSwitch.className = "cssscan-simple-text"
+	spanSwitch.className = "css-scanner-simple-text"
 	spanSwitch.innerHTML = inner_text
 
 	divSwitch.append(inputSwitch, spanSwitch)
@@ -1265,14 +1260,14 @@ function dropdownSwitch(type, inner_text){
 }
 function dropdownShortcuts(command, inner_text){
 	var divShortcut = document.createElement("div")
-	divShortcut.className = "cssscan-simple-text spacing-3"
+	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-3"
 	divShortcut.innerHTML = "<b>" + command + "</b> " + inner_text
 	return divShortcut
 }
 
 function setStateOfSwitches(){ addEventListener
 	chrome.storage.sync.get('onclick_copy', function(result) {
-        var perf= document.getElementById('cssscan-onclick-copy').firstChild;
+        var perf= document.getElementById('css-scanner-onclick-copy').firstChild;
 	    var tmp = result.onclick_copy; 
         perf.checked = tmp;
         
@@ -1282,7 +1277,7 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('onclick_pin', function(result) {
-        var perf= document.getElementById('cssscan-onclick-pin').firstChild;
+        var perf= document.getElementById('css-scanner-onclick-pin').firstChild;
 	    var tmp = result.onclick_pin; 
         perf.checked = tmp;
         
@@ -1292,7 +1287,7 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('other_child_css', function(result) {
-        var perf= document.getElementById('cssscan-other-child-css').firstChild;
+        var perf= document.getElementById('css-scanner-other-child-css').firstChild;
 	    var tmp = result.other_child_css; 
         perf.checked = tmp;
         
@@ -1302,7 +1297,7 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('other_html_copy', function(result) {
-        var perf= document.getElementById('cssscan-other-html-copy').firstChild;
+        var perf= document.getElementById('css-scanner-other-html-copy').firstChild;
 	    var tmp = result.other_html_copy; 
         perf.checked = tmp;
         
@@ -1312,7 +1307,7 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('display_grid', function(result) {
-        var perf= document.getElementById('cssscan-display-grid').firstChild;
+        var perf= document.getElementById('css-scanner-display-grid').firstChild;
 	    var tmp = result.display_grid; 
         perf.checked = tmp;
 		if(tmp) { ToggleGrid(true) } 
@@ -1324,7 +1319,7 @@ function setStateOfSwitches(){ addEventListener
         });
     })
 	chrome.storage.sync.get('display_guidelines', function(result) {
-        var perf= document.getElementById('cssscan-display-guidelines').firstChild;
+        var perf= document.getElementById('css-scanner-display-guidelines').firstChild;
 	    var tmp = result.display_guidelines; 
         perf.checked = tmp;
         
@@ -1337,16 +1332,16 @@ function setStateOfSwitches(){ addEventListener
 
 function setOnClicksOfDropDown(){
 	// Pause/Continue Button: 
-	document.getElementById("cssscan-pause-continue").addEventListener("click", function(){
-		if(CSSViewer_has_document_event_listeners){ PauseCSSViewer() }
-		else{ ContinueCSSViewer() }
+	document.getElementById("css-scanner-pause-continue").addEventListener("click", function(){
+		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
+		else{ ContinueCSS_Scanner() }
 	})
 	// Move Button: 
-	document.getElementById("cssscan-move").addEventListener("click", function(){
+	document.getElementById("css-scanner-move").addEventListener("click", function(){
 
-		var option_menu = document.getElementById("cssscan-floating-options")
-		var dropdown = document.getElementById("cssscan-btn-dropdown-container")
-		var dropdown_menu = document.getElementById("cssscan-options-dropdown")
+		var option_menu = document.getElementById("css-scanner-floating-options")
+		var dropdown = document.getElementById("css-scanner-btn-dropdown-container")
+		var dropdown_menu = document.getElementById("css-scanner-options-dropdown")
 
 		if(option_menu.style.top == 'auto'){
 			option_menu.style.top = '10px'
@@ -1363,30 +1358,30 @@ function setOnClicksOfDropDown(){
 		}
 	})	
 	// Option Button 
-	var dropdown = document.getElementById("cssscan-options-dropdown")
-	document.getElementById("cssscan-options").addEventListener("click", function(){
+	var dropdown = document.getElementById("css-scanner-options-dropdown")
+	document.getElementById("css-scanner-options").addEventListener("click", function(){
 		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
 	})
 	// Close Button
-	document.getElementById("cssscan-close").addEventListener("click", function(){
-		CloseCSSViewer();
+	document.getElementById("css-scanner-close").addEventListener("click", function(){
+		CloseCSS_Scanner();
 	})	
 }
 
 function floatingHeaderOptions(){
 	var parent_container = document.createElement("div")
-	parent_container.id = "cssscan-floating-options"
+	parent_container.id = "css-scanner-floating-options"
 	
 	parent_container.appendChild(floatingHeaderButton("pause-continue", "Pause", "../img/pause.svg"))
 	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
 
 	var dropdownDiv = document.createElement("div")
-	dropdownDiv.id = "cssscan-btn-dropdown-container"
+	dropdownDiv.id = "css-scanner-btn-dropdown-container"
 
 	dropdownDiv.appendChild(floatingHeaderButton("options", "Options", "../img/options.svg"))
 
 	var innerSubDiv = document.createElement("div")
-	innerSubDiv.id = "cssscan-options-dropdown"
+	innerSubDiv.id = "css-scanner-options-dropdown"
 	innerSubDiv.style.display = 'none'
 
 	var onclick_sub = dropdownContainer()
@@ -1425,7 +1420,7 @@ function floatingHeaderOptions(){
 // #endregion
 
 // Handle Clicks
-document.onkeydown = CssViewerKeyMap;
+document.onkeydown = CssScannerKeyMap;
 
 
 //#region StyleSheet Functions 
