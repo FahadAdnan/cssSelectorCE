@@ -1389,7 +1389,9 @@ document.onkeydown = CssViewerKeyMap;
 
 function parseStyleSheets(document, block){
 	var element = elementMap.get(block); 
-	var classList = parseClassList(element); 
+	var lists = parseClassList(element); 
+	var classList = lists[1]; 
+	var typeList = lists[0]; 
 
 	var css = ""; 
 	for(let s = 0; s < document.styleSheets.length; s++){
@@ -1398,34 +1400,60 @@ function parseStyleSheets(document, block){
 		for (let i = 0; i < sheet.cssRules.length; i++) { 
 				var text = sheet.cssRules.item(i).selectorText; 
 
-				for(let j =0; j < classList.length; j++){
-					include = false; 
+				include = false; 
+
+				for(let k =0; k < typeList.length; k++){ //checking tags
+					var type = typeList[k]; 
+					if(text!= undefined && text.length >= type.length &&
+						(
+							text.substr(0, type.length) == type ||  //starts w/ type 
+							text == type || // is just type 
+							text.includes(" " + type + ', ') //type in middle
+						))
+						{
+						include = true; 
+					}
+				}
+
+				for(let j =0; j < classList.length; j++){ //checking classes
+
+					if(text!= undefined && text == '.' + classList[j]){
+						include = true; 
+					}
 					if(text != undefined && 
-						((text.includes(classList[j] + '') && 
-						 !(text.includes(classList[j] + '.'))) || 
-						   text.includes(classList[j] + ':'))){
+						(text.includes(' .' + classList[j] + "") || 
+						 text.includes('.' + classList[j] + " ") || 
+						 text.includes('.' + classList[j] + ':'))){
 							include = true; 
 						}
 				}
-				if(include){
+
+
+				if(include){ //if any true, add css 
 					css += "\n" + sheet.cssRules.item(i).cssText;
 				}
 			}
 	}
-	console.log(css); 
+	console.log("CSS : " + css); 
 }
 
 function parseClassList(element){
+	//add id check 
+	//add attribute 
+
 	arr = GetAllSubElements(element); 
 	var classList = [];
+	var typeList = [];
+
 	for(let i =0; i < arr.length; i++){
 		var list = arr[i].classList; 
+		typeList.push(arr[i].tagName.toLowerCase());
 		for(let j = 0; j < list.length; j++){
 				classList.push(list.item(j))
-				//console.log("item: " + list.item(j))
 			}
 	}
-	return classList; 
+	return [typeList, classList]; 
 }
 
 // #endregion
+
