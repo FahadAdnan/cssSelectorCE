@@ -359,23 +359,26 @@ function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.style.display = 'flex';
-	li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
+	if(li != undefined){
+		li.style.display = 'flex';
+		li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
+	}
 }
 
 function SetCSSPropertyIf(element, property, condition)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-
-	if (condition) {
-		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
-		li.style.display = 'flex';
-		return 1;
-	}
-	else {
-		li.style.display = 'none';
-		return 0;
+	if(li != undefined){
+		if (condition) {
+			li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
+			li.style.display = 'flex';
+			return 1;
+		}
+		else {
+			li.style.display = 'none';
+			return 0;
+		}
 	}
 }
 
@@ -383,23 +386,27 @@ function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.lastChild.innerHTML =  ": " + value;
-	li.style.display = 'flex';
+	if(li != undefined){
+		li.lastChild.innerHTML =  ": " + value;
+		li.style.display = 'flex';
+	}
 }
 
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
+	if(li != undefined){
 
-	if (condition) {
-		li.lastChild.innerHTML =  ": " + value;
-		li.style.display = 'flex';
-		return 1;
-	}
-	else {
-		li.style.display = 'none';
-		return 0;
+		if (condition) {
+			li.lastChild.innerHTML =  ": " + value;
+			li.style.display = 'flex';
+			return 1;
+		}
+		else {
+			li.style.display = 'none';
+			return 0;
+		}
 	}
 }
 
@@ -410,7 +417,9 @@ function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.style.display = 'none';
+	if(li != undefined){
+		li.style.display = 'none';
+	}
 }
 
 function HideCSSCategory(category)
@@ -638,15 +647,15 @@ function CSS_ScannerMouseOver(e)
 
 	//These all commented out cause parser wont work with them in 
 
-	//UpdateSubHeadings(element)
-	//UpdatefontText(element);
-	//UpdateColorBg(element);
-	//UpdateBox(element);
-	//UpdatePositioning(element);
-	//UpdateTable(element, this.tagName);
-	//UpdateList(element, this.tagName);
-	//UpdateMisc(element);
-	//UpdateEffects(element);
+	UpdateSubHeadings(element)
+	UpdatefontText(element);
+	UpdateColorBg(element);
+	UpdateBox(element);
+	UpdatePositioning(element);
+	UpdateTable(element, this.tagName);
+	UpdateList(element, this.tagName);
+	UpdateMisc(element);
+	UpdateEffects(element);
 
 	CSS_Scanner_element = this;
 
@@ -848,8 +857,10 @@ function CSS_Scanner()
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.className = 'CSS_Scanner_' + properties[i];
-					li.style.display = 'none';
+					if(li != undefined){
+						li.className = 'CSS_Scanner_' + properties[i];
+						li.style.display = 'none';
+					}
 					var span_property = document.createElement('span');
 					span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
 					span_property.appendChild(document.createTextNode(properties[i]));
@@ -1327,7 +1338,6 @@ function floatingHeaderOptions(){
 // #endregion
 
 //#region StyleSheet Functions 
-
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
 	var text = ""; 
