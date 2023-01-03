@@ -1388,59 +1388,113 @@ document.onkeydown = CssViewerKeyMap;
 //#region StyleSheet Functions 
 
 function parseStyleSheets(document, block){
-	var element = elementMap.get(block); 
-	var lists = parseClassList(element); 
+	var lists = parseClassList(elementMap.get(block)); 
+
+	var tagList = lists[0]; 
 	var classList = lists[1]; 
-	var typeList = lists[0]; 
 
 	var css = ""; 
+
 	for(let s = 0; s < document.styleSheets.length; s++){
 		var sheet = document.styleSheets.item(s); 
 
 		for (let i = 0; i < sheet.cssRules.length; i++) { 
 				var text = sheet.cssRules.item(i).selectorText; 
 
-				include = false; 
+				include = 0; 
+				include += containsTagList(tagList, text); //check if tags in text 
+				include += containsClassList(classList, text); //check if class in text 
 
-				for(let k =0; k < typeList.length; k++){ //checking tags
-					var type = typeList[k]; 
-					if(text!= undefined && text.length >= type.length &&
-						(
-							text.substr(0, type.length) == type ||  //starts w/ type 
-							text == type || // is just type 
-							text.includes(" " + type + ', ') //type in middle
-						))
-						{
-						include = true; 
-					}
-				}
-
-				for(let j =0; j < classList.length; j++){ //checking classes
-
-					if(text!= undefined && text == '.' + classList[j]){
-						include = true; 
-					}
-					if(text != undefined && 
-						(text.includes(' .' + classList[j] + "") || 
-						 text.includes('.' + classList[j] + " ") || 
-						 text.includes('.' + classList[j] + ':'))){
-							include = true; 
-						}
-				}
-
-
-				if(include){ //if any true, add css 
+				if(include > 0){ //if any true, add css 
 					css += "\n" + sheet.cssRules.item(i).cssText;
 				}
 			}
 	}
-	console.log("CSS : " + css); 
+
+	console.log("CSS: " + css); 
+
+	navigator.clipboard.writeText(css).then(function() {
+		console.log('Async: Copying to clipboard was successful!');
+	  }, function(err) {
+		console.error('Async: Could not copy text: ', err);
+	  });
 }
 
-function parseClassList(element){
-	//add id check 
-	//add attribute 
 
+
+function containsTagList(tagList, text){
+	var include = 0; 
+	for(let k =0; k < tagList.length; k++){ //checking tags
+		var type = tagList[k]; 
+		if(text!= undefined && text.length >= type.length && !text.includes('#') &&
+			(
+				text == type || // is just tag 
+				(text.length > type.length && text.substr(0, type.length + 1) == type + ",") ||  //starts w/ tag 
+				text.includes(" " + type + ', ') //tag in middle
+			)){ 
+				include += 1; 
+		}
+	}
+	return include; 
+}
+
+
+function containsClassList(classList, text){
+	var include = 0; 
+
+	for(let j =0; j < 1; j++){ //checking classes
+		if(text!= undefined && text == '.' + classList[j]){ //basic case 
+			include += 1; 
+		}
+
+		else if(text != undefined) { // .item1 .item2, .item2 .item3 .item4, case 
+			shouldInclude = handleClasstext(classList, text); 
+			if(shouldInclude){
+				include+=1; 
+			}
+		}
+	}
+	return include; 
+}
+
+
+
+
+function handleClasstext(classList, text){ 
+	var includeTag = false; 
+			var textArr = text.split(',');  //split by , (get main texts)
+
+			for(let i =0; i < textArr.length; i++){
+				var canAdd  = true;  //can we add class list  
+				var classes = textArr[i].split(" "); 
+
+				for(let k =0; k < classes.length; k++){
+					if(classes[k].length > 1){ //remove useless stuff from .split() ex: [',' , ' ']
+						canAdd = canAdd && (containsClass(classList, classes[k]))
+					}
+				}
+
+				if(canAdd){ //if all values in tag are valid ex: .btn .demo-btn (we have .btn and .demo-btn)
+					includeTag = true; 
+				}
+			}
+			return includeTag 
+	}
+
+function containsClass(classList, text){ 
+	for(let j =0; j < classList.length; j++){  
+		if(text == '.' + classList[j]){ return true; }
+		if(text.includes(' .' + classList[j] + "") || 
+		   text.includes('.' + classList[j] + " ") || 
+		   text.includes('.' + classList[j] + ':')){
+					return true; 
+   		}
+	}		
+   return false; 
+}
+
+
+function parseClassList(element){
 	arr = GetAllSubElements(element); 
 	var classList = [];
 	var typeList = [];
