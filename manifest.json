@@ -1,6 +1,6 @@
 {
 	"name": "CSSViewer",
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"version": "1.7",
 
 	"description": "A simple CSS property viewer.",
@@ -20,24 +20,29 @@
 		"all_frames": true
 	}],
 	"options_page": "option.html",
-	"background": { "page":"background.html" },
+	"background": { "service_worker": "js/background.js"},
 
-	"browser_action": {
+	"action": {
 		"default_icon": "img/16.png",
-		"default_title": "CSSViewer"
+		"default_title": "Click to Run CSS Scanner"
 	},
 	"permissions": [
 		"tabs",
+		"contextMenus",
+		"storage",
+		"scripting"
+	],
+	"host_permissions": [
 		"http://*/*",
 		"https://*/*",
-		"file://*/*",
-		"contextMenus",
-		"storage"
+		"file://*/*"
 	],
-	"web_accessible_resources": [
+	"web_accessible_resources": [{
+		"resources": [
 		"img/trash.svg", "img/copy.svg", "img/code.svg",
 		"img/size.svg", "img/font.svg", "img/close.svg",
 		"img/options.svg", "img/pause.svg", "img/play.svg",
-		"img/arrow_down.svg"
-	]
+		"img/arrow_down.svg"], 
+		"matches": ["<all_urls>"]	
+	}]
 }
