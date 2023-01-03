@@ -62,7 +62,7 @@ var defaultPropertyValueMap = new Map([
     ['border-bottom-right-radius','0px']
 ]);
 
-const CSSViewer_newVals = new Array(
+var CSS_Scanner_newVals = new Array(
 	'accent-color', //auto 
 	'align-content', //stretch
 	'align-items', //stretch
@@ -95,7 +95,7 @@ const CSSViewer_newVals = new Array(
 	'block-size', //auto
 	//continue from here 
 );
-const CSSViewer_pFont = new Array(
+var CSS_Scanner_pFont = new Array(
 	'font-family', 
 	'font-size', 
 	'font-style', 
@@ -112,7 +112,7 @@ const CSSViewer_pFont = new Array(
 	'word-spacing'
 );
 
-let CSSViewer_pColorBg = new Array(
+var CSS_Scanner_pColorBg = new Array(
 	'background-attachment', 
 	'background-color', 
 	'background-image',
@@ -121,7 +121,7 @@ let CSSViewer_pColorBg = new Array(
 	'color', 
 );
 
-let CSSViewer_pBox = new Array(
+var CSS_Scanner_pBox = new Array(
 	'height',
 	'width',
 	'border',
@@ -137,7 +137,7 @@ let CSSViewer_pBox = new Array(
 	'min-width',
 );
 
-let CSSViewer_pPositioning = new Array(
+var CSS_Scanner_pPositioning = new Array(
 	'position', 
 	'top', 
 	'bottom', 
@@ -149,13 +149,13 @@ let CSSViewer_pPositioning = new Array(
 	'z-index', 
 );
 
-let CSSViewer_pList = new Array(
+var CSS_Scanner_pList = new Array(
 	'list-style-image', 
 	'list-style-type', 
 	'list-style-position'
 );
 
-let CSSViewer_pTable = new Array(
+var CSS_Scanner_pTable = new Array(
 	'border-collapse',
 	'border-spacing',
 	'caption-side',
@@ -163,13 +163,13 @@ let CSSViewer_pTable = new Array(
 	'table-layout'
 );
 
-let CSSViewer_pMisc = new Array(
+var CSS_Scanner_pMisc = new Array(
 	'overflow', 
 	'cursor', 
 	'visibility'
 );
 
-let CSSViewer_pEffect = new Array(
+var CSS_Scanner_pEffect = new Array(
 	'transform',
 	'transition',
 	'outline',
@@ -187,18 +187,18 @@ let CSSViewer_pEffect = new Array(
 );
 
 // CSS Property categories
-let CSSViewer_categories = { 
-	'pFontText'    : CSSViewer_pFont, 
-	'pColorBg'     : CSSViewer_pColorBg, 
-	'pBox'         : CSSViewer_pBox, 
-	'pPositioning' : CSSViewer_pPositioning, 
-	'pList'        : CSSViewer_pList, 
-	'pTable'       : CSSViewer_pTable, 
-	'pMisc'        : CSSViewer_pMisc, 
-	'pEffect'      : CSSViewer_pEffect 
+var CSS_Scanner_categories = { 
+	'pFontText'    : CSS_Scanner_pFont, 
+	'pColorBg'     : CSS_Scanner_pColorBg, 
+	'pBox'         : CSS_Scanner_pBox, 
+	'pPositioning' : CSS_Scanner_pPositioning, 
+	'pList'        : CSS_Scanner_pList, 
+	'pTable'       : CSS_Scanner_pTable, 
+	'pMisc'        : CSS_Scanner_pMisc, 
+	'pEffect'      : CSS_Scanner_pEffect 
 };
 
-let CSSViewer_categoriesTitle = { 
+var CSS_Scanner_categoriesTitle = { 
 	'pFontText'    : 'Font & Text', 
 	'pColorBg'     : 'Color & Background', 
 	'pBox'         : 'Box', 
@@ -210,7 +210,7 @@ let CSSViewer_categoriesTitle = {
 };
 
 // Table tagnames
-let CSSViewer_tableTagNames = new Array(
+var CSS_Scanner_tableTagNames = new Array(
 	'table',
 	'caption',
 	'thread',
@@ -223,7 +223,7 @@ let CSSViewer_tableTagNames = new Array(
 	'td'
 );
 
-let CSSViewer_listTagNames = new Array(
+var CSS_Scanner_listTagNames = new Array(
 	'ul',
 	'li',
 	'dd',
@@ -232,7 +232,7 @@ let CSSViewer_listTagNames = new Array(
 );
 
 // Hexadecimal
-let CSSViewer_hexa = new Array(
+var CSS_Scanner_hexa = new Array(
 	'0',
 	'1',
 	'2',
@@ -254,14 +254,21 @@ let CSSViewer_hexa = new Array(
 // #endregion
 
 // #region Util Functoins
-// A file of Util functions
+
+function GetCurrentDocument() { return window.document; }
+function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
 
 
-var elementMap = new Map([]); 
-
+function isPropertyNotEqualToDefault(element, type)
+{
+	if(defaultPropertyValueMap.has(type)){ 
+		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
+	}
+	else{ return GetCSSProperty(element, type); }
+}
 
 function setBlockCursorStyle(cursorstyle){
-	Array.from(document.getElementsByClassName("CSSViewer_block")).forEach(
+	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
 		function(element, index, array) {
 			element.style.cursor = cursorstyle
 		}
@@ -286,9 +293,9 @@ function DecToHex(nb)
 {
 	var nbHexa = '';
 
-	nbHexa += CSSViewer_hexa[Math.floor(nb / 16)];
+	nbHexa += CSS_Scanner_hexa[Math.floor(nb / 16)];
 	nb = nb % 16;
-	nbHexa += CSSViewer_hexa[nb];
+	nbHexa += CSS_Scanner_hexa[nb];
 	
 	return nbHexa;
 }
@@ -338,23 +345,20 @@ function RemoveExtraFloat(nb)
 // #endregion
 
 // #region Globals variables
-var CSSViewer_element
-var CSSViewer_element_cssDefinition
-var CSSViewer_current_element
-var CSSViewer_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
-var CSSViewer_on_custom_element = false
+var CSS_Scanner_element
+var CSS_Scanner_element_cssDefinition
+var CSS_Scanner_current_element
+var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
+var CSS_Scanner_on_custom_element = false
+var CSS_Scanner_is_closed = true 
+var elementMap = new Map([]); 
 // #endregion
 
-// #region Simple Helper Functions
-function GetCurrentDocument() { return window.document; }
-function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
-// #endregion
-
-// #region CSS Property:Value Setter Functions
+// #region CSS Property: Value Setter Functions
 function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.style.display = 'flex';
 	li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
 }
@@ -362,7 +366,7 @@ function SetCSSProperty(element, property)
 function SetCSSPropertyIf(element, property, condition)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
@@ -371,7 +375,6 @@ function SetCSSPropertyIf(element, property, condition)
 	}
 	else {
 		li.style.display = 'none';
-
 		return 0;
 	}
 }
@@ -379,7 +382,7 @@ function SetCSSPropertyIf(element, property, condition)
 function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.lastChild.innerHTML =  ": " + value;
 	li.style.display = 'flex';
 }
@@ -387,17 +390,15 @@ function SetCSSPropertyValue(element, property, value)
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 
 	if (condition) {
 		li.lastChild.innerHTML =  ": " + value;
 		li.style.display = 'flex';
-
 		return 1;
 	}
 	else {
 		li.style.display = 'none';
-
 		return 0;
 	}
 }
@@ -408,34 +409,26 @@ function SetCSSPropertyValueIf(element, property, value, condition)
 function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSSViewer_' + property));
+	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
 	li.style.display = 'none';
 }
 
 function HideCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSSViewer_' + category));
+	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
 	div.style.display = 'none';
 }
 
 function ShowCSSCategory(category)
 {
 	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSSViewer_' + category));
+	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
 	div.style.display = 'flex';
 }
 // #endregion 
 
 // #region Update Functions 
-
-function isPropertyEqualToDefault(element, type)
-{
-	if(defaultPropertyValueMap.has(type)){ 
-		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
-	}
-	else{ return GetCSSProperty(element, type); }
-}
 
 function UpdateSubHeadings(element){
 	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
@@ -444,12 +437,12 @@ function UpdateSubHeadings(element){
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
 	var width = ((element.naturalWidth == undefined) ? element.getPropertyValue('width') : element.naturalWidth + "px");
 
-	var header = last(document.getElementsByClassName('CSSViewer_block')).firstChild;
+	var header = last(document.getElementsByClassName('css-scanner-viewer-block')).firstChild;
 	try {
 		header.childNodes[1].lastChild.innerHTML = '&nbsp;' + height + " " + width; 
 		header.childNodes[2].lastChild.innerHTML = '&nbsp;' + fontStyle + " " + fontSize;
 	} catch(err) {
-		console.log("Error: CSSViewer: error setting subtitles " + err);
+		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
 }
 
@@ -462,7 +455,7 @@ function UpdatefontText(element)
 		'vertical-align','white-space','word-spacing'
 	]
 	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyEqualToDefault(element, possibleList[prop]));}
+	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
 }
 
 function UpdateColorBg(element)
@@ -476,7 +469,7 @@ function UpdateColorBg(element)
 
 	// Other
 	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyEqualToDefault(element, possibleColorBgList[prop]));}
+	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
 }
 
 function UpdateBox(element)
@@ -528,23 +521,23 @@ function UpdateBox(element)
 
 	// Max/Min Width/Height
 	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
-	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyEqualToDefault(element, possibleBoxList[prop]));}
+	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyNotEqualToDefault(element, possibleBoxList[prop]));}
 }
 
 function UpdatePositioning(element)
 {
 	SetCSSProperty(element, 'display');
 	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
-	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyEqualToDefault(element, possiblePositionList[prop]));}
+	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyNotEqualToDefault(element, possiblePositionList[prop]));}
 }
 
 function UpdateTable(element, tagName)
 {
-	if (IsInArray(CSSViewer_tableTagNames, tagName)) {
+	if (IsInArray(CSS_Scanner_tableTagNames, tagName)) {
 		var nbProperties = 0;
 
 		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
-		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyEqualToDefault(element, possibleTableList[prop]));}
+		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyNotEqualToDefault(element, possibleTableList[prop]));}
 
 		if (nbProperties > 0) ShowCSSCategory('pTable');
 		else HideCSSCategory('pTable');
@@ -556,7 +549,7 @@ function UpdateTable(element, tagName)
 
 function UpdateList(element, tagName)
 {
-	if (IsInArray(CSSViewer_listTagNames, tagName)) {
+	if (IsInArray(CSS_Scanner_listTagNames, tagName)) {
 		ShowCSSCategory('pList');
 
 		var listStyleImage = GetCSSProperty(element, 'list-style-image');
@@ -581,7 +574,7 @@ function UpdateMisc(element)
 	var nbProperties = 0;
 
 	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
-	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyEqualToDefault(element, possibleMiscList[prop]));}
+	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyNotEqualToDefault(element, possibleMiscList[prop]));}
 
 	if (nbProperties > 0) ShowCSSCategory('pMisc');
 	else HideCSSCategory('pMisc');
@@ -594,7 +587,7 @@ function UpdateEffects(element)
 						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
 						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
 
-	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyEqualToDefault(element, possibleEffectList[prop]));}
+	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyNotEqualToDefault(element, possibleEffectList[prop]));}
 	if (nbProperties > 0) ShowCSSCategory('pEffect');
 	else HideCSSCategory('pEffect');
 }
@@ -603,19 +596,27 @@ function UpdateEffects(element)
 
 // #region Event Handlers
 
-function CSSViewerMouseOver(e)
+function AddPropertyValuesToCssDefinitions(typeArray, element){
+	for (var i = 0; i < typeArray.length; i++){
+		if(isPropertyNotEqualToDefault(element, typeArray[i])){
+			CSS_Scanner_element_cssDefinition += "\t" + typeArray[i] + ': ' + element.getPropertyValue( typeArray[i] ) + ";\n";
+		}
+	}
+}
+
+function CSS_ScannerMouseOver(e)
 {
 	// Block
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 	if( ! block ){ return; }
 	elementMap.set(block, this)
 	// Initial Logic to decide whether to show the popup:
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
-		CSSViewer_on_custom_element = true 
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+		CSS_Scanner_on_custom_element = true 
 		block.style.display = "none"
 		return;
-	}else if(CSSViewer_on_custom_element){ return; } // Ignore all elements while you're on a custom element
+	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
 
 	//GETTING HTML::: 
@@ -628,8 +629,8 @@ function CSSViewerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
-		this.style.outline = '2px dashed #f00';
-		CSSViewer_current_element = this;
+		this.style.outline = '1px dashed #f00';
+		CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
@@ -645,56 +646,37 @@ function CSSViewerMouseOver(e)
 	UpdateMisc(element);
 	UpdateEffects(element);
 
-	CSSViewer_element = this;
+	CSS_Scanner_element = this;
 
-	cssViewerRemoveElement("cssViewerInsertMessage");
+	cssScannerRemoveElement("cssScannerInsertMessage");
 
 	e.stopPropagation();
 
 	// generate simple css definition
-	CSSViewer_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
+	CSS_Scanner_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
-	CSSViewer_element_cssDefinition += "\t/* Font & Text */\n"; 
-	for (var i = 0; i < CSSViewer_pFont.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pFont[i] + ': ' + element.getPropertyValue( CSSViewer_pFont[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Color & Background */\n";
-	for (var i = 0; i < CSSViewer_pColorBg.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pColorBg[i] + ': ' + element.getPropertyValue( CSSViewer_pColorBg[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Box */\n";
-	for (var i = 0; i < CSSViewer_pBox.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pBox[i] + ': ' + element.getPropertyValue( CSSViewer_pBox[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Positioning */\n";
-	for (var i = 0; i < CSSViewer_pPositioning.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pPositioning[i] + ': ' + element.getPropertyValue( CSSViewer_pPositioning[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* List */\n";
-	for (var i = 0; i < CSSViewer_pList.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pList[i] + ': ' + element.getPropertyValue( CSSViewer_pList[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Table */\n";
-	for (var i = 0; i < CSSViewer_pTable.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pTable[i] + ': ' + element.getPropertyValue( CSSViewer_pTable[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Miscellaneous */\n";
-	for (var i = 0; i < CSSViewer_pMisc.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pMisc[i] + ': ' + element.getPropertyValue( CSSViewer_pMisc[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "\n\t/* Effects */\n"; 
-	for (var i = 0; i < CSSViewer_pEffect.length; i++)
-		CSSViewer_element_cssDefinition += "\t" + CSSViewer_pEffect[i] + ': ' + element.getPropertyValue( CSSViewer_pEffect[i] ) + ";\n";
-
-	CSSViewer_element_cssDefinition += "}";
+	var listOfHeaders = [
+		"\t/* Font & Text */\n",  "\n\t/* Color & Background */\n", "\n\t/* Box */\n", 
+		"\n\t/* Positioning */\n", "\n\t/* List */\n", "\n\t/* Table */\n",
+		"\n\t/* Miscellaneous */\n", "\n\t/* Effects */\n"
+	]
+	var listOfTypeArrays = [
+		CSS_Scanner_pFont, CSS_Scanner_pColorBg, CSS_Scanner_pBox, CSS_Scanner_pPositioning,
+		CSS_Scanner_pList, CSS_Scanner_pTable, CSS_Scanner_pMisc, CSS_Scanner_pEffect,
+	]
+	for(var i = 0; i < listOfHeaders.length; i++){
+		CSS_Scanner_element_cssDefinition += listOfHeaders[i];
+		AddPropertyValuesToCssDefinitions(listOfTypeArrays[i], element);
+	}
+	CSS_Scanner_element_cssDefinition += "}";
 
 	// console.log( element.cssText ); //< debug the hovered el css
 }
 
-function CSSViewerMouseOut(e)
+function CSS_ScannerMouseOut(e)
 {
-	if(this != undefined && (this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options")){
-		CSSViewer_on_custom_element = false 
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+		CSS_Scanner_on_custom_element = false 
 		return;
 	}
 	this.style.outline = '';
@@ -702,14 +684,12 @@ function CSSViewerMouseOut(e)
 	e.stopPropagation();
 }
 
-// #region Setting position of box (XY Position) and secondary function to make the div movable
-
-function CSSViewerMouseMove(e)
+function CSS_ScannerMouseMove(e)
 {
-	if(this == undefined || CSSViewer_on_custom_element || this.classList.contains("CSSViewer_block") || this.id == "cssscan-floating-options" ){return;}
+	if(this == undefined || CSS_Scanner_on_custom_element || this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" ){return;}
 	
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 
 	if( ! block ){ return; }
 
@@ -776,24 +756,11 @@ function setElementToBeDraggable(elmnt) {
 }
 // #endregion
 
-// http://stackoverflow.com/a/7557433
-function CSSViewerIsElementInViewport(el) {
-    var rect = el.getBoundingClientRect();
-
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
-}
-// #endregion
-
-// #region Main CSSViewer item Class
+// #region Helper Divs for CSS Scanner 
 
 function header_button(image_path){
 	var btn = document.createElement('button')
-	btn.classList.add('cssViewerbtn')		
+	btn.classList.add("css-scanner-viewer-btn")		
 	var img = document.createElement("img");
 	img.src = chrome.runtime.getURL(image_path)
 	btn.appendChild(img)
@@ -802,15 +769,17 @@ function header_button(image_path){
 
 function sub_headings_text(image_path){
 	var div = document.createElement('div');
-	div.classList.add("primary", "white_color", "flex_subheading");
+	div.classList.add("css-scanner-primary-text", "css-scanner-subheading-text", "css-scanner-flex-subheading");
 	var img = document.createElement("img")
 	img.src = chrome.runtime.getURL(image_path)
 	div.appendChild(img)
 	div.appendChild(document.createElement('span'));
 	return div
 }
+//#endregion
 
-function CSSViewer()
+// #region Main CSS_Scanner 
+function CSS_Scanner()
 {
 	// Create a block to display informations
 	this.CreateBlock = function() {
@@ -820,19 +789,19 @@ function CSSViewer()
 		if (document) {
 			// Create a div block
 			block = document.createElement('div');
-			block.classList.add("container", "moving-glow", "CSSViewer_block")
+			block.classList.add("css-scanner-viewer-block")
 			
 			// Insert a title for CSS selector
 
 			var header = document.createElement('div');
 			var subheader = document.createElement('div');
 
-			header.classList.add("header");
-			subheader.classList.add("subheader");
+			header.classList.add("css-scanner-header");
+			subheader.classList.add("css-scanner-subheader");
 
 			var title = document.createElement('h1');
-			title.classList.add("primary", "title")
-			title.id = 'CSSViewer_title'; 
+			title.classList.add("css-scanner-primary-text", "css-scanner-title")
+			title.id = 'CSS_Scanner_title'; 
 			title.appendChild(document.createTextNode(''));
 			
 			var code_btn = header_button("../img/code.svg")
@@ -862,27 +831,28 @@ function CSSViewer()
 			// Insert all properties
 			var center = document.createElement('div');
 
-			for (var cat in CSSViewer_categories) {
+			for (var cat in CSS_Scanner_categories) {
 				var div = document.createElement('div');
 
-				div.className = 'CSSViewer_' + cat;
+				div.className = 'CSS_Scanner_' + cat;
 				// var h2 = document.createElement('h2');
-				// h2.appendChild(document.createTextNode(CSSViewer_categoriesTitle[cat]));
+				// h2.appendChild(document.createTextNode(CSS_Scanner_categoriesTitle[cat]));
 
 				var ul = document.createElement('ul');
-				var properties = CSSViewer_categories[cat];
+				ul.classList.add("css-scanner-ul")
+				var properties = CSS_Scanner_categories[cat];
 
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.className = 'CSSViewer_' + properties[i];
+					li.className = 'CSS_Scanner_' + properties[i];
 					li.style.display = 'none';
 					var span_property = document.createElement('span');
-					span_property.classList.add("primary", "aqua_color");
+					span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
 					span_property.appendChild(document.createTextNode(properties[i]));
 
 					var span_value = document.createElement('span'); 
-					span_value.classList.add("primary", "purple_color");
+					span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
 
 					li.appendChild(span_property);
 					li.appendChild(span_value)
@@ -896,92 +866,53 @@ function CSSViewer()
 			// Insert a footer
 			var footer = document.createElement('div');
 
-			footer.className = 'CSSViewer_footer';
+			footer.className = 'CSS_Scanner_footer';
 
 			//< 
-			footer.appendChild( document.createTextNode('CSSViewer 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
+			footer.appendChild( document.createTextNode('CSS_Scanner 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
 			// TODO - add back in: block.appendChild(footer);
 		}
 		
-		cssViewerInsertMessage( "CSSViewer loaded! Hover any element you want to inspect in the page." );
+		cssScannerInsertMessage( "CSS_Scanner loaded! Hover any element you want to inspect in the page." );
 
 		return block;
 	}
-	
-		// Set the title of the block
-	this.SetTitle = function()
-	{}
-	
-	// Add a stylesheet to the current document
-	this.AddCSS = function(cssFile)
-	{
-		var document = GetCurrentDocument();
-		var link = document.createElement("link");
-
-		link.setAttribute("href", cssFile);
-		link.setAttribute("rel", "stylesheet");
-		link.setAttribute("type", "text/css");
-
-		var heads = document.getElementsByTagName("head");
-
-		if(heads.length > 0)
-		    heads[0].appendChild(link);
-		else
-		    document.documentElement.appendChild(link);
-	}
-	
-	this.RemoveCSS = function(cssFile)
-	{
-		var document = GetCurrentDocument();
-		var links = document.getElementsByTagName('link');
-
-		for (var i = 0; i < links.length; i++) {
-			if (links[i].rel == "stylesheet" && links[i].href == cssFile) {
-				var heads = document.getElementsByTagName("head");
-
-				if(heads.length > 0) {
-					heads[0].removeChild(links[i]);
-				}
-
-				return;
-			}
-		}
-	}
 }
 
-//Check if CSSViewer is enabled
-CSSViewer.prototype.IsEnabled = function()
+//Check if CSS_Scanner is enabled
+CSS_Scanner.prototype.IsEnabled = function()
 {
 	var document = GetCurrentDocument();
 
-	if (last(document.getElementsByClassName('CSSViewer_block'))) {
+	if (last(document.getElementsByClassName('css-scanner-viewer-block'))) {
 		return true;
 	}
 
 	return false;
 }
 
-// Enable CSSViewer
-CSSViewer.prototype.Enable = function()
+// Enable CSS_Scanner
+CSS_Scanner.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
-	setElementToBeDraggable(new_block)
-	AddEventListners(new_block)
+	setElementToBeDraggable(new_block);
+	AddEventListners(new_block);	
+	AddDocumentEventListeners();
 
 	return true;
 }
 
-// Disable CSSViewer
-CSSViewer.prototype.Disable = function()
+// Disable CSS_Scanner
+CSS_Scanner.prototype.Disable = function()
 {
 	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-    var insertMessage = document.getElementById("cssViewerInsertMessage");
+	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
+    var insertMessage = document.getElementById("cssScannerInsertMessage");
         
 	if (block || insertMessage) {
 		if(block) document.body.removeChild(block);
@@ -993,46 +924,18 @@ CSSViewer.prototype.Disable = function()
 	return false;
 }
 
-// Freeze CSSViewer
-CSSViewer.prototype.Freeze = function()
-{
-	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-
-	//Create a new block for all the updates
-	cssViewer = new CSSViewer();
-	cssViewer.Enable(); 
-
-	if ( block) { return true;}
-	return false;
-}
-
-// Unfreeze CSSViewer
-CSSViewer.prototype.Unfreeze = function()
-{
-	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('CSSViewer_block'));
-	if ( block ) {
-		// Remove the red outline
-		CSSViewer_current_element.style.outline = '';
-		return true;
-	}
-
-	return false;
-}
-
 // #endregion 
 
-// #region Replace notification + clicking on item with a popup.html that shows freeze behaviour and current state
+// #region Notification Code - replace with cleaner version 
 
-function cssViewerInsertMessage( msg )
+function cssScannerInsertMessage( msg )
 {
 	// Display the notification message
 	var oNewP = document.createElement("p");
 	var oText = document.createTextNode( msg );
 
 	oNewP.appendChild(oText);
-	oNewP.id                    = 'cssViewerInsertMessage';
+	oNewP.id                    = 'cssScannerInsertMessage';
 	oNewP.style.backgroundColor = '#b40000';
 	oNewP.style.color           = '#ffffff';
 	oNewP.style.position        = "fixed";
@@ -1041,16 +944,10 @@ function cssViewerInsertMessage( msg )
 	oNewP.style.zIndex          = '9999';
 	oNewP.style.padding         = '3px';
 
-	// https://github.com/miled/cssviewer/issues/5
-	// https://github.com/miled/cssviewer/issues/6
-	// var beforeMe = document.getElementsByTagName("body");
-	// document.body.insertBefore( oNewP, beforeMe[0] );
-
-	// https://github.com/zchee/cssviewer/commit/dad107d27e94aabeb6e11b935ad28c4ff251f895
 	document.body.appendChild(oNewP);
 }
 
-function cssViewerRemoveElement(divid)
+function cssScannerRemoveElement(divid)
 {   
 	//Removes and element from the dom, used to remove the notification message
 	var n = document.getElementById(divid);
@@ -1061,101 +958,136 @@ function cssViewerRemoveElement(divid)
 }
 // #endregion
 
-// #region Unused code - look into it
-/*
-* Copy current element css to chrome console
-*/
-function cssViewerCopyCssToConsole(type)
-{   
-	if( 'el' == type ) return console.log( CSSViewer_element );
-	if( 'id' == type ) return console.log( CSSViewer_element.id );
-	if( 'tagName' == type ) return console.log( CSSViewer_element.tagName );
-	if( 'className' == type ) return console.log( CSSViewer_element.className );
-	if( 'style' == type ) return console.log( CSSViewer_element.style ); 
-	if( 'cssText' == type ) return console.log( document.defaultView.getComputedStyle(CSSViewer_element, null).cssText );
-	if( 'getComputedStyle' == type ) return console.log( document.defaultView.getComputedStyle(CSSViewer_element, null) );
-	if( 'simpleCssDefinition' == type ) return console.log( CSSViewer_element_cssDefinition );
+//#region Main State Functions (Pause/Continue/Open/Close/Freeze/Grid)
+
+function PauseCSS_Scanner(){
+	var state_btn = document.getElementById("css-scanner-pause-continue")
+	state_btn.firstChild.innerHTML = "Continue&nbsp;"
+	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
+	CSS_Scanner_current_element.style.outline = '';
+	cssScanner.Disable();
 }
-// #endregion
 
-//#region TODO - Replace Key Mapping with one the same as css snap + refactor some key mapping aspects to popup.html
-/*
-*  Close css viewer on clicking 'esc' key
-*  Freeze css viewer on clicking 'f' key
-*/
-function CssViewerKeyMap(e) {
+function ContinueCSS_Scanner(){
+	var state_btn = document.getElementById("css-scanner-pause-continue")
+	state_btn.firstChild.innerHTML = "Pause&nbsp;"
+	state_btn.lastChild.src = chrome.runtime.getURL("../img/pause.svg")
+	cssScanner = new CSS_Scanner();
+	cssScanner.Enable(); 
+}
 
-	console.log("Got a click event with value: " + e );
+function CloseCSS_Scanner(){
+	PauseCSS_Scanner()
+	// Remove all the Blocks 
+	var blocks = document.getElementsByClassName("css-scanner-viewer-block")
+    while(blocks.length > 0){ blocks[0].parentNode.removeChild(blocks[0]); }
+	// Remove option menu 
+	var option_menu = document.getElementById("css-scanner-floating-options")
+	option_menu.parentNode.removeChild(option_menu)
+	CSS_Scanner_is_closed = true
+}
 
-	if( ! cssViewer.IsEnabled() )
-		return;
+function OpenCSS_Scanner(){
+	console.log("Opening CSS Viewer!!")
+	floatingHeaderOptions()
+	cssScanner = new CSS_Scanner();
+	if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
+	else{ cssScanner.Enable(); }
+	CSS_Scanner_is_closed = false 
+}
 
-	// ESC: Close the css viewer if the cssViewer is enabled.
-	if ( e.keyCode === 27 ){
-		// Remove the red outline
-		CSSViewer_current_element.style.outline = '';
-		if(CSSViewer_has_document_event_listeners){
-			cssViewer.Disable();
-		}
+function FreezeCurrentBlock(){
+	cssScanner = new CSS_Scanner();
+	cssScanner.Enable(); 
+}
+
+function ToggleGrid(enable){
+	console.log("Toggling the grid " + enable)
+	let elements = GetAllSubElements(document.body)
+	if(enable){ for (var i = 0; i < elements.length; i++){ elements[i].classList.add("css-scanner-red-outline") }}
+	else { for (var i = 0; i < elements.length; i++){ elements[i].classList.remove("css-scanner-red-outline") }}
+}
+// #endregion 
+
+// #region Click Event and Key Mapping 
+
+function ClickEvent(e){
+	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
+	var isCopyEnabled= (document.getElementById('css-scanner-onclick-copy').firstChild.checked == true);
+	var isPinEnabled= (document.getElementById('css-scanner-onclick-pin').firstChild.checked == true);
+
+	if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
+	if(isPinEnabled){ FreezeCurrentBlock()}
+}
+
+function CssScannerKeyMap(e) {
+
+	if(CSS_Scanner_is_closed){ 
+		// Open Extension: (Ctrl+Shift+S) - Run Content Script 
+		if(e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.ctrlKey){ OpenCSS_Scanner() }
+		return
 	}
-	
-	if( e.altKey || e.ctrlKey )
-		return;
+	// Close Extension(Escape) - delete custom added elements + event listeners 
+	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSS_Scanner() }
 
-	// f: Freeze or Unfreeze the css viewer if the cssViewer is enabled
-	if ( e.keyCode === 70 ){
-		if(CSSViewer_has_document_event_listeners){
-			cssViewer.Freeze();
-		}else{
-			// Was in a paused state - create a new block + return to scanable state 
-			cssViewer = new CSSViewer();
-			cssViewer.Enable(); 
-			AddDocumentEventListeners();
-		}
+	// Pause/Continue: (Alt+Shift+S)
+	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.altKey){
+		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
+		else{ ContinueCSS_Scanner() }	
 	}
-	// c: Show code css for selected element. 
-	// window.prompt should suffice for now.
-	if ( e.keyCode === 67 ){
-		window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSSViewer_element_cssDefinition);
+
+	// Freeze Current Block(Space) - create a new one and forget the old one
+	if (e.keyCode === 32 && e.key == " " && CSS_Scanner_has_document_event_listeners){
+		cssScanner = new CSS_Scanner();
+		cssScanner.Enable(); 
+		return false; // Prevent default behaviour of scrolling down
 	}
+
+	if( e.keyCode === 88 && (e.key === "X" || e.key === "x") && e.shiftKey && e.ctrlKey){
+		var perf= document.getElementById('css-scanner-display-grid').firstChild;
+		perf.checked = !perf.checked
+		ToggleGrid(perf.checked)
+	}
+	// REMOVE!!! -  c: Show code css for selected element. -
+	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSS_Scanner_element_cssDefinition); }
 }
 //#endregion
 
 //#region Document Functions 
 
 function AddEventListners(element){
-	element.addEventListener("mouseover", CSSViewerMouseOver, false);
-	element.addEventListener("mouseout", CSSViewerMouseOut, false);
-	element.addEventListener("mousemove", CSSViewerMouseMove, false);
+	element.addEventListener("mouseover", CSS_ScannerMouseOver, false);
+	element.addEventListener("mouseout", CSS_ScannerMouseOut, false);
+	element.addEventListener("mousemove", CSS_ScannerMouseMove, false);
+	element.addEventListener("click", ClickEvent, false);
 }
 function RemoveEventListners(element){
-	element.removeEventListener("mouseover", CSSViewerMouseOver, false);
-	element.removeEventListener("mouseout", CSSViewerMouseOut, false);
-	element.removeEventListener("mousemove", CSSViewerMouseMove, false);
+	element.removeEventListener("mouseover", CSS_ScannerMouseOver, false);
+	element.removeEventListener("mouseout", CSS_ScannerMouseOut, false);
+	element.removeEventListener("mousemove", CSS_ScannerMouseMove, false);
+	element.addEventListener("click", ClickEvent, false);
 }
 
-// Add event listeners for all elements in the current document
 function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
-	CSSViewer_has_document_event_listeners = true
+	CSS_Scanner_has_document_event_listeners = true
 	setBlockCursorStyle("auto")
 }
 
-// Remove event listeners for all elements in the current document
 function RemoveDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
-	CSSViewer_has_document_event_listeners = false
+	CSS_Scanner_has_document_event_listeners = false
 	setBlockCursorStyle("move")
 }
-// Get all elements within the given element
+
 function GetAllSubElements (element)
 {
 	var elemArr = new Array();
@@ -1164,7 +1096,7 @@ function GetAllSubElements (element)
 	if (element && element.hasChildNodes()) {
 
 		elemArr.push(element);
-		if(element.classList.contains("CSSViewer_block") || element.id == "cssscan-floating-options") return elemArr;
+		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
 
 		var childs = element.childNodes;
 
@@ -1180,49 +1112,50 @@ function GetAllSubElements (element)
 
 	return elemArr;
 }
+// #endregion 
 
 // #region Floating Menu Header 
 
 function floatingHeaderButton(type, inner_text, image_path){
 
 	var btn = document.createElement("button")
-	btn.id = "cssscan-" + type
-	btn.className = "cssscan-button"
+	btn.id = "css-scanner-" + type
+	btn.className = "css-scanner-menu-button"
 
 	var inner_span = document.createElement("span")
-	inner_span.id = "cssscan-span-" + type
+	inner_span.id = "css-scanner-span-" + type
 	inner_span.innerHTML = inner_text +  "&nbsp;"
 
 	var inner_img = document.createElement("img")
-	inner_img.id = "cssscan-image-" + type
-	//inner_img.src = chrome.runtime.getUrl(image_path)
+	inner_img.id = "css-scanner-image-" + type
+	inner_img.src = chrome.runtime.getURL(image_path)
 
 	btn.appendChild(inner_span);
 	btn.appendChild(inner_img);
 	return btn
 }
 function dropdownContainer(){
-	var container = document.createElement("div")
-	container.classList = ["spacing-7", "cssscan-full-width"]
-	return container
+	var cntr = document.createElement("div")
+	cntr.classList = ["css-scanner-spacing-7", "css-scanner-full-width"]
+	return cntr
 }
 function dropdownHeader(inner_text){
 	var header = document.createElement("div")
-	header.className = "cssscan-header-text"
+	header.className = "css-scanner-header-text"
 	header.innerHTML = inner_text
 	return header
 }
 function dropdownSwitch(type, inner_text){
 	var divSwitch = document.createElement("div")
-	divSwitch.id = "cssscan-" + type
-	divSwitch.className = "cssscan-row-container"
+	divSwitch.id = "css-scanner-" + type
+	divSwitch.className = "css-scanner-row-container"
 
 	var inputSwitch = document.createElement("input");
-	inputSwitch.className = "cssscan-switch"
+	inputSwitch.className = "css-scanner-switch"
 	inputSwitch.type = "checkbox"
 
 	var spanSwitch = document.createElement("switch")
-	spanSwitch.className = "cssscan-simple-text"
+	spanSwitch.className = "css-scanner-simple-text"
 	spanSwitch.innerHTML = inner_text
 
 	divSwitch.append(inputSwitch, spanSwitch)
@@ -1230,68 +1163,70 @@ function dropdownSwitch(type, inner_text){
 }
 function dropdownShortcuts(command, inner_text){
 	var divShortcut = document.createElement("div")
-	divShortcut.className = "cssscan-simple-text spacing-3"
+	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-3"
 	divShortcut.innerHTML = "<b>" + command + "</b> " + inner_text
 	return divShortcut
 }
 
 function setStateOfSwitches(){ addEventListener
 	chrome.storage.sync.get('onclick_copy', function(result) {
-        var perf= document.getElementById('cssscan-onclick-copy');
+        var perf= document.getElementById('css-scanner-onclick-copy').firstChild;
 	    var tmp = result.onclick_copy; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
         });
     })
 	chrome.storage.sync.get('onclick_pin', function(result) {
-        var perf= document.getElementById('cssscan-onclick-pin');
+        var perf= document.getElementById('css-scanner-onclick-pin').firstChild;
 	    var tmp = result.onclick_pin; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_pin': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_pin': true}); }
         });
     })
 	chrome.storage.sync.get('other_child_css', function(result) {
-        var perf= document.getElementById('cssscan-other-child-css');
+        var perf= document.getElementById('css-scanner-other-child-css').firstChild;
 	    var tmp = result.other_child_css; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
         });
     })
 	chrome.storage.sync.get('other_html_copy', function(result) {
-        var perf= document.getElementById('cssscan-other-html-copy');
+        var perf= document.getElementById('css-scanner-other-html-copy').firstChild;
 	    var tmp = result.other_html_copy; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
         });
     })
 	chrome.storage.sync.get('display_grid', function(result) {
-        var perf= document.getElementById('cssscan-display-grid');
+        var perf= document.getElementById('css-scanner-display-grid').firstChild;
 	    var tmp = result.display_grid; 
-        perf.firstChild.checked = tmp;
-        
-        perf.addEventListener("click", function() {
+        perf.checked = tmp;
+		if(tmp) { ToggleGrid(true) } 
+
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_grid': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_grid': true}); }
+			ToggleGrid(perf.checked)
         });
     })
 	chrome.storage.sync.get('display_guidelines', function(result) {
-        var perf= document.getElementById('cssscan-display-guidelines');
+        var perf= document.getElementById('css-scanner-display-guidelines').firstChild;
 	    var tmp = result.display_guidelines; 
-        perf.firstChild.checked = tmp;
+        perf.checked = tmp;
         
-        perf.addEventListener("click", function() {
+        perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
         });
@@ -1299,39 +1234,57 @@ function setStateOfSwitches(){ addEventListener
 }
 
 function setOnClicksOfDropDown(){
-
-	document.getElementById("cssscan-pause").addEventListener("click", function(){
-		// Pause / Play
+	// Pause/Continue Button: 
+	document.getElementById("css-scanner-pause-continue").addEventListener("click", function(){
+		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
+		else{ ContinueCSS_Scanner() }
 	})
-	document.getElementById("cssscan-move").addEventListener("click", function(){
-		// Move Up/Down
-	})	
+	// Move Button: 
+	document.getElementById("css-scanner-move").addEventListener("click", function(){
 
-	var dropdown = document.getElementById("cssscan-options-dropdown")
-	document.getElementById("cssscan-options").addEventListener("click", function(){
+		var option_menu = document.getElementById("css-scanner-floating-options")
+		var dropdown = document.getElementById("css-scanner-btn-dropdown-container")
+		var dropdown_menu = document.getElementById("css-scanner-options-dropdown")
+
+		if(option_menu.style.top == 'auto'){
+			option_menu.style.top = '10px'
+			option_menu.style.bottom = 'auto'
+			this.lastChild.style.transform = 'rotate(0deg)';
+			dropdown.style.flexDirection = "column"
+			dropdown_menu.style.margin = "40px 0px 0px 0px"
+		}else{
+			option_menu.style.top = 'auto'
+			option_menu.style.bottom = '10px'
+			this.lastChild.style.transform = 'rotate(180deg)';
+			dropdown.style.flexDirection = "column-reverse"
+			dropdown_menu.style.margin = "0px 0px 40px 0px"
+		}
+	})	
+	// Option Button 
+	var dropdown = document.getElementById("css-scanner-options-dropdown")
+	document.getElementById("css-scanner-options").addEventListener("click", function(){
 		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
 	})
-
-	document.getElementById("cssscan-close").addEventListener("click", function(){
-		// Close Extension
+	// Close Button
+	document.getElementById("css-scanner-close").addEventListener("click", function(){
+		CloseCSS_Scanner();
 	})	
 }
 
 function floatingHeaderOptions(){
 	var parent_container = document.createElement("div")
-	parent_container.id = "cssscan-floating-options"
+	parent_container.id = "css-scanner-floating-options"
 	
-	parent_container.appendChild(floatingHeaderButton("pause", "Pause", "../img/pause.svg"))
+	parent_container.appendChild(floatingHeaderButton("pause-continue", "Pause", "../img/pause.svg"))
 	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
 
 	var dropdownDiv = document.createElement("div")
-	dropdownDiv.className = "cssscan-btn-dropdown-container"
+	dropdownDiv.id = "css-scanner-btn-dropdown-container"
 
 	dropdownDiv.appendChild(floatingHeaderButton("options", "Options", "../img/options.svg"))
 
 	var innerSubDiv = document.createElement("div")
-	innerSubDiv.id = "cssscan-options-dropdown"
-	innerSubDiv.className = "cssscan-col-container"
+	innerSubDiv.id = "css-scanner-options-dropdown"
 	innerSubDiv.style.display = 'none'
 
 	var onclick_sub = dropdownContainer()
@@ -1368,22 +1321,6 @@ function floatingHeaderOptions(){
 }
 
 // #endregion
-
-//#region Entry point to application
-floatingHeaderOptions()
-cssViewer = new CSSViewer();
-
-if ( cssViewer.IsEnabled() ){
-	cssViewer.Disable();  
-}
-else{
-	AddDocumentEventListeners();
-	cssViewer.Enable(); 
-}
-// Handle any downclick  
-document.onkeydown = CssViewerKeyMap;
-// #endregion
-
 
 //#region StyleSheet Functions 
 
@@ -1510,4 +1447,3 @@ function parseClassList(element){
 }
 
 // #endregion
-

@@ -12,7 +12,13 @@
 		"32": "img/32.png",
 		"48": "img/48.png"
 	},
-
+	"content_scripts": [{
+		"matches": ["<all_urls>"],
+		"run_at": "document_start",
+		"css": ["css/cssviewer.css"],
+		"js": ["js/cssviewer.js"],
+		"all_frames": true
+	}],
 	"options_page": "option.html",
 	"background": { "page":"background.html" },
 
@@ -28,16 +34,6 @@
 		"contextMenus",
 		"storage"
 	],
-	"commands": {
-		"_execute_browser_action": {
-			"suggested_key": {
-				"windows": "Ctrl+Shift+S",
-				"mac": "Command+Shift+S",
-				"chromeos": "Ctrl+Shift+S",
-				"linux": "Ctrl+Shift+S"
-			}
-		}
-	},
 	"web_accessible_resources": [
 		"img/trash.svg", "img/copy.svg", "img/code.svg",
 		"img/size.svg", "img/font.svg", "img/close.svg",
