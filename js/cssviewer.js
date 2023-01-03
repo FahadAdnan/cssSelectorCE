@@ -636,15 +636,17 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 
-	UpdateSubHeadings(element)
-	UpdatefontText(element);
-	UpdateColorBg(element);
-	UpdateBox(element);
-	UpdatePositioning(element);
-	UpdateTable(element, this.tagName);
-	UpdateList(element, this.tagName);
-	UpdateMisc(element);
-	UpdateEffects(element);
+	//These all commented out cause parser wont work with them in 
+
+	//UpdateSubHeadings(element)
+	//UpdatefontText(element);
+	//UpdateColorBg(element);
+	//UpdateBox(element);
+	//UpdatePositioning(element);
+	//UpdateTable(element, this.tagName);
+	//UpdateList(element, this.tagName);
+	//UpdateMisc(element);
+	//UpdateEffects(element);
 
 	CSS_Scanner_element = this;
 
@@ -814,7 +816,7 @@ function CSS_Scanner()
 				block.remove();
 			});
 			copy_btn.addEventListener("click", function(){
-				parseStyleSheets(document, block)
+				parseStyleSheets(block)
 			}); 
 			subheader.append(title, code_btn, copy_btn, trash_btn);
 
@@ -831,6 +833,7 @@ function CSS_Scanner()
 			// Insert all properties
 			var center = document.createElement('div');
 
+		
 			for (var cat in CSS_Scanner_categories) {
 				var div = document.createElement('div');
 
@@ -861,6 +864,7 @@ function CSS_Scanner()
 				div.appendChild(ul);
 				center.appendChild(div);
 			}
+		
 			block.appendChild(center);
 
 			// Insert a footer
@@ -1324,126 +1328,97 @@ function floatingHeaderOptions(){
 
 //#region StyleSheet Functions 
 
-function parseStyleSheets(document, block){
-	var lists = parseClassList(elementMap.get(block)); 
-
-	var tagList = lists[0]; 
-	var classList = lists[1]; 
-
-	var css = ""; 
-
-	for(let s = 0; s < document.styleSheets.length; s++){
-		var sheet = document.styleSheets.item(s); 
-
-		for (let i = 0; i < sheet.cssRules.length; i++) { 
-				var text = sheet.cssRules.item(i).selectorText; 
-
-				include = 0; 
-				include += containsTagList(tagList, text); //check if tags in text 
-				include += containsClassList(classList, text); //check if class in text 
-
-				if(include > 0){ //if any true, add css 
-					css += "\n" + sheet.cssRules.item(i).cssText;
-				}
-			}
+function parseStyleSheets(block){
+	var arr = GetAllSubElements(elementMap.get(block));
+	var text = ""; 
+	for(let j = 0; j < arr.length; j++){
+		var elem = arr[j];
+		var rules = MEJSX.getCustomCssRulesOnElement(elem);
+		for (var i = 0; i < rules.length; i++) {
+			if(rules[i].media.includes('screen'))
+				text += '\n\n @media ' +  rules[i].media; 
+		  text += '\n\n' + rules[i].content;
+		}	
 	}
-
-	console.log("CSS: " + css); 
-
-	navigator.clipboard.writeText(css).then(function() {
-		console.log('Async: Copying to clipboard was successful!');
-	  }, function(err) {
-		console.error('Async: Could not copy text: ', err);
-	  });
+	console.log(text); 
 }
 
 
+var MEJSX = function() {
 
-function containsTagList(tagList, text){
-	var include = 0; 
-	for(let k =0; k < tagList.length; k++){ //checking tags
-		var type = tagList[k]; 
-		if(text!= undefined && text.length >= type.length && !text.includes('#') &&
-			(
-				text == type || // is just tag 
-				(text.length > type.length && text.substr(0, type.length + 1) == type + ",") ||  //starts w/ tag 
-				text.includes(" " + type + ', ') //tag in middle
-			)){ 
-				include += 1; 
+	Object.prototype.getName = function() {
+	  var funcNameRegex = /function (.{1,})\(/;
+	  var results = (funcNameRegex).exec((this).constructor.toString());
+	  return (results && results.length > 1) ? results[1] : "";
+	};
+  
+	var getCustomCssRulesOnElement = function(elm) {
+	  var slice = Function.call.bind(Array.prototype.slice);
+  
+	  var isCssMediaRule = function(cssRule) {
+		return cssRule.getName() === 'CSSMediaRule';
+	  }
+  
+	  var isCssStyleRule = function(cssRule) {
+		return cssRule.getName() === 'CSSStyleRule';
+	  }
+  
+	  // Here we get the cssRules across all the stylesheets in one array
+	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
+		return rules.concat(slice(styleSheet.cssRules));
+	  }, []);
+  
+	  var mediaRules = cssRules.filter(isCssMediaRule);
+  
+	  cssRules = cssRules.filter(isCssStyleRule);
+  
+	  cssRules = cssRules.concat(slice(mediaRules).reduce(function(rules, mediaRule) {
+		return rules.concat(slice(mediaRule.cssRules));
+	  }, []));
+    
+	  // get only the css rules that matches that element
+	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
+	  var elementRules = [];
+	  var elementRule = function(order, content, media) {
+		if (media === undefined || media == null || media == '') {
+		  media = 'all';
 		}
-	}
-	return include; 
-}
-
-
-function containsClassList(classList, text){
-	var include = 0; 
-
-	for(let j =0; j < 1; j++){ //checking classes
-		if(text!= undefined && text == '.' + classList[j]){ //basic case 
-			include += 1; 
+		this.order = order;
+		this.content = content;
+		this.media = media;
+	  }
+	  if (rulesOnElement.length) {
+		for (var i = 0; i < rulesOnElement.length; i++) {
+		  var e = rulesOnElement[i];
+		  var order = i;
+		  var content = e.cssText;
+		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
+  
+		  var _elementRule = new elementRule(order, content, media);
+		  elementRules.push(_elementRule);
 		}
-
-		else if(text != undefined) { // .item1 .item2, .item2 .item3 .item4, case 
-			shouldInclude = handleClasstext(classList, text); 
-			if(shouldInclude){
-				include+=1; 
-			}
-		}
+	  }
+  
+	  if (elm.getAttribute('style')) {
+		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}')
+		elementRules.push(_elementRule);
+	  }
+	  return elementRules;
+	};
+  
+	var isElementMatchWithCssRule = function(element, cssRule) {
+  
+	  var proto = Element.prototype;
+	  var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+	  return matches(element, cssRule.selectorText);
+	};
+  
+	return {
+	  getCustomCssRulesOnElement: function(element) {
+		return getCustomCssRulesOnElement(element);
+	  }
 	}
-	return include; 
-}
-
-
-
-
-function handleClasstext(classList, text){ 
-	var includeTag = false; 
-			var textArr = text.split(',');  //split by , (get main texts)
-
-			for(let i =0; i < textArr.length; i++){
-				var canAdd  = true;  //can we add class list  
-				var classes = textArr[i].split(" "); 
-
-				for(let k =0; k < classes.length; k++){
-					if(classes[k].length > 1){ //remove useless stuff from .split() ex: [',' , ' ']
-						canAdd = canAdd && (containsClass(classList, classes[k]))
-					}
-				}
-
-				if(canAdd){ //if all values in tag are valid ex: .btn .demo-btn (we have .btn and .demo-btn)
-					includeTag = true; 
-				}
-			}
-			return includeTag 
-	}
-
-function containsClass(classList, text){ 
-	for(let j =0; j < classList.length; j++){  
-		if(text == '.' + classList[j]){ return true; }
-		if(text.includes(' .' + classList[j] + "") || 
-		   text.includes('.' + classList[j] + " ") || 
-		   text.includes('.' + classList[j] + ':')){
-					return true; 
-   		}
-	}		
-   return false; 
-}
-
-
-function parseClassList(element){
-	arr = GetAllSubElements(element); 
-	var classList = [];
-	var typeList = [];
-
-	for(let i =0; i < arr.length; i++){
-		var list = arr[i].classList; 
-		typeList.push(arr[i].tagName.toLowerCase());
-		for(let j = 0; j < list.length; j++){
-				classList.push(list.item(j))
-			}
-	}
-	return [typeList, classList]; 
-}
-
-// #endregion
+  }()
+  
