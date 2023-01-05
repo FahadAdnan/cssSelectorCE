@@ -1375,7 +1375,12 @@ var MEJSX = function() {
   
 	  // Here we get the cssRules across all the stylesheets in one array
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
-		return rules.concat(slice(styleSheet.cssRules));
+		try {
+			return rules.concat(slice(styleSheet.cssRules)); 
+		} catch (err){
+			console.log("err"); 
+			return rules; 
+			}
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
@@ -1417,7 +1422,6 @@ var MEJSX = function() {
 	};
   
 	var isElementMatchWithCssRule = function(element, cssRule) {
-  
 	  var proto = Element.prototype;
 	  var matches = Function.call.bind(proto.matchesSelector ||
 		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
