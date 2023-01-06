@@ -233,7 +233,7 @@
   }
   
   .css-scanner-switch:checked::before {
-	transform: translateX(100%) !important;
+    transform: translateX(100%) !important;
 	background: #fff !important;
   }
   

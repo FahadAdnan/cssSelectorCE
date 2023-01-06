@@ -1341,19 +1341,57 @@ function floatingHeaderOptions(){
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
 	var text = ""; 
+
 	for(let j = 0; j < arr.length; j++){
 		var elem = arr[j];
 		var rules = MEJSX.getCustomCssRulesOnElement(elem);
+		// Logic where you format CSS
 		for (var i = 0; i < rules.length; i++) {
-			if(rules[i].media.includes('screen'))
-				text += '\n\n @media ' +  rules[i].media; 
-		  text += '\n\n' + rules[i].content;
+			var default_tab = "";
+			var one_tab_more = "    "		
+
+			if(rules[i].media.includes('screen')){
+				text += '\n@media ' +  rules[i].media;
+				default_tab = "    "
+				one_tab_more = "        "
+				console.log("Has Media")
+			}
+
+			text += "\n" + default_tab + rules[i].selectorText + " {"
+
+			var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+			propArr = properties.split(";");
+			
+			for(let i = 0; i < propArr.length; i++){
+				if(i == propArr.length-1 && propArr[i].split(":").length < 2) continue;  // Handle edge case where last element is a newline 
+				text += "\n" + one_tab_more + propArr[i]; 
+			}
+			text +=  "\n" + default_tab + "}" + "\n"
+			
 		}	
 	}
 	console.log(text); 
 }
 
 
+
+// If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
+function filteredSelectorText(element, cssSelector) {
+	// If there is only one selector (no list)
+	var arrSelectors = cssSelector.split(",")
+	if(arrSelectors.length <= 1) return cssSelector
+
+	var proto = Element.prototype;
+	var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+
+	for(let i = 0; i < arrSelectors.length; i++){
+		 if(matches(element, arrSelectors[i])){ return arrSelectors[i]; }
+	}
+	return "";
+};
+	
 var MEJSX = function() {
 
 	Object.prototype.getName = function() {
@@ -1389,28 +1427,30 @@ var MEJSX = function() {
 	  // get only the css rules that matches that element
 	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
 	  var elementRules = [];
-	  var elementRule = function(order, content, media) {
-		if (media === undefined || media == null || media == '') {
-		  media = 'all';
-		}
+
+	  var elementRule = function(order, content, media, selectorText) {
+		if (media === undefined || media == null || media == '') { media = 'all'; }
 		this.order = order;
 		this.content = content;
 		this.media = media;
+		this.selectorText = selectorText
 	  }
+
 	  if (rulesOnElement.length) {
 		for (var i = 0; i < rulesOnElement.length; i++) {
 		  var e = rulesOnElement[i];
 		  var order = i;
 		  var content = e.cssText;
+		  var selectorText = filteredSelectorText(elm, e.selectorText)
+		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
   
-		  var _elementRule = new elementRule(order, content, media);
+		  var _elementRule = new elementRule(order, content, media, selectorText);
 		  elementRules.push(_elementRule);
 		}
 	  }
-  
 	  if (elm.getAttribute('style')) {
-		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}')
+		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}', null, "inline-style")
 		elementRules.push(_elementRule);
 	  }
 	  return elementRules;
@@ -1424,11 +1464,13 @@ var MEJSX = function() {
 		proto.msMatchesSelector || proto.oMatchesSelector);
 	  return matches(element, cssRule.selectorText);
 	};
-  
+
 	return {
 	  getCustomCssRulesOnElement: function(element) {
 		return getCustomCssRulesOnElement(element);
 	  }
 	}
   }()
-  
+
+// Handle Clicks
+document.onkeydown = CssScannerKeyMap;
