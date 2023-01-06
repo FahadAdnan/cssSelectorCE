@@ -1354,14 +1354,13 @@ function parseStyleSheets(block){
 				text += '\n@media ' +  rules[i].media;
 				default_tab = "    "
 				one_tab_more = "        "
-				console.log("Has Media")
 			}
 
 			text += "\n" + default_tab + rules[i].selectorText + " {"
 
 			var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
 			propArr = properties.split(";");
-			
+
 			for(let i = 0; i < propArr.length; i++){
 				if(i == propArr.length-1 && propArr[i].split(":").length < 2) continue;  // Handle edge case where last element is a newline 
 				text += "\n" + one_tab_more + propArr[i]; 
