@@ -345,7 +345,6 @@ function RemoveExtraFloat(nb)
 // #endregion
 
 // #region Globals variables
-var CSS_Scanner_element
 var CSS_Scanner_element_cssDefinition
 var CSS_Scanner_current_element
 var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
@@ -438,7 +437,6 @@ function ShowCSSCategory(category)
 // #endregion 
 
 // #region Update Functions 
-
 function UpdateSubHeadings(element){
 	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
 	var fontSize = element.getPropertyValue('font-size');
@@ -453,6 +451,52 @@ function UpdateSubHeadings(element){
 	} catch(err) {
 		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
+}
+
+function UpdateMainPage(propertyMap){
+	
+	// Ul in document currently 
+	let ul = last(document.getElementsByClassName("css-scanner-ul"))
+	let unorderedListLen = ul.childNodes.length
+
+	// Array of property values 
+	let propertyArr = new Array(new Array());
+	propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
+	propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+	let propArrLen = propertyArr.length;
+
+	let invalidEntries = 0; 
+	
+	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
+	for(let i = 0; i < propArrLen; i++){
+
+		let propName = propertyArr[i][0];
+		let propValue = propertyArr[i][1];
+		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){
+			invalidEntries++;
+			continue;
+		}
+		
+		// Add in a new li element
+		var li = document.createElement('li');
+
+		var span_property = document.createElement('span');
+		span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
+		span_property.appendChild(document.createTextNode(propName));
+
+		var span_value = document.createElement('span'); 
+		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
+		span_value.appendChild(document.createTextNode(propValue));
+		/** 
+		 * TODO TASKS --
+		 * Add in special cases for background color and color !! - filter out the !important portion inside of spans 
+		*/ 
+		li.appendChild(span_property);
+		li.appendChild(span_value)
+		ul.appendChild(li);
+	}
+	// // Remove extra elements if present 
+	// for(let i = (propArrLen-invalidEntries); i < unorderedListLen; i++){ ul.removeChild(ul.lastChild) }
 }
 
 function UpdatefontText(element)
@@ -471,7 +515,6 @@ function UpdateColorBg(element)
 {
 	// Color
 	SetCSSPropertyValue(element, 'color', RGBToHex(GetCSSProperty(element, 'color')));
-
 	// Background
 	SetCSSPropertyValueIf(element, 'background-color', RGBToHex(GetCSSProperty(element, 'background-color')), GetCSSProperty(element, 'background-color') != 'transparent');
 	SetCSSPropertyValueIf(element, 'background-image', GetFileName(GetCSSProperty(element, 'background-image')), GetCSSProperty(element, 'background-image') != 'none');
@@ -495,7 +538,6 @@ function UpdateBox(element)
 
 	if (borderTop == borderBottom && borderBottom == borderRight && borderRight == borderLeft && GetCSSProperty(element, 'border-top-style') != 'none') {
 		SetCSSPropertyValue(element, 'border', borderTop);
-
 		HideCSSProperty('border-top');
 		HideCSSProperty('border-bottom');
 		HideCSSProperty('border-right');
@@ -620,6 +662,7 @@ function CSS_ScannerMouseOver(e)
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 	if( ! block ){ return; }
 	elementMap.set(block, this)
+
 	// Initial Logic to decide whether to show the popup:
 	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
 		CSS_Scanner_on_custom_element = true 
@@ -638,31 +681,29 @@ function CSS_ScannerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
-		this.style.outline = '1px dashed #f00';
+		this.style.outline = '2px dashed #f00';
 		CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
-
-	//These all commented out cause parser wont work with them in 
-
 	UpdateSubHeadings(element)
-	UpdatefontText(element);
-	UpdateColorBg(element);
-	UpdateBox(element);
-	UpdatePositioning(element);
-	UpdateTable(element, this.tagName);
-	UpdateList(element, this.tagName);
-	UpdateMisc(element);
-	UpdateEffects(element);
+	// UpdatefontText(element);
+	// UpdateColorBg(element);
+	// UpdateBox(element);
+	// UpdatePositioning(element);
+	// UpdateTable(element, this.tagName);
+	// UpdateList(element, this.tagName);
+	// UpdateMisc(element);
+	// UpdateEffects(element);
 
-	CSS_Scanner_element = this;
+	// Fahad - Replace with CSS logic to get applied styles (ignore inheritated styles)
+	let propertyMap = getAllStylesOnSingleElement(block);
+	UpdateMainPage(propertyMap)
 
 	cssScannerRemoveElement("cssScannerInsertMessage");
 
 	e.stopPropagation();
-
 	// generate simple css definition
 	CSS_Scanner_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
 
@@ -1338,6 +1379,41 @@ function floatingHeaderOptions(){
 // #endregion
 
 //#region StyleSheet Functions 
+
+/** 
+ *  CSS Specificity Exceptions: 
+ *   1) inline-styles: (should take priority)
+ *   2) !important (overrides everything)
+ */
+function getAllStylesOnSingleElement(block){
+	var elem = elementMap.get(block)
+	var rules = MEJSX.getCustomCssRulesOnElement(elem);
+
+	// e.g font-size: { "12px", Priority_Num }
+	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+
+	for (var i = 0; i < rules.length; i++) {
+		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+		propArr = properties.split(";");
+		if(rules[i].media.includes('screen')){ continue; } // Special groupings (@media, :after, :hover, :before - handled by other functions)
+
+		for(let i = 0; i < propArr.length; i++){
+			let prop = propArr[i].split(":")
+			if(prop.length < 2) continue;
+			
+			let propertyName = prop[0].toString();
+			let propertyValue = prop[1].toString();
+
+			propertyMap.set(propertyName, [propertyValue, 0]);
+		}
+	}	
+	return propertyMap
+}
+function getAllMediaStylesOnSingleElement(block){
+
+}
+
+
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
 	var text = ""; 
@@ -1366,13 +1442,10 @@ function parseStyleSheets(block){
 				text += "\n" + one_tab_more + propArr[i]; 
 			}
 			text +=  "\n" + default_tab + "}" + "\n"
-			
 		}	
 	}
 	console.log(text); 
 }
-
-
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
 function filteredSelectorText(element, cssSelector) {
@@ -1409,7 +1482,7 @@ var MEJSX = function() {
 	  var isCssStyleRule = function(cssRule) {
 		return cssRule.getName() === 'CSSStyleRule';
 	  }
-  
+
 	  // Here we get the cssRules across all the stylesheets in one array
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
 		return rules.concat(slice(styleSheet.cssRules));
@@ -1443,7 +1516,7 @@ var MEJSX = function() {
 		  var selectorText = filteredSelectorText(elm, e.selectorText)
 		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
-  
+		  
 		  var _elementRule = new elementRule(order, content, media, selectorText);
 		  elementRules.push(_elementRule);
 		}
@@ -1471,5 +1544,5 @@ var MEJSX = function() {
 	}
   }()
 
-// Handle Clicks
+  // Handle Clicks
 document.onkeydown = CssScannerKeyMap;
