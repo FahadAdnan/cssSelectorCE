@@ -7,7 +7,7 @@ function GetCSSProperty(element, property){ return element.getPropertyValue(prop
 
 function isRgbValue(value) {
 	if (typeof value !== 'string') { return false; }
-	return value.match(new RegExp('^rgb\\((25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9]), ?(25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9]), ?(25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9])\\)$')) !== null;
+	return value.match("\s*rgb\\s*[(\]\\s*[0-9]{1,3}\\s*,\\s*[0-9]{1,3}\\s*,\\s*[0-9]{1,3}\\s*[)\]\\s*") !== null;
 }
 function isRegexValue(value) {
 	if (typeof value !== 'string') { return false; }
@@ -43,17 +43,10 @@ function RGBToHex(str)
 	str = str.slice(start, end);
 
 	var hexValues = str.split(', ');
-	var hexStr = '#'; 
+	var hexStr = '#';
 
-	for (var i = 0; i < hexValues.length; i++) {
-		hexStr += DecToHex(hexValues[i]);
-	}
-	
-	if( hexStr == "#00000000" ){
-		hexStr = "#FFFFFF";
-	}
-	
-	hexStr = '<span style="border: 1px solid #000000 !important;width: 8px !important;height: 8px !important;display: inline-block !important;background-color:'+ hexStr +' !important;"></span> ' + hexStr;
+	for (var i = 0; i < hexValues.length; i++) { hexStr += DecToHex(hexValues[i]); }
+	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
 
 	return hexStr;
 }
@@ -132,32 +125,35 @@ function UpdateMainPage(propertyMap){
 
 		var span_value = document.createElement('span'); 
 		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
-		span_value.appendChild(document.createTextNode(propValue));
 
 		// Handling spans that include color
 		var span_color = null; 
+
 		if(isRgbValue(propValue)){
 			var hexStr = RGBToHex(propValue)
-			span_color = document.createElement(document.createElement('span'))
-			colorSpan.className = "css-scanner-color-preview"
-			colorSpan.backgroundColor = hexStr
+			span_color = document.createElement('span')
+			span_color.className = "css-scanner-color-preview"
+			span_color.style.backgroundColor = hexStr
 			span_value.appendChild(document.createTextNode(hexStr));
 		}else if(isRegexValue(propValue)){
-			var colorSpan = document.createElement(document.createElement('span'))
-			colorSpan.className = "css-scanner-color-preview"
-			colorSpan.backgroundColor = propValue
+			span_color = document.createElement('span')
+			span_color.className = "css-scanner-color-preview"
+			span_color.style.backgroundColor = propValue
 			span_value.appendChild(document.createTextNode(propValue));
 		}else{
 			span_value.appendChild(document.createTextNode(propValue));
 		}
 
 		li.appendChild(span_property);
-		if(span_color !== null) li.appendChild(span_color)
+		li.appendChild(document.createTextNode(" : "))
+		if(span_color !== null){ 
+			li.appendChild(span_color) 
+			li.appendChild(document.createTextNode(" "))
+		}
 		li.appendChild(span_value)
+		li.appendChild(document.createTextNode(";"))
 		ul.appendChild(li);
 	}
-	// // Remove extra elements if present 
-	// for(let i = (propArrLen-invalidEntries); i < unorderedListLen; i++){ ul.removeChild(ul.lastChild) }
 }
 
 function UpdatefontText(element)

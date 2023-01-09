@@ -246,5 +246,7 @@
 	width: 8px !important;
 	height: 8px !important;
 	display: inline-block !important;
+	color: rgb(255, 255, 255);
+    background-color:  rgb(255, 255, 255);
   }
 
