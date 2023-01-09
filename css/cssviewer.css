@@ -241,3 +241,10 @@
 	background: #7dffb3 !important;
   }
   
+  .css-scanner-color-preview {
+	border: 1px solid #000000 !important;
+	width: 8px !important;
+	height: 8px !important;
+	display: inline-block !important;
+  }
+

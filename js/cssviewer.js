@@ -5,6 +5,15 @@ var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B'
 function GetCurrentDocument() { return window.document; }
 function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
 
+function isRgbValue(value) {
+	if (typeof value !== 'string') { return false; }
+	return value.match(new RegExp('^rgb\\((25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9]), ?(25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9]), ?(25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?|[0-9])\\)$')) !== null;
+}
+function isRegexValue(value) {
+	if (typeof value !== 'string') { return false; }
+	return value.match(new RegExp('/#[0-9A-Fa-f]{6}/g')) !== null;
+}
+
 function setBlockCursorStyle(cursorstyle){
 	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
 		function(element, index, array) {
@@ -78,7 +87,6 @@ var CSS_Scanner_is_closed = true
 var elementMap = new Map([]); 
 // #endregion
 
-
 // #region Update Functions 
 function UpdateSubHeadings(element){
 	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
@@ -100,7 +108,6 @@ function UpdateMainPage(propertyMap){
 	
 	// Ul in document currently 
 	let ul = last(document.getElementsByClassName("css-scanner-ul"))
-	let unorderedListLen = ul.childNodes.length
 
 	// Array of property values 
 	let propertyArr = new Array(new Array());
@@ -114,7 +121,6 @@ function UpdateMainPage(propertyMap){
 		let propName = propertyArr[i][0];
 		let propValue = propertyArr[i][1];
 		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){
-			invalidEntries++;
 			continue;
 		}
 		// Add in a new li element
@@ -127,11 +133,26 @@ function UpdateMainPage(propertyMap){
 		var span_value = document.createElement('span'); 
 		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
 		span_value.appendChild(document.createTextNode(propValue));
-		/** 
-		 * TODO TASKS --
-		 * Add in special cases for background color and color !! - filter out the !important portion inside of spans 
-		*/ 
+
+		// Handling spans that include color
+		var span_color = null; 
+		if(isRgbValue(propValue)){
+			var hexStr = RGBToHex(propValue)
+			span_color = document.createElement(document.createElement('span'))
+			colorSpan.className = "css-scanner-color-preview"
+			colorSpan.backgroundColor = hexStr
+			span_value.appendChild(document.createTextNode(hexStr));
+		}else if(isRegexValue(propValue)){
+			var colorSpan = document.createElement(document.createElement('span'))
+			colorSpan.className = "css-scanner-color-preview"
+			colorSpan.backgroundColor = propValue
+			span_value.appendChild(document.createTextNode(propValue));
+		}else{
+			span_value.appendChild(document.createTextNode(propValue));
+		}
+
 		li.appendChild(span_property);
+		if(span_color !== null) li.appendChild(span_color)
 		li.appendChild(span_value)
 		ul.appendChild(li);
 	}
@@ -851,10 +872,8 @@ function getAllStylesOnSingleElement(block){
 		for(let i = 0; i < propArr.length; i++){
 			let prop = propArr[i].split(":")
 			if(prop.length < 2) continue;
-			
 			let propertyName = prop[0].toString();
 			let propertyValue = prop[1].toString();
-
 			propertyMap.set(propertyName, [propertyValue, 0]);
 		}
 	}	
@@ -962,9 +981,11 @@ var MEJSX = function() {
 
 	  if (rulesOnElement.length) {
 		for (var i = 0; i < rulesOnElement.length; i++) {
+
 		  var e = rulesOnElement[i];
 		  var order = i;
 		  var content = e.cssText;
+
 		  var selectorText = filteredSelectorText(elm, e.selectorText)
 		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
@@ -995,7 +1016,7 @@ var MEJSX = function() {
 	  }
 	}
   }()
-  // #endregions
+// #endregion
 
   // Handle Clicks
 document.onkeydown = CssScannerKeyMap;
