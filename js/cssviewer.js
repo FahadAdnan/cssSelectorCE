@@ -1,4 +1,5 @@
 // Hexadecimal
+var const_google_search = "https://www.google.com/search?="
 var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
 // #region Util Functoins
@@ -82,7 +83,7 @@ var elementMap = new Map([]);
 
 // #region Update Functions 
 function UpdateSubHeadings(element){
-	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
+	var fontStyle = element.getPropertyValue('font-family').split(" ")[0].slice(0, -1); 
 	var fontSize = element.getPropertyValue('font-size');
 
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
@@ -91,7 +92,9 @@ function UpdateSubHeadings(element){
 	var header = last(document.getElementsByClassName('css-scanner-viewer-block')).firstChild;
 	try {
 		header.childNodes[1].lastChild.innerHTML = '&nbsp;' + height + " " + width; 
-		header.childNodes[2].lastChild.innerHTML = '&nbsp;' + fontStyle + " " + fontSize;
+		header.childNodes[2].childNodes[2].innerHTML = fontStyle;
+		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
+		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
 	} catch(err) {
 		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
@@ -327,7 +330,6 @@ function sub_headings_text(image_path){
 	var img = document.createElement("img")
 	img.src = chrome.runtime.getURL(image_path)
 	div.appendChild(img)
-	div.appendChild(document.createElement('span'));
 	return div
 }
 //#endregion
@@ -375,7 +377,20 @@ function CSS_Scanner()
 			header.appendChild(subheader); 
 
  			var size_sub_heading = sub_headings_text("../img/size.svg")
+			size_sub_heading.appendChild(document.createElement("span"))
+
 			var font_sub_heading = sub_headings_text("../img/font.svg");
+
+			var fontlink = document.createElement('a')
+			fontlink.className = "css-scanner-font-link-style"
+
+			var spacediv = document.createElement("div")
+			spacediv.innerHTML = "&nbsp;"
+
+			font_sub_heading.appendChild(spacediv);
+			font_sub_heading.appendChild(fontlink);
+			font_sub_heading.appendChild(document.createElement('span'));
+
 
 			header.appendChild(size_sub_heading);
 			header.appendChild(font_sub_heading);

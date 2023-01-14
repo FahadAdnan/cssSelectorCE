@@ -257,3 +257,8 @@
 	color: rgb(255, 255, 255);
     background-color:  rgb(255, 255, 255);
   }
+
+  .css-scanner-font-link-style{
+	text-decoration: underline !important;
+	color: inherit !important;
+  }
