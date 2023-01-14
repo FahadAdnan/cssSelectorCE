@@ -118,6 +118,7 @@ function UpdateMainPage(propertyMap){
 		}
 		// Add in a new li element
 		var li = document.createElement('li');
+		li.className = "css-scanner-default-white-text"
 
 		var span_property = document.createElement('span');
 		span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
@@ -145,7 +146,7 @@ function UpdateMainPage(propertyMap){
 		}
 
 		li.appendChild(span_property);
-		li.appendChild(document.createTextNode(" : "))
+		li.appendChild(document.createTextNode(": "))
 		if(span_color !== null){ 
 			li.appendChild(span_color) 
 			li.appendChild(document.createTextNode(" "))

@@ -190,6 +190,13 @@
 	font-weight: 500 !important;
 	color: #fff !important; 
   }
+  
+  .css-scanner-default-white-text{
+	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: #fff; 
+  }
 
   .css-scanner-header-text{
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
@@ -242,11 +249,11 @@
   }
   
   .css-scanner-color-preview {
-	border: 1px solid #000000 !important;
-	width: 8px !important;
-	height: 8px !important;
+	border: 0px !important;
+	width: 10px !important;
+	height: 10px !important;
+	border-radius: 2px !important; 
 	display: inline-block !important;
 	color: rgb(255, 255, 255);
     background-color:  rgb(255, 255, 255);
   }
-
