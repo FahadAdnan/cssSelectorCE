@@ -359,23 +359,26 @@ function SetCSSProperty(element, property)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.style.display = 'flex';
-	li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
+	if(li != undefined){
+		li.style.display = 'flex';
+		li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
+	}
 }
 
 function SetCSSPropertyIf(element, property, condition)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-
-	if (condition) {
-		li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
-		li.style.display = 'flex';
-		return 1;
-	}
-	else {
-		li.style.display = 'none';
-		return 0;
+	if(li != undefined){
+		if (condition) {
+			li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
+			li.style.display = 'flex';
+			return 1;
+		}
+		else {
+			li.style.display = 'none';
+			return 0;
+		}
 	}
 }
 
@@ -383,23 +386,27 @@ function SetCSSPropertyValue(element, property, value)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.lastChild.innerHTML =  ": " + value;
-	li.style.display = 'flex';
+	if(li != undefined){
+		li.lastChild.innerHTML =  ": " + value;
+		li.style.display = 'flex';
+	}
 }
 
 function SetCSSPropertyValueIf(element, property, value, condition)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
+	if(li != undefined){
 
-	if (condition) {
-		li.lastChild.innerHTML =  ": " + value;
-		li.style.display = 'flex';
-		return 1;
-	}
-	else {
-		li.style.display = 'none';
-		return 0;
+		if (condition) {
+			li.lastChild.innerHTML =  ": " + value;
+			li.style.display = 'flex';
+			return 1;
+		}
+		else {
+			li.style.display = 'none';
+			return 0;
+		}
 	}
 }
 
@@ -410,7 +417,9 @@ function HideCSSProperty(property)
 {
 	var document = GetCurrentDocument();
 	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	li.style.display = 'none';
+	if(li != undefined){
+		li.style.display = 'none';
+	}
 }
 
 function HideCSSCategory(category)
@@ -636,6 +645,8 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 
+	//These all commented out cause parser wont work with them in 
+
 	UpdateSubHeadings(element)
 	UpdatefontText(element);
 	UpdateColorBg(element);
@@ -814,7 +825,7 @@ function CSS_Scanner()
 				block.remove();
 			});
 			copy_btn.addEventListener("click", function(){
-				parseStyleSheets(document, block)
+				parseStyleSheets(block)
 			}); 
 			subheader.append(title, code_btn, copy_btn, trash_btn);
 
@@ -831,6 +842,7 @@ function CSS_Scanner()
 			// Insert all properties
 			var center = document.createElement('div');
 
+		
 			for (var cat in CSS_Scanner_categories) {
 				var div = document.createElement('div');
 
@@ -845,8 +857,10 @@ function CSS_Scanner()
 				for (var i = 0; i < properties.length; i++) {
 				
 					var li = document.createElement('li');
-					li.className = 'CSS_Scanner_' + properties[i];
-					li.style.display = 'none';
+					if(li != undefined){
+						li.className = 'CSS_Scanner_' + properties[i];
+						li.style.display = 'none';
+					}
 					var span_property = document.createElement('span');
 					span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
 					span_property.appendChild(document.createTextNode(properties[i]));
@@ -861,6 +875,7 @@ function CSS_Scanner()
 				div.appendChild(ul);
 				center.appendChild(div);
 			}
+		
 			block.appendChild(center);
 
 			// Insert a footer
@@ -1323,47 +1338,21 @@ function floatingHeaderOptions(){
 // #endregion
 
 //#region StyleSheet Functions 
-
-function parseStyleSheets(document, block){
-	var element = elementMap.get(block); 
-	var classList = parseClassList(element); 
-
-	var css = ""; 
-	for(let s = 0; s < document.styleSheets.length; s++){
-		var sheet = document.styleSheets.item(s); 
-
-		for (let i = 0; i < sheet.cssRules.length; i++) { 
-				var text = sheet.cssRules.item(i).selectorText; 
-
-				for(let j =0; j < classList.length; j++){
-					include = false; 
-					if(text != undefined && 
-						((text.includes(classList[j] + '') && 
-						 !(text.includes(classList[j] + '.'))) || 
-						   text.includes(classList[j] + ':'))){
-							include = true; 
-						}
-				}
-				if(include){
-					css += "\n" + sheet.cssRules.item(i).cssText;
-				}
-			}
+function parseStyleSheets(block){
+	var arr = GetAllSubElements(elementMap.get(block));
+	var text = ""; 
+	for(let j = 0; j < arr.length; j++){
+		var elem = arr[j];
+		var rules = MEJSX.getCustomCssRulesOnElement(elem);
+		for (var i = 0; i < rules.length; i++) {
+			if(rules[i].media.includes('screen'))
+				text += '\n\n @media ' +  rules[i].media; 
+		  text += '\n\n' + rules[i].content;
+		}	
 	}
-	console.log(css); 
+	console.log(text); 
 }
 
-function parseClassList(element){
-	arr = GetAllSubElements(element); 
-	var classList = [];
-	for(let i =0; i < arr.length; i++){
-		var list = arr[i].classList; 
-		for(let j = 0; j < list.length; j++){
-				classList.push(list.item(j))
-				//console.log("item: " + list.item(j))
-			}
-	}
-	return classList; 
-}
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.text === 'are_you_there_content_script?') {
@@ -1372,7 +1361,85 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     }
 });
 
-// #endregion
+var MEJSX = function() {
 
-// Handle Clicks
-document.onkeydown = CssScannerKeyMap;
+	Object.prototype.getName = function() {
+	  var funcNameRegex = /function (.{1,})\(/;
+	  var results = (funcNameRegex).exec((this).constructor.toString());
+	  return (results && results.length > 1) ? results[1] : "";
+	};
+  
+	var getCustomCssRulesOnElement = function(elm) {
+	  var slice = Function.call.bind(Array.prototype.slice);
+  
+	  var isCssMediaRule = function(cssRule) {
+		return cssRule.getName() === 'CSSMediaRule';
+	  }
+  
+	  var isCssStyleRule = function(cssRule) {
+		return cssRule.getName() === 'CSSStyleRule';
+	  }
+  
+	  // Here we get the cssRules across all the stylesheets in one array
+	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
+		try {
+			return rules.concat(slice(styleSheet.cssRules)); 
+		} catch (err){
+			console.log("err"); 
+			return rules; 
+			}
+	  }, []);
+  
+	  var mediaRules = cssRules.filter(isCssMediaRule);
+  
+	  cssRules = cssRules.filter(isCssStyleRule);
+  
+	  cssRules = cssRules.concat(slice(mediaRules).reduce(function(rules, mediaRule) {
+		return rules.concat(slice(mediaRule.cssRules));
+	  }, []));
+    
+	  // get only the css rules that matches that element
+	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
+	  var elementRules = [];
+	  var elementRule = function(order, content, media) {
+		if (media === undefined || media == null || media == '') {
+		  media = 'all';
+		}
+		this.order = order;
+		this.content = content;
+		this.media = media;
+	  }
+	  if (rulesOnElement.length) {
+		for (var i = 0; i < rulesOnElement.length; i++) {
+		  var e = rulesOnElement[i];
+		  var order = i;
+		  var content = e.cssText;
+		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
+  
+		  var _elementRule = new elementRule(order, content, media);
+		  elementRules.push(_elementRule);
+		}
+	  }
+  
+	  if (elm.getAttribute('style')) {
+		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}')
+		elementRules.push(_elementRule);
+	  }
+	  return elementRules;
+	};
+  
+	var isElementMatchWithCssRule = function(element, cssRule) {
+	  var proto = Element.prototype;
+	  var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+	  return matches(element, cssRule.selectorText);
+	};
+  
+	return {
+	  getCustomCssRulesOnElement: function(element) {
+		return getCustomCssRulesOnElement(element);
+	  }
+	}
+  }()
+  
