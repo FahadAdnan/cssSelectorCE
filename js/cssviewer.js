@@ -1,9 +1,8 @@
-// Hexadecimal
-var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
-// #region Util Functoins
-function GetCurrentDocument() { return window.document; }
-function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
+
+
+// #region RGB Helper Functions 
+var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
 function isRgbValue(value) {
 	if (typeof value !== 'string') { return false; }
@@ -13,63 +12,31 @@ function isRegexValue(value) {
 	if (typeof value !== 'string') { return false; }
 	return value.match(new RegExp('/#[0-9A-Fa-f]{6}/g')) !== null;
 }
-
-function setBlockCursorStyle(cursorstyle){
-	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
-		function(element, index, array) {
-			element.style.cursor = cursorstyle
-		}
-	)
-}
-
-function last(array) { return array[array.length - 1]; }
-
 function DecToHex(nb)
 {
 	var nbHexa = '';
-
 	nbHexa += CSS_Scanner_hexa[Math.floor(nb / 16)];
 	nb = nb % 16;
 	nbHexa += CSS_Scanner_hexa[nb];
-	
 	return nbHexa;
 }
-
 function RGBToHex(str)
 {
 	var start = str.search(/\(/) + 1;
 	var end = str.search(/\)/);
-
 	str = str.slice(start, end);
-
 	var hexValues = str.split(', ');
 	var hexStr = '#';
-
 	for (var i = 0; i < hexValues.length; i++) { hexStr += DecToHex(hexValues[i]); }
 	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
-
 	return hexStr;
 }
+// #endregion
 
-function GetFileName(str)
-{
-	var start = str.search(/\(/) + 1;
-	var end = str.search(/\)/);
-
-	str = str.slice(start, end);
-
-	var path = str.split('/');
-	
-	return path[path.length - 1];
-}
-
-function RemoveExtraFloat(nb)
-{
-	nb = nb.substr(0, nb.length - 2);
-
-	return Math.round(nb) + 'px';
-}
-
+// #region General Util Functoins
+function GetCurrentDocument() { return window.document; }
+function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
+function last(array) { return array[array.length - 1]; }
 // #endregion
 
 // #region Globals variables
@@ -572,20 +539,16 @@ function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
 	CSS_Scanner_has_document_event_listeners = true
-	setBlockCursorStyle("auto")
 }
 
 function RemoveDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
 	CSS_Scanner_has_document_event_listeners = false
-	setBlockCursorStyle("move")
 }
 
 function GetAllSubElements (element)
@@ -597,16 +560,11 @@ function GetAllSubElements (element)
 
 		elemArr.push(element);
 		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
-
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
-			if (childs[i].hasChildNodes()) {
-				elemArr = elemArr.concat(GetAllSubElements(childs[i]));
-			}
-			else if (childs[i].nodeType == 1) {
-				elemArr.push(childs[i]);
-			}
+			if (childs[i].hasChildNodes()) { elemArr = elemArr.concat(GetAllSubElements(childs[i])); }
+			else if (childs[i].nodeType == 1) { elemArr.push(childs[i]); }
 		}
 	}
 
@@ -1000,5 +958,5 @@ var MEJSX = function() {
   }()
 // #endregion
 
-  // Handle Clicks
+// Handle Clicks
 document.onkeydown = CssScannerKeyMap;
