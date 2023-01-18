@@ -820,10 +820,10 @@ function getAllStylesOnSingleElement(block, computedStyles){
 	return propertyMap
 }
 
-function getAllMediaStylesOnSingleElement(block){
-	// TODO
-}
-
+// #region Premium Functions 
+function getAllMediaStylesOnSingleElement(block){}
+function getAllColonStylesOnSingleElement(block){}
+// #endregion 
 
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
@@ -896,7 +896,12 @@ var MEJSX = function() {
 
 	  // Here we get the cssRules across all the stylesheets in one array
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
-		return rules.concat(slice(styleSheet.cssRules));
+		try{
+			return rules.concat(slice(styleSheet.cssRules));
+		}catch(err) {
+			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
+			return rules
+		}
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
