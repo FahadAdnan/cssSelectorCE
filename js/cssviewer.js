@@ -156,32 +156,6 @@ function UpdateMainPage(propertyMap){
 		ul.appendChild(li);
 	}
 }
-
-function UpdatefontText(element)
-{
-	let assuredList = ['font-family','font-size']
-	let possibleList = [
-		'font-weight','font-variant','font-style','letter-spacing',
-		'line-height','text-decoration','text-align','text-indent','text-transform',
-		'vertical-align','white-space','word-spacing'
-	]
-	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
-}
-
-function UpdateColorBg(element)
-{
-	// Color
-	SetCSSPropertyValue(element, 'color', RGBToHex(GetCSSProperty(element, 'color')));
-	// Background
-	SetCSSPropertyValueIf(element, 'background-color', RGBToHex(GetCSSProperty(element, 'background-color')), GetCSSProperty(element, 'background-color') != 'transparent');
-	SetCSSPropertyValueIf(element, 'background-image', GetFileName(GetCSSProperty(element, 'background-image')), GetCSSProperty(element, 'background-image') != 'none');
-
-	// Other
-	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
-}
-
 // #endregion 
 
 // #region Event Handlers
@@ -219,7 +193,7 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	UpdateSubHeadings(element)
-	let propertyMap = getAllStylesOnSingleElement(block);
+	let propertyMap = getAllStylesOnSingleElement(block, element);
 	UpdateMainPage(propertyMap)
 
 	cssScannerRemoveElement("cssScannerInsertMessage");
@@ -514,12 +488,14 @@ function CloseCSS_Scanner(){
 }
 
 function OpenCSS_Scanner(){
-	console.log("Opening CSS Viewer!!")
-	floatingHeaderOptions()
-	cssScanner = new CSS_Scanner();
-	if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
-	else{ cssScanner.Enable(); }
-	CSS_Scanner_is_closed = false 
+	if(CSS_Scanner_is_closed){
+		console.log("Reopening extension")
+		floatingHeaderOptions()
+		cssScanner = new CSS_Scanner();
+		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
+		else{ cssScanner.Enable(); }
+		CSS_Scanner_is_closed = false
+	} 
 }
 
 function FreezeCurrentBlock(){
@@ -848,18 +824,27 @@ function floatingHeaderOptions(){
 
 //#region StyleSheet Functions 
 
+function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; }
+
 /** 
  *  CSS Specificity Exceptions: 
  *   1) inline-styles: (should take priority)
  *   2) !important (overrides everything)
  */
 
-function getAllStylesOnSingleElement(block){
+function getAllStylesOnSingleElement(block, computedStyles){
 	var elem = elementMap.get(block)
 	var rules = MEJSX.getCustomCssRulesOnElement(elem);
 
 	// e.g font-size: { "12px", Priority_Num }
 	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+
+	// Assured list of properties 
+	['font-family','font-size', 'color'].forEach(propName => {
+		let prop_value = computedStyles.getPropertyValue(propName)
+		console.log("Adding property wiht value: " + prop_value)
+		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
+	})
 
 	for (var i = 0; i < rules.length; i++) {
 		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
@@ -871,7 +856,7 @@ function getAllStylesOnSingleElement(block){
 			if(prop.length < 2) continue;
 			let propertyName = prop[0].toString();
 			let propertyValue = prop[1].toString();
-			propertyMap.set(propertyName, [propertyValue, 0]);
+			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
 	return propertyMap
