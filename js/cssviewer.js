@@ -46,6 +46,7 @@ var CSS_Scanner_has_document_event_listeners = true // Switch to false - should 
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
+var CSS_Scanner_security_issue_occ = false
 // #endregion
 
 // #region Update Functions 
@@ -98,8 +99,6 @@ function UpdateMainPage(propertyMap){
 		// Handling spans that include color
 		var span_color = null; 
 
-
-
 		if(isRgbValue(propValue)){
 			var hexStr = RGBToHex(propValue)
 			span_color = document.createElement('span')
@@ -124,6 +123,10 @@ function UpdateMainPage(propertyMap){
 		li.appendChild(span_value)
 		li.appendChild(document.createTextNode(";"))
 		ul.appendChild(li);
+	}
+
+	if(CSS_Scanner_security_issue_occ){
+		ul.appendChild(security_issue_nested_note())
 	}
 }
 // #endregion 
@@ -255,6 +258,16 @@ function setElementToBeDraggable(elmnt) {
 // #endregion
 
 // #region Helper Divs for CSS Scanner 
+
+function security_issue_nested_note(){
+	let li_parent = document.createElement("li");
+	li_parent.className = "css-scanner-nested-container-style";
+	let security_err_span = document.createElement("span");
+	security_err_span.classList.add("css-scanner-default-white-text", "css-scanner-security-disclaimer");
+	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing"
+	li_parent.appendChild(security_err_span);
+	return li_parent;
+}
 
 function header_button(image_path){
 	var btn = document.createElement('button')
@@ -902,10 +915,12 @@ var MEJSX = function() {
 	  }
 
 	  // Here we get the cssRules across all the stylesheets in one array
+	  CSS_Scanner_security_issue_occ = false; 
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
 		try{
 			return rules.concat(slice(styleSheet.cssRules));
 		}catch(err) {
+			CSS_Scanner_security_issue_occ = true;
 			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
 			return rules
 		}

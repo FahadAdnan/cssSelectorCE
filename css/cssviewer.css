@@ -99,8 +99,8 @@
 	display: contents !important;
 }
 .css-scanner-security-disclaimer {
-	color:rgb(234, 42, 42);
-	font-weight: 500;
+	color:rgb(234, 42, 42) !important;
+	font-weight: 500 !important;
 }
 
 .css-scanner-subheading-text {
