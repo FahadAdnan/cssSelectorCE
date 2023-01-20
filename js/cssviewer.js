@@ -31,6 +31,7 @@ function RGBToHex(str)
 	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
 	return hexStr;
 }
+
 // #endregion
 
 // #region General Util Functoins
@@ -96,6 +97,8 @@ function UpdateMainPage(propertyMap){
 
 		// Handling spans that include color
 		var span_color = null; 
+
+
 
 		if(isRgbValue(propValue)){
 			var hexStr = RGBToHex(propValue)
@@ -812,8 +815,12 @@ function getAllStylesOnSingleElement(block, computedStyles){
 		for(let i = 0; i < propArr.length; i++){
 			let prop = propArr[i].split(":")
 			if(prop.length < 2) continue;
-			let propertyName = prop[0].toString();
-			let propertyValue = prop[1].toString();
+			let propertyName = prop[0].toString().trim();
+			let propertyValue = prop[1].toString().trim();
+
+			// Skip our added property
+			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
+			
 			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
