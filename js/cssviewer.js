@@ -1,10 +1,8 @@
-// Hexadecimal
-var const_google_search = "https://www.google.com/search?q="
-var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
-// #region Util Functoins
-function GetCurrentDocument() { return window.document; }
-function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
+var const_google_search = "https://www.google.com/search?q="
+
+// #region RGB Helper Functions 
+var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
 function isRgbValue(value) {
 	if (typeof value !== 'string') { return false; }
@@ -14,63 +12,32 @@ function isRegexValue(value) {
 	if (typeof value !== 'string') { return false; }
 	return value.match(new RegExp('/#[0-9A-Fa-f]{6}/g')) !== null;
 }
-
-function setBlockCursorStyle(cursorstyle){
-	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
-		function(element, index, array) {
-			element.style.cursor = cursorstyle
-		}
-	)
-}
-
-function last(array) { return array[array.length - 1]; }
-
 function DecToHex(nb)
 {
 	var nbHexa = '';
-
 	nbHexa += CSS_Scanner_hexa[Math.floor(nb / 16)];
 	nb = nb % 16;
 	nbHexa += CSS_Scanner_hexa[nb];
-	
 	return nbHexa;
 }
-
 function RGBToHex(str)
 {
 	var start = str.search(/\(/) + 1;
 	var end = str.search(/\)/);
-
 	str = str.slice(start, end);
-
 	var hexValues = str.split(', ');
 	var hexStr = '#';
-
 	for (var i = 0; i < hexValues.length; i++) { hexStr += DecToHex(hexValues[i]); }
 	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
-
 	return hexStr;
 }
 
-function GetFileName(str)
-{
-	var start = str.search(/\(/) + 1;
-	var end = str.search(/\)/);
+// #endregion
 
-	str = str.slice(start, end);
-
-	var path = str.split('/');
-	
-	return path[path.length - 1];
-}
-
-function RemoveExtraFloat(nb)
-{
-	nb = nb.substr(0, nb.length - 2);
-
-	return Math.round(nb) + 'px';
-}
-
+// #region General Util Functoins
+function GetCurrentDocument() { return window.document; }
+function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
+function last(array) { return array[array.length - 1]; }
 // #endregion
 
 // #region Globals variables
@@ -79,6 +46,7 @@ var CSS_Scanner_has_document_event_listeners = true // Switch to false - should 
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
+var CSS_Scanner_security_issue_occ = false
 // #endregion
 
 // #region Update Functions 
@@ -158,33 +126,11 @@ function UpdateMainPage(propertyMap){
 		li.appendChild(document.createTextNode(";"))
 		ul.appendChild(li);
 	}
+
+	if(CSS_Scanner_security_issue_occ){
+		ul.appendChild(security_issue_nested_note())
+	}
 }
-
-function UpdatefontText(element)
-{
-	let assuredList = ['font-family','font-size']
-	let possibleList = [
-		'font-weight','font-variant','font-style','letter-spacing',
-		'line-height','text-decoration','text-align','text-indent','text-transform',
-		'vertical-align','white-space','word-spacing'
-	]
-	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
-}
-
-function UpdateColorBg(element)
-{
-	// Color
-	SetCSSPropertyValue(element, 'color', RGBToHex(GetCSSProperty(element, 'color')));
-	// Background
-	SetCSSPropertyValueIf(element, 'background-color', RGBToHex(GetCSSProperty(element, 'background-color')), GetCSSProperty(element, 'background-color') != 'transparent');
-	SetCSSPropertyValueIf(element, 'background-image', GetFileName(GetCSSProperty(element, 'background-image')), GetCSSProperty(element, 'background-image') != 'none');
-
-	// Other
-	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
-}
-
 // #endregion 
 
 // #region Event Handlers
@@ -222,7 +168,7 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	UpdateSubHeadings(element)
-	let propertyMap = getAllStylesOnSingleElement(block);
+	let propertyMap = getAllStylesOnSingleElement(block, element);
 	UpdateMainPage(propertyMap)
 
 	cssScannerRemoveElement("cssScannerInsertMessage");
@@ -314,6 +260,16 @@ function setElementToBeDraggable(elmnt) {
 // #endregion
 
 // #region Helper Divs for CSS Scanner 
+
+function security_issue_nested_note(){
+	let li_parent = document.createElement("li");
+	li_parent.className = "css-scanner-nested-container-style";
+	let security_err_span = document.createElement("span");
+	security_err_span.classList.add("css-scanner-default-white-text", "css-scanner-security-disclaimer");
+	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing"
+	li_parent.appendChild(security_err_span);
+	return li_parent;
+}
 
 function header_button(image_path){
 	var btn = document.createElement('button')
@@ -529,12 +485,14 @@ function CloseCSS_Scanner(){
 }
 
 function OpenCSS_Scanner(){
-	console.log("Opening CSS Viewer!!")
-	floatingHeaderOptions()
-	cssScanner = new CSS_Scanner();
-	if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
-	else{ cssScanner.Enable(); }
-	CSS_Scanner_is_closed = false 
+	if(CSS_Scanner_is_closed){
+		console.log("Reopening extension")
+		floatingHeaderOptions()
+		cssScanner = new CSS_Scanner();
+		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
+		else{ cssScanner.Enable(); }
+		CSS_Scanner_is_closed = false
+	} 
 }
 
 function FreezeCurrentBlock(){
@@ -611,20 +569,16 @@ function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
 	CSS_Scanner_has_document_event_listeners = true
-	setBlockCursorStyle("auto")
 }
 
 function RemoveDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
 	CSS_Scanner_has_document_event_listeners = false
-	setBlockCursorStyle("move")
 }
 
 function GetAllSubElements (element)
@@ -636,16 +590,11 @@ function GetAllSubElements (element)
 
 		elemArr.push(element);
 		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
-
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
-			if (childs[i].hasChildNodes()) {
-				elemArr = elemArr.concat(GetAllSubElements(childs[i]));
-			}
-			else if (childs[i].nodeType == 1) {
-				elemArr.push(childs[i]);
-			}
+			if (childs[i].hasChildNodes()) { elemArr = elemArr.concat(GetAllSubElements(childs[i])); }
+			else if (childs[i].nodeType == 1) { elemArr.push(childs[i]); }
 		}
 	}
 
@@ -863,18 +812,27 @@ function floatingHeaderOptions(){
 
 //#region StyleSheet Functions 
 
+function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; }
+
 /** 
  *  CSS Specificity Exceptions: 
  *   1) inline-styles: (should take priority)
  *   2) !important (overrides everything)
  */
 
-function getAllStylesOnSingleElement(block){
+function getAllStylesOnSingleElement(block, computedStyles){
 	var elem = elementMap.get(block)
 	var rules = MEJSX.getCustomCssRulesOnElement(elem);
 
 	// e.g font-size: { "12px", Priority_Num }
 	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+
+	// Assured list of properties 
+	['font-family','font-size', 'color'].forEach(propName => {
+		let prop_value = computedStyles.getPropertyValue(propName)
+		console.log("Adding property wiht value: " + prop_value)
+		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
+	})
 
 	for (var i = 0; i < rules.length; i++) {
 		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
@@ -884,18 +842,22 @@ function getAllStylesOnSingleElement(block){
 		for(let i = 0; i < propArr.length; i++){
 			let prop = propArr[i].split(":")
 			if(prop.length < 2) continue;
-			let propertyName = prop[0].toString();
-			let propertyValue = prop[1].toString();
-			propertyMap.set(propertyName, [propertyValue, 0]);
+			let propertyName = prop[0].toString().trim();
+			let propertyValue = prop[1].toString().trim();
+
+			// Skip our added property
+			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
+			
+			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
 	return propertyMap
 }
 
-function getAllMediaStylesOnSingleElement(block){
-	// TODO
-}
-
+// #region Premium Functions 
+function getAllMediaStylesOnSingleElement(block){}
+function getAllColonStylesOnSingleElement(block){}
+// #endregion 
 
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
@@ -967,8 +929,15 @@ var MEJSX = function() {
 	  }
 
 	  // Here we get the cssRules across all the stylesheets in one array
+	  CSS_Scanner_security_issue_occ = false; 
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
-		return rules.concat(slice(styleSheet.cssRules));
+		try{
+			return rules.concat(slice(styleSheet.cssRules));
+		}catch(err) {
+			CSS_Scanner_security_issue_occ = true;
+			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
+			return rules
+		}
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
@@ -1030,5 +999,5 @@ var MEJSX = function() {
   }()
 // #endregion
 
-  // Handle Clicks
+// Handle Clicks
 document.onkeydown = CssScannerKeyMap;

@@ -11,8 +11,24 @@
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.98) !important;
+	background-color: rgba(31, 33, 45, 0.90) !important;
 	border-radius: 20px !important;
+}
+
+.css-scanner-nested-container-style
+{
+	display:flex !important;
+	align-items: flex-start !important;
+	flex-direction: column;
+	justify-content: flex-start !important;
+
+	padding: 10px 10px 10px 10px !important;
+	margin: 10px !important;
+
+	z-index: 9999; 
+	color:#555 !important;
+	background-color: rgba(85, 85, 95, 0.9) !important;
+	border-radius: 15px !important;
 }
 
 .css-scanner-red-outline{
@@ -82,6 +98,10 @@
 	color: #BD93F9 !important;
 	display: contents !important;
 }
+.css-scanner-security-disclaimer {
+	color:rgb(234, 42, 42) !important;
+	font-weight: 500 !important;
+}
 
 .css-scanner-subheading-text {
 	line-height: 20px !important;
@@ -94,6 +114,12 @@
 	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
 	width:332px !important;
+}
+
+.css-scanner-nested-ul
+{
+	padding:0px 0px 0px 0px !important;
+	list-style:none !important;
 }
 
 .css-scanner-viewer-btn {
