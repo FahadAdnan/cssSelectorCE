@@ -983,7 +983,6 @@ var MEJSX = function() {
 	};
   
 	var isElementMatchWithCssRule = function(element, cssRule) {
-  
 	  var proto = Element.prototype;
 	  var matches = Function.call.bind(proto.matchesSelector ||
 		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
