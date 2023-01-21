@@ -11,8 +11,24 @@
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.98) !important;
+	background-color: rgba(31, 33, 45, 0.90) !important;
 	border-radius: 20px !important;
+}
+
+.css-scanner-nested-container-style
+{
+	display:flex !important;
+	align-items: flex-start !important;
+	flex-direction: column;
+	justify-content: flex-start !important;
+
+	padding: 10px 10px 10px 10px !important;
+	margin: 10px !important;
+
+	z-index: 9999; 
+	color:#555 !important;
+	background-color: rgba(85, 85, 95, 0.9) !important;
+	border-radius: 15px !important;
 }
 
 .css-scanner-red-outline{
@@ -82,6 +98,10 @@
 	color: #BD93F9 !important;
 	display: contents !important;
 }
+.css-scanner-security-disclaimer {
+	color:rgb(234, 42, 42) !important;
+	font-weight: 500 !important;
+}
 
 .css-scanner-subheading-text {
 	line-height: 20px !important;
@@ -94,6 +114,12 @@
 	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
 	width:332px !important;
+}
+
+.css-scanner-nested-ul
+{
+	padding:0px 0px 0px 0px !important;
+	list-style:none !important;
 }
 
 .css-scanner-viewer-btn {
@@ -190,6 +216,13 @@
 	font-weight: 500 !important;
 	color: #fff !important; 
   }
+  
+  .css-scanner-default-white-text{
+	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	color: #fff; 
+  }
 
   .css-scanner-header-text{
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
@@ -233,7 +266,7 @@
   }
   
   .css-scanner-switch:checked::before {
-	transform: translateX(100%) !important;
+    transform: translateX(100%) !important;
 	background: #fff !important;
   }
   
@@ -241,3 +274,17 @@
 	background: #7dffb3 !important;
   }
   
+  .css-scanner-color-preview {
+	border: 0px !important;
+	width: 10px !important;
+	height: 10px !important;
+	border-radius: 2px !important; 
+	display: inline-block !important;
+	color: rgb(255, 255, 255);
+    background-color:  rgb(255, 255, 255);
+  }
+
+  .css-scanner-font-link-style{
+	text-decoration: underline !important;
+	color: inherit !important;
+  }

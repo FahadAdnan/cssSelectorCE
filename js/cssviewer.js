@@ -1,446 +1,57 @@
 
-// #region Constants
+var const_google_search = "https://www.google.com/search?q="
 
-var defaultPropertyValueMap = new Map([
-    ['font-weight','400'],
-    ['font-variant','normal'],
-    ['font-style','normal'],
-    ['letter-spacing','normal'],
-    ['line-height','normal'],
-    ['text-decoration','none'],
-    ['text-align','start'],
-    ['text-indent','0px'],
-	['transform', 'none'], 
-	['transition', 'all 0s ease 0s'],
-    ['text-transform','none'],
-    ['vertical-align','baseline'],
-    ['white-space','normal'],
-    ['word-spacing','normal'],
-    //Color And Background Stuff
-    ['background-color','transparent'],
-    ['background-attachment','scroll'],
-    ['background-image','none'],
-    // Background stuff
-    ['background-position',''],
-    ['background-repeat','repeat'],
-    ['border-top-style', 'none'],
-    ['margin','0 0 0 0'],
-    ['padding','0 0 0 0'],
-    ['min-height','0px'],
-    ['max-height','none'],
-    ['min-width','0px'],
-    ['max-width','none'],
-    // Positioning 
-    ['position','static'],
-    ['top','auto'],
-    ['bottom','auto'],
-    ['right','auto'],
-    ['left','auto'],
-    ['float','none'],
-    ['display'],
-    ['clear','none'],
-    ['z-index','auto'],
-    // Table 
-    ['border-collapse','separate'],
-    ['border-spacing','0px 0px'],
-    ['caption-side','top'],
-    ['empty-cells','show'],
-    ['table-layout','auto'],
-    ['overflow','visible'],
-    ['cursor','auto'],
-    ['visibility','visible'], 
-    ['outline-offset','0px'], 
-    ['box-sizing','content-box'], 
-    ['resize','none'], 
-    ['text-shadow' ,'none'], 
-    ['text-overflow' ,'clip'], 
-    ['word-wrap' ,'normal'], 
-    ['box-shadow','none'],
-    ['border-top-left-radius','0px'], 
-    ['border-top-right-radius' ,'0px'], 
-    ['border-bottom-left-radius' ,'0px'], 
-    ['border-bottom-right-radius','0px']
-]);
+// #region RGB Helper Functions 
+var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
-var CSS_Scanner_newVals = new Array(
-	'accent-color', //auto 
-	'align-content', //stretch
-	'align-items', //stretch
-	'align-self', //auto 
-	'all', //none
-	'animation', //none 0 ease 0 1 normal none running
-	'animation-delay', //0s 
-	'animation-direction', //normal
-	'animation-duration', //0
-	'animation-fill-mode', //none
-	'animation-iteration-count', //1
-	'animation-name', //none
-	'animation-play-state', //running
-	'animation-timing-function', //ease
-	'aspect-ratio', //auto
-	'backdrop-filter', //none
-	'backface-visibility', //visible
-	'background', //auto
-	'background-attachment', //scroll
-	'background-blend-mode', //normal
-	'background-clip', //border-box
-	'background-color', //transparent
-	'background-image', //none
-	'background-origin', //padding-box
-	'background-position', //0% 0%
-	'background-position-x', //0%
-	'background-position-y', //padding-box
-	'background-repeat', //repeat
-	'background-size', //auto
-	'block-size', //auto
-	//continue from here 
-);
-var CSS_Scanner_pFont = new Array(
-	'font-family', 
-	'font-size', 
-	'font-style', 
-	'font-variant', 
-	'font-weight', 
-	'letter-spacing', 
-	'line-height', 
-	'text-decoration', 
-	'text-align', 
-	'text-indent', 
-	'text-transform', 
-	'vertical-align', 
-	'white-space', 
-	'word-spacing'
-);
-
-var CSS_Scanner_pColorBg = new Array(
-	'background-attachment', 
-	'background-color', 
-	'background-image',
-	'background-position',
-	'background-repeat',
-	'color', 
-);
-
-var CSS_Scanner_pBox = new Array(
-	'height',
-	'width',
-	'border',
-	'border-top',
-	'border-right',
-	'border-bottom', 
-	'border-left',
-	'margin',
-	'padding',
-	'max-height',
-	'min-height',
-	'max-width',
-	'min-width',
-);
-
-var CSS_Scanner_pPositioning = new Array(
-	'position', 
-	'top', 
-	'bottom', 
-	'right', 
-	'left', 
-	'float', 
-	'display', 
-	'clear', 
-	'z-index', 
-);
-
-var CSS_Scanner_pList = new Array(
-	'list-style-image', 
-	'list-style-type', 
-	'list-style-position'
-);
-
-var CSS_Scanner_pTable = new Array(
-	'border-collapse',
-	'border-spacing',
-	'caption-side',
-	'empty-cells',
-	'table-layout'
-);
-
-var CSS_Scanner_pMisc = new Array(
-	'overflow', 
-	'cursor', 
-	'visibility'
-);
-
-var CSS_Scanner_pEffect = new Array(
-	'transform',
-	'transition',
-	'outline',
-	'outline-offset',
-	'box-sizing',
-	'resize',
-	'text-shadow',
-	'text-overflow',
-	'word-wrap',
-	'box-shadow',
-	'border-top-left-radius',
-	'border-top-right-radius',
-	'border-bottom-left-radius',
-	'border-bottom-right-radius'
-);
-
-// CSS Property categories
-var CSS_Scanner_categories = { 
-	'pFontText'    : CSS_Scanner_pFont, 
-	'pColorBg'     : CSS_Scanner_pColorBg, 
-	'pBox'         : CSS_Scanner_pBox, 
-	'pPositioning' : CSS_Scanner_pPositioning, 
-	'pList'        : CSS_Scanner_pList, 
-	'pTable'       : CSS_Scanner_pTable, 
-	'pMisc'        : CSS_Scanner_pMisc, 
-	'pEffect'      : CSS_Scanner_pEffect 
-};
-
-var CSS_Scanner_categoriesTitle = { 
-	'pFontText'    : 'Font & Text', 
-	'pColorBg'     : 'Color & Background', 
-	'pBox'         : 'Box', 
-	'pPositioning' : 'Positioning', 
-	'pList'        : 'List', 
-	'pTable'       : 'Table', 
-	'pMisc'        : 'Miscellaneous', 
-	'pEffect'      : 'Effects' 
-};
-
-// Table tagnames
-var CSS_Scanner_tableTagNames = new Array(
-	'table',
-	'caption',
-	'thread',
-	'tbody',
-	'tfoot',
-	'colgroup',
-	'col',
-	'tr',
-	'th',
-	'td'
-);
-
-var CSS_Scanner_listTagNames = new Array(
-	'ul',
-	'li',
-	'dd',
-	'dt',
-	'ol'
-);
-
-// Hexadecimal
-var CSS_Scanner_hexa = new Array(
-	'0',
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-	'A',
-	'B',
-	'C',
-	'D',
-	'E',
-	'F'
-);
-
-// #endregion
-
-// #region Util Functoins
-
-function GetCurrentDocument() { return window.document; }
-function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
-
-
-function isPropertyNotEqualToDefault(element, type)
-{
-	if(defaultPropertyValueMap.has(type)){ 
-		return (GetCSSProperty(element, type) != null &&  GetCSSProperty(element, type) != defaultPropertyValueMap.get(type)); 
-	}
-	else{ return GetCSSProperty(element, type); }
+function isRgbValue(value) {
+	if (typeof value !== 'string') { return false; }
+	return value.match("\s*rgb\\s*[(\]\\s*[0-9]{1,3}\\s*,\\s*[0-9]{1,3}\\s*,\\s*[0-9]{1,3}\\s*[)\]\\s*") !== null;
 }
-
-function setBlockCursorStyle(cursorstyle){
-	Array.from(document.getElementsByClassName("css-scanner-viewer-block")).forEach(
-		function(element, index, array) {
-			element.style.cursor = cursorstyle
-		}
-	)
+function isRegexValue(value) {
+	if (typeof value !== 'string') { return false; }
+	return value.match(new RegExp('/#[0-9A-Fa-f]{6}/g')) !== null;
 }
-
-function last(array) {
-    return array[array.length - 1];
-}
-
-function IsInArray(array, name)
-{
-	for (var i = 0; i < array.length; i++) {
-		if (name == array[i])
-			return true;
-	}
-
-	return false;
-}
-
 function DecToHex(nb)
 {
 	var nbHexa = '';
-
 	nbHexa += CSS_Scanner_hexa[Math.floor(nb / 16)];
 	nb = nb % 16;
 	nbHexa += CSS_Scanner_hexa[nb];
-	
 	return nbHexa;
 }
-
 function RGBToHex(str)
 {
 	var start = str.search(/\(/) + 1;
 	var end = str.search(/\)/);
-
 	str = str.slice(start, end);
-
 	var hexValues = str.split(', ');
-	var hexStr = '#'; 
-
-	for (var i = 0; i < hexValues.length; i++) {
-		hexStr += DecToHex(hexValues[i]);
-	}
-	
-	if( hexStr == "#00000000" ){
-		hexStr = "#FFFFFF";
-	}
-	
-	hexStr = '<span style="border: 1px solid #000000 !important;width: 8px !important;height: 8px !important;display: inline-block !important;background-color:'+ hexStr +' !important;"></span> ' + hexStr;
-
+	var hexStr = '#';
+	for (var i = 0; i < hexValues.length; i++) { hexStr += DecToHex(hexValues[i]); }
+	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
 	return hexStr;
-}
-
-function GetFileName(str)
-{
-	var start = str.search(/\(/) + 1;
-	var end = str.search(/\)/);
-
-	str = str.slice(start, end);
-
-	var path = str.split('/');
-	
-	return path[path.length - 1];
-}
-
-function RemoveExtraFloat(nb)
-{
-	nb = nb.substr(0, nb.length - 2);
-
-	return Math.round(nb) + 'px';
 }
 
 // #endregion
 
+// #region General Util Functoins
+function GetCurrentDocument() { return window.document; }
+function GetCSSProperty(element, property){ return element.getPropertyValue(property); }
+function last(array) { return array[array.length - 1]; }
+// #endregion
+
 // #region Globals variables
-var CSS_Scanner_element
-var CSS_Scanner_element_cssDefinition
 var CSS_Scanner_current_element
 var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
+var CSS_Scanner_security_issue_occ = false
 // #endregion
 
-// #region CSS Property: Value Setter Functions
-function SetCSSProperty(element, property)
-{
-	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	if(li != undefined){
-		li.style.display = 'flex';
-		li.lastChild.innerHTML = ": " + element.getPropertyValue(property);
-	}
-}
-
-function SetCSSPropertyIf(element, property, condition)
-{
-	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	if(li != undefined){
-		if (condition) {
-			li.lastChild.innerHTML =  ": " + element.getPropertyValue(property);
-			li.style.display = 'flex';
-			return 1;
-		}
-		else {
-			li.style.display = 'none';
-			return 0;
-		}
-	}
-}
-
-function SetCSSPropertyValue(element, property, value)
-{
-	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	if(li != undefined){
-		li.lastChild.innerHTML =  ": " + value;
-		li.style.display = 'flex';
-	}
-}
-
-function SetCSSPropertyValueIf(element, property, value, condition)
-{
-	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	if(li != undefined){
-
-		if (condition) {
-			li.lastChild.innerHTML =  ": " + value;
-			li.style.display = 'flex';
-			return 1;
-		}
-		else {
-			li.style.display = 'none';
-			return 0;
-		}
-	}
-}
-
-//#endregion
-
-// #region CSS Show/Hide Property Functions
-function HideCSSProperty(property)
-{
-	var document = GetCurrentDocument();
-	var li = last(document.getElementsByClassName('CSS_Scanner_' + property));
-	if(li != undefined){
-		li.style.display = 'none';
-	}
-}
-
-function HideCSSCategory(category)
-{
-	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
-	div.style.display = 'none';
-}
-
-function ShowCSSCategory(category)
-{
-	var document = GetCurrentDocument();
-	var div = last(document.getElementsByClassName('CSS_Scanner_' + category));
-	div.style.display = 'flex';
-}
-// #endregion 
-
 // #region Update Functions 
-
 function UpdateSubHeadings(element){
-	var fontStyle = element.getPropertyValue('font-family').split(" ")[0];
+	var fontStyle = element.getPropertyValue('font-family').split(" ")[0].slice(0, -1); 
 	var fontSize = element.getPropertyValue('font-size');
 
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
@@ -449,169 +60,80 @@ function UpdateSubHeadings(element){
 	var header = last(document.getElementsByClassName('css-scanner-viewer-block')).firstChild;
 	try {
 		header.childNodes[1].lastChild.innerHTML = '&nbsp;' + height + " " + width; 
-		header.childNodes[2].lastChild.innerHTML = '&nbsp;' + fontStyle + " " + fontSize;
+		header.childNodes[2].childNodes[2].innerHTML = fontStyle;
+		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
+		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
 	} catch(err) {
 		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
 }
 
-function UpdatefontText(element)
-{
-	let assuredList = ['font-family','font-size']
-	let possibleList = [
-		'font-weight','font-variant','font-style','letter-spacing',
-		'line-height','text-decoration','text-align','text-indent','text-transform',
-		'vertical-align','white-space','word-spacing'
-	]
-	for(let prop in assuredList) { SetCSSProperty(element, assuredList[prop]); }
-	for(let prop in possibleList) { SetCSSPropertyIf(element, possibleList[prop], isPropertyNotEqualToDefault(element, possibleList[prop]));}
-}
-
-function UpdateColorBg(element)
-{
-	// Color
-	SetCSSPropertyValue(element, 'color', RGBToHex(GetCSSProperty(element, 'color')));
-
-	// Background
-	SetCSSPropertyValueIf(element, 'background-color', RGBToHex(GetCSSProperty(element, 'background-color')), GetCSSProperty(element, 'background-color') != 'transparent');
-	SetCSSPropertyValueIf(element, 'background-image', GetFileName(GetCSSProperty(element, 'background-image')), GetCSSProperty(element, 'background-image') != 'none');
-
-	// Other
-	var possibleColorBgList = ['background-attachment', 'background-position' ,'background-repeat' ]
-	for (let prop in possibleColorBgList) { SetCSSPropertyIf(element, possibleColorBgList[prop], isPropertyNotEqualToDefault(element, possibleColorBgList[prop]));}
-}
-
-function UpdateBox(element)
-{
-	// Width/Height
-	SetCSSPropertyIf(element, 'height', RemoveExtraFloat(GetCSSProperty(element, 'height')) != 'auto');
-	SetCSSPropertyIf(element, 'width', RemoveExtraFloat(GetCSSProperty(element, 'width')) != 'auto');
-
-	// Border
-	var borderTop    = RemoveExtraFloat(GetCSSProperty(element, 'border-top-width')) + ' ' + GetCSSProperty(element, 'border-top-style') + ' ' + RGBToHex(GetCSSProperty(element, 'border-top-color'));
-	var borderBottom = RemoveExtraFloat(GetCSSProperty(element, 'border-bottom-width')) + ' ' + GetCSSProperty(element, 'border-bottom-style') + ' ' + RGBToHex(GetCSSProperty(element, 'border-bottom-color'));
-	var borderRight  = RemoveExtraFloat(GetCSSProperty(element, 'border-right-width')) + ' ' + GetCSSProperty(element, 'border-right-style') + ' ' + RGBToHex(GetCSSProperty(element, 'border-right-color'));
-	var borderLeft   = RemoveExtraFloat(GetCSSProperty(element, 'border-left-width')) + ' ' + GetCSSProperty(element, 'border-left-style') + ' ' + RGBToHex(GetCSSProperty(element, 'border-left-color'));
-
-	if (borderTop == borderBottom && borderBottom == borderRight && borderRight == borderLeft && GetCSSProperty(element, 'border-top-style') != 'none') {
-		SetCSSPropertyValue(element, 'border', borderTop);
-
-		HideCSSProperty('border-top');
-		HideCSSProperty('border-bottom');
-		HideCSSProperty('border-right');
-		HideCSSProperty('border-left');
-	}
-	else {
-		SetCSSPropertyValueIf(element, 'border-top'   , borderTop   , GetCSSProperty(element, 'border-top-style') != 'none');
-		SetCSSPropertyValueIf(element, 'border-bottom', borderBottom, GetCSSProperty(element, 'border-bottom-style') != 'none');
-		SetCSSPropertyValueIf(element, 'border-right' , borderRight , GetCSSProperty(element, 'border-right-style') != 'none');
-		SetCSSPropertyValueIf(element, 'border-left'  , borderLeft  , GetCSSProperty(element, 'border-left-style') != 'none');
-
-		HideCSSProperty('border');
-	}
+function UpdateMainPage(propertyMap){
 	
-	// Margin
-	var marginTop    = RemoveExtraFloat(GetCSSProperty(element, 'margin-top'));
-	var marginBottom = RemoveExtraFloat(GetCSSProperty(element, 'margin-bottom'));
-	var marginRight  = RemoveExtraFloat(GetCSSProperty(element, 'margin-right'));
-	var marginLeft   = RemoveExtraFloat(GetCSSProperty(element, 'margin-left'));
-	var margin       = (marginTop == '0px' ? '0' : marginTop) + ' ' + (marginRight == '0px' ? '0' : marginRight) + ' '  + (marginBottom == '0px' ? '0' : marginBottom) + ' '  + (marginLeft == '0px' ? '0' : marginLeft);
+	// Ul in document currently 
+	let ul = last(document.getElementsByClassName("css-scanner-ul"))
 
-	SetCSSPropertyValueIf(element, 'margin', margin, margin != '0 0 0 0');
+	// Array of property values 
+	let propertyArr = new Array(new Array());
+	propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
+	propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+	let propArrLen = propertyArr.length;
 
-	// padding
-	var paddingTop    = RemoveExtraFloat(GetCSSProperty(element, 'padding-top'));
-	var paddingBottom = RemoveExtraFloat(GetCSSProperty(element, 'padding-bottom'));
-	var paddingRight  = RemoveExtraFloat(GetCSSProperty(element, 'padding-right'));
-	var paddingLeft   = RemoveExtraFloat(GetCSSProperty(element, 'padding-left'));
-	var padding       = (paddingTop == '0px' ? '0' : paddingTop) + ' ' + (paddingRight == '0px' ? '0' : paddingRight) + ' '  + (paddingBottom == '0px' ? '0' : paddingBottom) + ' '  + (paddingLeft == '0px' ? '0' : paddingLeft);
+	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
+	for(let i = 0; i < propArrLen; i++){
 
-	SetCSSPropertyValueIf(element, 'padding', padding, padding != '0 0 0 0');
-
-	// Max/Min Width/Height
-	let possibleBoxList = ['min-height', 'max-height', 'min-width', 'max-width']
-	for (let prop in possibleBoxList) { SetCSSPropertyIf(element, possibleBoxList[prop], isPropertyNotEqualToDefault(element, possibleBoxList[prop]));}
-}
-
-function UpdatePositioning(element)
-{
-	SetCSSProperty(element, 'display');
-	let possiblePositionList = ['position','top','bottom','right','left','float','clear','z-index']
-	for (var prop in possiblePositionList) { SetCSSPropertyIf(element, possiblePositionList[prop], isPropertyNotEqualToDefault(element, possiblePositionList[prop]));}
-}
-
-function UpdateTable(element, tagName)
-{
-	if (IsInArray(CSS_Scanner_tableTagNames, tagName)) {
-		var nbProperties = 0;
-
-		let possibleTableList = ['border-collapse', 'border-spacing', 'caption-side', 'empty-cells',  'table-layout']
-		for (let prop in possibleTableList) { nbProperties += SetCSSPropertyIf(element, possibleTableList[prop], isPropertyNotEqualToDefault(element, possibleTableList[prop]));}
-
-		if (nbProperties > 0) ShowCSSCategory('pTable');
-		else HideCSSCategory('pTable');
-	}
-	else {
-		HideCSSCategory('pTable');
-	}
-}
-
-function UpdateList(element, tagName)
-{
-	if (IsInArray(CSS_Scanner_listTagNames, tagName)) {
-		ShowCSSCategory('pList');
-
-		var listStyleImage = GetCSSProperty(element, 'list-style-image');
-
-		if (listStyleImage == 'none') {
-			SetCSSProperty(element, 'list-style-type');
-			HideCSSProperty('list-style-image');
+		let propName = propertyArr[i][0];
+		let propValue = propertyArr[i][1];
+		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){
+			continue;
 		}
-		else {
-			SetCSSPropertyValue(element, 'list-style-image', listStyleImage);
-			HideCSSProperty('list-style-type');
+		// Add in a new li element
+		var li = document.createElement('li');
+		li.className = "css-scanner-default-white-text"
+
+		var span_property = document.createElement('span');
+		span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
+		span_property.appendChild(document.createTextNode(propName));
+
+		var span_value = document.createElement('span'); 
+		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
+
+		// Handling spans that include color
+		var span_color = null; 
+
+		if(isRgbValue(propValue)){
+			var hexStr = RGBToHex(propValue)
+			span_color = document.createElement('span')
+			span_color.className = "css-scanner-color-preview"
+			span_color.style.backgroundColor = hexStr
+			span_value.appendChild(document.createTextNode(hexStr));
+		}else if(isRegexValue(propValue)){
+			span_color = document.createElement('span')
+			span_color.className = "css-scanner-color-preview"
+			span_color.style.backgroundColor = propValue
+			span_value.appendChild(document.createTextNode(propValue));
+		}else{
+			span_value.appendChild(document.createTextNode(propValue));
 		}
-		SetCSSProperty(element, 'list-style-position');
+
+		li.appendChild(span_property);
+		li.appendChild(document.createTextNode(": "))
+		if(span_color !== null){ 
+			li.appendChild(span_color) 
+			li.appendChild(document.createTextNode(" "))
+		}
+		li.appendChild(span_value)
+		li.appendChild(document.createTextNode(";"))
+		ul.appendChild(li);
 	}
-	else {
-		HideCSSCategory('pList');
+
+	if(CSS_Scanner_security_issue_occ){
+		ul.appendChild(security_issue_nested_note())
 	}
 }
-
-function UpdateMisc(element)
-{
-	var nbProperties = 0;
-
-	let possibleMiscList = ['overflow', 'cursor', 'visibility'];
-	for (var prop in possibleMiscList) { nbProperties += SetCSSPropertyIf(element, possibleMiscList[prop], isPropertyNotEqualToDefault(element, possibleMiscList[prop]));}
-
-	if (nbProperties > 0) ShowCSSCategory('pMisc');
-	else HideCSSCategory('pMisc');
-}
-
-function UpdateEffects(element)
-{
-	var nbProperties = 0;
-	var possibleEffectList = ['transform','transition','outline','outline-offset','box-sizing','resize',
-						'text-shadow','text-overflow','word-wrap','box-shadow','border-top-left-radius',
-						'border-top-right-radius', 'border-bottom-left-radius','border-bottom-right-radius']
-
-	for (let prop in possibleEffectList) { nbProperties += SetCSSPropertyIf(element, possibleEffectList[prop], isPropertyNotEqualToDefault(element, possibleEffectList[prop]));}
-	if (nbProperties > 0) ShowCSSCategory('pEffect');
-	else HideCSSCategory('pEffect');
-}
-
 // #endregion 
 
 // #region Event Handlers
-
-function AddPropertyValuesToCssDefinitions(typeArray, element){
-	for (var i = 0; i < typeArray.length; i++){
-		if(isPropertyNotEqualToDefault(element, typeArray[i])){
-			CSS_Scanner_element_cssDefinition += "\t" + typeArray[i] + ': ' + element.getPropertyValue( typeArray[i] ) + ";\n";
-		}
-	}
-}
 
 function CSS_ScannerMouseOver(e)
 {
@@ -620,6 +142,7 @@ function CSS_ScannerMouseOver(e)
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 	if( ! block ){ return; }
 	elementMap.set(block, this)
+
 	// Initial Logic to decide whether to show the popup:
 	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
 		CSS_Scanner_on_custom_element = true 
@@ -638,50 +161,19 @@ function CSS_ScannerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
-		this.style.outline = '1px dashed #f00';
+		this.style.outline = '2px dashed #f00';
 		CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
-
-	//These all commented out cause parser wont work with them in 
-
 	UpdateSubHeadings(element)
-	UpdatefontText(element);
-	UpdateColorBg(element);
-	UpdateBox(element);
-	UpdatePositioning(element);
-	UpdateTable(element, this.tagName);
-	UpdateList(element, this.tagName);
-	UpdateMisc(element);
-	UpdateEffects(element);
-
-	CSS_Scanner_element = this;
+	let propertyMap = getAllStylesOnSingleElement(block, element);
+	UpdateMainPage(propertyMap)
 
 	cssScannerRemoveElement("cssScannerInsertMessage");
 
 	e.stopPropagation();
-
-	// generate simple css definition
-	CSS_Scanner_element_cssDefinition = this.tagName.toLowerCase() + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className) + " {\n";
-
-	var listOfHeaders = [
-		"\t/* Font & Text */\n",  "\n\t/* Color & Background */\n", "\n\t/* Box */\n", 
-		"\n\t/* Positioning */\n", "\n\t/* List */\n", "\n\t/* Table */\n",
-		"\n\t/* Miscellaneous */\n", "\n\t/* Effects */\n"
-	]
-	var listOfTypeArrays = [
-		CSS_Scanner_pFont, CSS_Scanner_pColorBg, CSS_Scanner_pBox, CSS_Scanner_pPositioning,
-		CSS_Scanner_pList, CSS_Scanner_pTable, CSS_Scanner_pMisc, CSS_Scanner_pEffect,
-	]
-	for(var i = 0; i < listOfHeaders.length; i++){
-		CSS_Scanner_element_cssDefinition += listOfHeaders[i];
-		AddPropertyValuesToCssDefinitions(listOfTypeArrays[i], element);
-	}
-	CSS_Scanner_element_cssDefinition += "}";
-
-	// console.log( element.cssText ); //< debug the hovered el css
 }
 
 function CSS_ScannerMouseOut(e)
@@ -769,6 +261,16 @@ function setElementToBeDraggable(elmnt) {
 
 // #region Helper Divs for CSS Scanner 
 
+function security_issue_nested_note(){
+	let li_parent = document.createElement("li");
+	li_parent.className = "css-scanner-nested-container-style";
+	let security_err_span = document.createElement("span");
+	security_err_span.classList.add("css-scanner-default-white-text", "css-scanner-security-disclaimer");
+	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing"
+	li_parent.appendChild(security_err_span);
+	return li_parent;
+}
+
 function header_button(image_path){
 	var btn = document.createElement('button')
 	btn.classList.add("css-scanner-viewer-btn")		
@@ -784,7 +286,6 @@ function sub_headings_text(image_path){
 	var img = document.createElement("img")
 	img.src = chrome.runtime.getURL(image_path)
 	div.appendChild(img)
-	div.appendChild(document.createElement('span'));
 	return div
 }
 //#endregion
@@ -832,7 +333,20 @@ function CSS_Scanner()
 			header.appendChild(subheader); 
 
  			var size_sub_heading = sub_headings_text("../img/size.svg")
+			size_sub_heading.appendChild(document.createElement("span"))
+
 			var font_sub_heading = sub_headings_text("../img/font.svg");
+
+			var fontlink = document.createElement('a')
+			fontlink.className = "css-scanner-font-link-style"
+
+			var spacediv = document.createElement("div")
+			spacediv.innerHTML = "&nbsp;"
+
+			font_sub_heading.appendChild(spacediv);
+			font_sub_heading.appendChild(fontlink);
+			font_sub_heading.appendChild(document.createElement('span'));
+
 
 			header.appendChild(size_sub_heading);
 			header.appendChild(font_sub_heading);
@@ -841,41 +355,9 @@ function CSS_Scanner()
 			
 			// Insert all properties
 			var center = document.createElement('div');
-
-		
-			for (var cat in CSS_Scanner_categories) {
-				var div = document.createElement('div');
-
-				div.className = 'CSS_Scanner_' + cat;
-				// var h2 = document.createElement('h2');
-				// h2.appendChild(document.createTextNode(CSS_Scanner_categoriesTitle[cat]));
-
-				var ul = document.createElement('ul');
-				ul.classList.add("css-scanner-ul")
-				var properties = CSS_Scanner_categories[cat];
-
-				for (var i = 0; i < properties.length; i++) {
-				
-					var li = document.createElement('li');
-					if(li != undefined){
-						li.className = 'CSS_Scanner_' + properties[i];
-						li.style.display = 'none';
-					}
-					var span_property = document.createElement('span');
-					span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
-					span_property.appendChild(document.createTextNode(properties[i]));
-
-					var span_value = document.createElement('span'); 
-					span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
-
-					li.appendChild(span_property);
-					li.appendChild(span_value)
-					ul.appendChild(li);
-				}
-				div.appendChild(ul);
-				center.appendChild(div);
-			}
-		
+			var ul = document.createElement('ul');
+			ul.classList.add("css-scanner-ul")
+			center.appendChild(ul)
 			block.appendChild(center);
 
 			// Insert a footer
@@ -1003,12 +485,14 @@ function CloseCSS_Scanner(){
 }
 
 function OpenCSS_Scanner(){
-	console.log("Opening CSS Viewer!!")
-	floatingHeaderOptions()
-	cssScanner = new CSS_Scanner();
-	if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
-	else{ cssScanner.Enable(); }
-	CSS_Scanner_is_closed = false 
+	if(CSS_Scanner_is_closed){
+		console.log("Reopening extension")
+		floatingHeaderOptions()
+		cssScanner = new CSS_Scanner();
+		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
+		else{ cssScanner.Enable(); }
+		CSS_Scanner_is_closed = false
+	} 
 }
 
 function FreezeCurrentBlock(){
@@ -1063,8 +547,6 @@ function CssScannerKeyMap(e) {
 		perf.checked = !perf.checked
 		ToggleGrid(perf.checked)
 	}
-	// REMOVE!!! -  c: Show code css for selected element. -
-	//if ( e.keyCode === 67 ){ window.prompt("Simple Css Definition :\n\nYou may copy the code below then hit escape to continue.", CSS_Scanner_element_cssDefinition); }
 }
 //#endregion
 
@@ -1087,20 +569,16 @@ function AddDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
 	CSS_Scanner_has_document_event_listeners = true
-	setBlockCursorStyle("auto")
 }
 
 function RemoveDocumentEventListeners()
 {
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
-
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
 	CSS_Scanner_has_document_event_listeners = false
-	setBlockCursorStyle("move")
 }
 
 function GetAllSubElements (element)
@@ -1112,16 +590,11 @@ function GetAllSubElements (element)
 
 		elemArr.push(element);
 		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
-
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
-			if (childs[i].hasChildNodes()) {
-				elemArr = elemArr.concat(GetAllSubElements(childs[i]));
-			}
-			else if (childs[i].nodeType == 1) {
-				elemArr.push(childs[i]);
-			}
+			if (childs[i].hasChildNodes()) { elemArr = elemArr.concat(GetAllSubElements(childs[i])); }
+			else if (childs[i].nodeType == 1) { elemArr.push(childs[i]); }
 		}
 	}
 
@@ -1338,22 +811,104 @@ function floatingHeaderOptions(){
 // #endregion
 
 //#region StyleSheet Functions 
+
+function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; }
+
+/** 
+ *  CSS Specificity Exceptions: 
+ *   1) inline-styles: (should take priority)
+ *   2) !important (overrides everything)
+ */
+
+function getAllStylesOnSingleElement(block, computedStyles){
+	var elem = elementMap.get(block)
+	var rules = MEJSX.getCustomCssRulesOnElement(elem);
+
+	// e.g font-size: { "12px", Priority_Num }
+	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+
+	// Assured list of properties 
+	['font-family','font-size', 'color'].forEach(propName => {
+		let prop_value = computedStyles.getPropertyValue(propName)
+		console.log("Adding property wiht value: " + prop_value)
+		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
+	})
+
+	for (var i = 0; i < rules.length; i++) {
+		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+		propArr = properties.split(";");
+		if(rules[i].media.includes('screen')){ continue; } // Special groupings (@media, :after, :hover, :before - handled by other functions)
+
+		for(let i = 0; i < propArr.length; i++){
+			let prop = propArr[i].split(":")
+			if(prop.length < 2) continue;
+			let propertyName = prop[0].toString().trim();
+			let propertyValue = prop[1].toString().trim();
+
+			// Skip our added property
+			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
+			
+			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
+		}
+	}	
+	return propertyMap
+}
+
+// #region Premium Functions 
+function getAllMediaStylesOnSingleElement(block){}
+function getAllColonStylesOnSingleElement(block){}
+// #endregion 
+
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
 	var text = ""; 
+
 	for(let j = 0; j < arr.length; j++){
 		var elem = arr[j];
 		var rules = MEJSX.getCustomCssRulesOnElement(elem);
+		// Logic where you format CSS
 		for (var i = 0; i < rules.length; i++) {
-			if(rules[i].media.includes('screen'))
-				text += '\n\n @media ' +  rules[i].media; 
-		  text += '\n\n' + rules[i].content;
+			var default_tab = "";
+			var one_tab_more = "    "		
+
+			if(rules[i].media.includes('screen')){
+				text += '\n@media ' +  rules[i].media;
+				default_tab = "    "
+				one_tab_more = "        "
+			}
+
+			text += "\n" + default_tab + rules[i].selectorText + " {"
+
+			var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+			propArr = properties.split(";");
+
+			for(let i = 0; i < propArr.length; i++){
+				if(i == propArr.length-1 && propArr[i].split(":").length < 2) continue;  // Handle edge case where last element is a newline 
+				text += "\n" + one_tab_more + propArr[i]; 
+			}
+			text +=  "\n" + default_tab + "}" + "\n"
 		}	
 	}
 	console.log(text); 
 }
 
+// If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
+function filteredSelectorText(element, cssSelector) {
+	// If there is only one selector (no list)
+	var arrSelectors = cssSelector.split(",")
+	if(arrSelectors.length <= 1) return cssSelector
 
+	var proto = Element.prototype;
+	var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+
+	for(let i = 0; i < arrSelectors.length; i++){
+		 if(matches(element, arrSelectors[i])){ return arrSelectors[i]; }
+	}
+	return "";
+};
+	
 var MEJSX = function() {
 
 	Object.prototype.getName = function() {
@@ -1372,15 +927,17 @@ var MEJSX = function() {
 	  var isCssStyleRule = function(cssRule) {
 		return cssRule.getName() === 'CSSStyleRule';
 	  }
-  
+
 	  // Here we get the cssRules across all the stylesheets in one array
+	  CSS_Scanner_security_issue_occ = false; 
 	  var cssRules = slice(document.styleSheets).reduce(function(rules, styleSheet) {
-		try {
-			return rules.concat(slice(styleSheet.cssRules)); 
-		} catch (err){
-			console.log("err"); 
-			return rules; 
-			}
+		try{
+			return rules.concat(slice(styleSheet.cssRules));
+		}catch(err) {
+			CSS_Scanner_security_issue_occ = true;
+			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
+			return rules
+		}
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
@@ -1394,28 +951,32 @@ var MEJSX = function() {
 	  // get only the css rules that matches that element
 	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
 	  var elementRules = [];
-	  var elementRule = function(order, content, media) {
-		if (media === undefined || media == null || media == '') {
-		  media = 'all';
-		}
+
+	  var elementRule = function(order, content, media, selectorText) {
+		if (media === undefined || media == null || media == '') { media = 'all'; }
 		this.order = order;
 		this.content = content;
 		this.media = media;
+		this.selectorText = selectorText
 	  }
+
 	  if (rulesOnElement.length) {
 		for (var i = 0; i < rulesOnElement.length; i++) {
+
 		  var e = rulesOnElement[i];
 		  var order = i;
 		  var content = e.cssText;
+
+		  var selectorText = filteredSelectorText(elm, e.selectorText)
+		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
-  
-		  var _elementRule = new elementRule(order, content, media);
+		  
+		  var _elementRule = new elementRule(order, content, media, selectorText);
 		  elementRules.push(_elementRule);
 		}
 	  }
-  
 	  if (elm.getAttribute('style')) {
-		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}')
+		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}', null, "inline-style")
 		elementRules.push(_elementRule);
 	  }
 	  return elementRules;
@@ -1428,11 +989,14 @@ var MEJSX = function() {
 		proto.msMatchesSelector || proto.oMatchesSelector);
 	  return matches(element, cssRule.selectorText);
 	};
-  
+
 	return {
 	  getCustomCssRulesOnElement: function(element) {
 		return getCustomCssRulesOnElement(element);
 	  }
 	}
   }()
-  
+// #endregion
+
+// Handle Clicks
+document.onkeydown = CssScannerKeyMap;
