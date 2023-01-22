@@ -21,7 +21,7 @@
 	"options_page": "option.html",
 	"background": { "service_worker": "js/background.js"},
 	"action": {
-		"default_icon": "img/16.png",
+		"default_icon": "img/logo16.png",
 		"default_title": "Click to Run CSS Scanner"
 	},
 	"permissions": [

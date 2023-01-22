@@ -378,7 +378,6 @@ CSS_Scanner.prototype.IsEnabled = function()
 CSS_Scanner.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
 
 	new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
@@ -468,6 +467,7 @@ function OpenCSS_Scanner(){
 		console.log("Reopening extension")
 		floatingHeaderOptions()
 		cssScanner = new CSS_Scanner();
+		console.log("CSS SCANNER: " + cssScanner.IsEnabled());
 		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
 		else{ cssScanner.Enable(); }
 		CSS_Scanner_is_closed = false
@@ -543,6 +543,7 @@ function RemoveEventListners(element){
 
 function AddDocumentEventListeners()
 {
+	console.log("Adding document event listeners")
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
@@ -926,7 +927,7 @@ var MEJSX = function() {
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.text === 'are_you_there_content_script_css_scanner?') {
       sendResponse({status: "yes"});
-	  if(CSS_Scanner_is_closed){ OpenCSS_Scanner() } 
+	  OpenCSS_Scanner() 
     }
 });
 
