@@ -370,7 +370,7 @@ function CSS_Scanner()
 			// TODO - add back in: block.appendChild(footer);
 		}
 		
-		cssScannerInsertMessage( "CSS_Scanner loaded! Hover any element you want to inspect in the page." );
+		//cssScannerInsertMessage( "CSS_Scanner loaded! Hover any element you want to inspect in the page." );
 
 		return block;
 	}
