@@ -63,6 +63,8 @@ function UpdateSubHeadings(element){
 		header.childNodes[2].childNodes[2].innerHTML = fontStyle;
 		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
 		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
+	}catch(err){
+		// Ignore if error occurs
 	}
 }
 
@@ -922,7 +924,7 @@ var MEJSX = function() {
 // #endregion
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if (msg.text === 'are_you_there_content_script?') {
+    if (msg.text === 'are_you_there_content_script_css_scanner?') {
       sendResponse({status: "yes"});
 	  if(CSS_Scanner_is_closed){ OpenCSS_Scanner() } 
     }
