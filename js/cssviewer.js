@@ -63,8 +63,6 @@ function UpdateSubHeadings(element){
 		header.childNodes[2].childNodes[2].innerHTML = fontStyle;
 		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
 		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
-	} catch(err) {
-		console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
 }
 
@@ -150,13 +148,6 @@ function CSS_ScannerMouseOver(e)
 		return;
 	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
-
-	//GETTING HTML::: 
-	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
-	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
-	
-	//console.log('zayd' + this.classList)
-	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
 
 	// Outline element
@@ -765,7 +756,6 @@ function getAllStylesOnSingleElement(block, computedStyles){
 	// Assured list of properties 
 	['font-family','font-size', 'color'].forEach(propName => {
 		let prop_value = computedStyles.getPropertyValue(propName)
-		console.log("Adding property wiht value: " + prop_value)
 		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
 	})
 
@@ -824,7 +814,6 @@ function parseStyleSheets(block){
 			text +=  "\n" + default_tab + "}" + "\n"
 		}	
 	}
-	console.log(text); 
 }
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
@@ -870,7 +859,6 @@ var MEJSX = function() {
 			return rules.concat(slice(styleSheet.cssRules));
 		}catch(err) {
 			CSS_Scanner_security_issue_occ = true;
-			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
 			return rules
 		}
 	  }, []);
