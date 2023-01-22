@@ -3,7 +3,7 @@
 	"manifest_version": 3,
 	"version": "1.7",
 
-	"description": "A simple CSS property viewer.",
+	"description": "A simple css property viewer.",
 
 	"icons": {
 		"16": "img/logo16.png",

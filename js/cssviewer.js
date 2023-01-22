@@ -41,7 +41,7 @@ function last(array) { return array[array.length - 1]; }
 // #endregion
 
 // #region Globals variables
-var CSS_Scanner_current_element
+var CSS_Scanner_current_element = null
 var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
@@ -155,7 +155,7 @@ function CSS_ScannerMouseOver(e)
 	// Outline element
 	if (this.tagName != 'body') {
 		this.style.outline = '2px dashed #f00';
-		CSS_Scanner_current_element = this;
+		if(CSS_Scanner_current_element) CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
@@ -786,38 +786,6 @@ function getAllStylesOnSingleElement(block, computedStyles){
 function getAllMediaStylesOnSingleElement(block){}
 function getAllColonStylesOnSingleElement(block){}
 // #endregion 
-
-function parseStyleSheets(block){
-	var arr = GetAllSubElements(elementMap.get(block));
-	var text = ""; 
-
-	for(let j = 0; j < arr.length; j++){
-		var elem = arr[j];
-		var rules = MEJSX.getCustomCssRulesOnElement(elem);
-		// Logic where you format CSS
-		for (var i = 0; i < rules.length; i++) {
-			var default_tab = "";
-			var one_tab_more = "    "		
-
-			if(rules[i].media.includes('screen')){
-				text += '\n@media ' +  rules[i].media;
-				default_tab = "    "
-				one_tab_more = "        "
-			}
-
-			text += "\n" + default_tab + rules[i].selectorText + " {"
-
-			var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
-			propArr = properties.split(";");
-
-			for(let i = 0; i < propArr.length; i++){
-				if(i == propArr.length-1 && propArr[i].split(":").length < 2) continue;  // Handle edge case where last element is a newline 
-				text += "\n" + one_tab_more + propArr[i]; 
-			}
-			text +=  "\n" + default_tab + "}" + "\n"
-		}	
-	}
-}
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
 function filteredSelectorText(element, cssSelector) {
