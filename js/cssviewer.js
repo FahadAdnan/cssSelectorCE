@@ -51,7 +51,7 @@ var CSS_Scanner_security_issue_occ = false
 
 // #region Update Functions 
 function UpdateSubHeadings(element){
-	var fontStyle = element.getPropertyValue('font-family').split(" ")[0].slice(0, -1); 
+	var fontStyle = element.getPropertyValue('font-family').split(",")[0]; 
 	var fontSize = element.getPropertyValue('font-size');
 
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
@@ -266,7 +266,7 @@ function security_issue_nested_note(){
 	li_parent.className = "css-scanner-nested-container-style";
 	let security_err_span = document.createElement("span");
 	security_err_span.classList.add("css-scanner-default-white-text", "css-scanner-security-disclaimer");
-	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing"
+	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets, properties may be missing"
 	li_parent.appendChild(security_err_span);
 	return li_parent;
 }
@@ -315,20 +315,13 @@ function CSS_Scanner()
 			title.classList.add("css-scanner-primary-text", "css-scanner-title")
 			title.id = 'CSS_Scanner_title'; 
 			title.appendChild(document.createTextNode(''));
-			
-			var code_btn = header_button("../img/code.svg")
-			var copy_btn = header_button("../img/copy.svg")
 			var trash_btn = header_button("../img/trash.svg")
 
-			//TODO - Add On-Clicks for code_btn and copy_btn
 			trash_btn.addEventListener("click", function () {
 				RemoveEventListners(block)
 				block.remove();
 			});
-			copy_btn.addEventListener("click", function(){
-				parseStyleSheets(block)
-			}); 
-			subheader.append(title, code_btn, copy_btn, trash_btn);
+			subheader.append(title, trash_btn);
 
 			header.appendChild(subheader); 
 
@@ -423,7 +416,7 @@ CSS_Scanner.prototype.Disable = function()
 
 // #endregion 
 
-// #region Notification Code - replace with cleaner version 
+// #region Notification Code
 
 function cssScannerInsertMessage( msg )
 {
@@ -505,10 +498,7 @@ function ToggleGrid(enable){
 
 function ClickEvent(e){
 	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
-	var isCopyEnabled= (document.getElementById('css-scanner-onclick-copy').firstChild.checked == true);
 	var isPinEnabled= (document.getElementById('css-scanner-onclick-pin').firstChild.checked == true);
-
-	if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
 	if(isPinEnabled){ FreezeCurrentBlock()}
 }
 
@@ -644,22 +634,12 @@ function dropdownSwitch(type, inner_text){
 }
 function dropdownShortcuts(command, inner_text){
 	var divShortcut = document.createElement("div")
-	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-3"
+	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-2"
 	divShortcut.innerHTML = "<b>" + command + "</b> " + inner_text
 	return divShortcut
 }
 
 function setStateOfSwitches(){ addEventListener
-	chrome.storage.sync.get('onclick_copy', function(result) {
-        var perf= document.getElementById('css-scanner-onclick-copy').firstChild;
-	    var tmp = result.onclick_copy; 
-        perf.checked = tmp;
-        
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
-        });
-    })
 	chrome.storage.sync.get('onclick_pin', function(result) {
         var perf= document.getElementById('css-scanner-onclick-pin').firstChild;
 	    var tmp = result.onclick_pin; 
@@ -668,26 +648,6 @@ function setStateOfSwitches(){ addEventListener
         perf.addEventListener("change", function() {
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_pin': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_pin': true}); }
-        });
-    })
-	chrome.storage.sync.get('other_child_css', function(result) {
-        var perf= document.getElementById('css-scanner-other-child-css').firstChild;
-	    var tmp = result.other_child_css; 
-        perf.checked = tmp;
-        
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
-        });
-    })
-	chrome.storage.sync.get('other_html_copy', function(result) {
-        var perf= document.getElementById('css-scanner-other-html-copy').firstChild;
-	    var tmp = result.other_html_copy; 
-        perf.checked = tmp;
-        
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
         });
     })
 	chrome.storage.sync.get('display_grid', function(result) {
@@ -700,16 +660,6 @@ function setStateOfSwitches(){ addEventListener
             if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_grid': false}); }
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_grid': true}); }
 			ToggleGrid(perf.checked)
-        });
-    })
-	chrome.storage.sync.get('display_guidelines', function(result) {
-        var perf= document.getElementById('css-scanner-display-guidelines').firstChild;
-	    var tmp = result.display_guidelines; 
-        perf.checked = tmp;
-        
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
         });
     })
 }
@@ -770,28 +720,20 @@ function floatingHeaderOptions(){
 
 	var onclick_sub = dropdownContainer()
 	onclick_sub.appendChild(dropdownHeader("On-Click Behaviour:"))
-	onclick_sub.appendChild(dropdownSwitch("onclick-copy", " Copy Code"))
 	onclick_sub.appendChild(dropdownSwitch("onclick-pin", " Pin the CSS Window"))
-
-	var other_sub = dropdownContainer()
-	other_sub.appendChild(dropdownHeader("Other Behaviour:"))
-	other_sub.appendChild(dropdownSwitch("other-child-css", " Copy Child Element CSS"))
-	other_sub.appendChild(dropdownSwitch("other-html-copy", " Copy HTML Code (Seperately)"))
 
 	var display_sub = dropdownContainer()
 	display_sub.appendChild(dropdownHeader("Display Behaviour:"))
 	display_sub.appendChild(dropdownSwitch("display-grid", " Grid"))
-	display_sub.appendChild(dropdownSwitch("display-guidelines", " Guidelines"))
 
 	var shortcuts_sub = dropdownContainer()
 	shortcuts_sub.appendChild(dropdownHeader("Shortcuts:"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+S:", "Activate Extension"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Alt+Shift+S:", "Pause/Continue"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+X::", "Toggle Grid"))
-	shortcuts_sub.appendChild(dropdownShortcuts("Arrow Keys:", "Navigate through DOM"))
 	shortcuts_sub.appendChild(dropdownShortcuts("ESC Key:", "Close the Extension"))
 
-	innerSubDiv.append(onclick_sub, other_sub, display_sub, shortcuts_sub)
+	innerSubDiv.append(onclick_sub, display_sub, shortcuts_sub)
 	dropdownDiv.appendChild(innerSubDiv)
 	parent_container.appendChild(dropdownDiv)
 	parent_container.appendChild(floatingHeaderButton("close", "Close the Extension", "../img/close.svg"))

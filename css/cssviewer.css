@@ -32,7 +32,7 @@
 }
 
 .css-scanner-red-outline{
-	outline: rgba(255, 0, 0, .2) solid 1px;
+	outline: rgba(255, 0, 0, .1) solid 1px;
 }
 
 .css-scanner-header, .css-scanner-subheader
@@ -99,7 +99,7 @@
 	display: contents !important;
 }
 .css-scanner-security-disclaimer {
-	color:rgb(234, 42, 42) !important;
+	color:rgb(254, 84, 84) !important;
 	font-weight: 500 !important;
 }
 
@@ -235,8 +235,8 @@
   .css-scanner-spacing-7{
 	padding: 7px 7px 7px 7px !important;
   }
-  .css-scanner-spacing-3{
-	padding: 3px 3px 3px 3px !important;
+  .css-scanner-spacing-2{
+	padding: 2px !important;
   }
   
   .css-scanner-switch {
@@ -274,7 +274,7 @@
   }
   
   .css-scanner-color-preview {
-	border: 0px !important;
+	border: rgba(255, 255, 255, 0.2) solid 1px;
 	width: 10px !important;
 	height: 10px !important;
 	border-radius: 2px !important; 
