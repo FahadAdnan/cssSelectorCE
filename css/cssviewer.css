@@ -156,14 +156,15 @@
   .css-scanner-menu-button{
 	display: flex;
 	flex-direction: row !important;
-  
+	align-items: center !important;
+
 	height: auto !important;
 	width: auto !important;
-	padding: 10px 10px !important;
+	padding: 7px 10px !important;
 	margin: 0px 5px !important;
   
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
-	  font-size: 14px !important;
+	font-size: 14px !important;
 	font-weight: 500 !important;
   
 	border-radius: 20px !important;
@@ -175,24 +176,21 @@
   }
   
   .css-scanner-menu-button:hover{
-	background-color: rgb(215, 127, 127) !important;
+	background-color:  #4ADC71  !important;
   }
   
   #css-scanner-btn-dropdown-container{
 	display:flex !important;
 	align-items: flex-end !important;
 	flex-direction: column; 
-	justify-content: flex-start !important;
   }
   
   #css-scanner-options-dropdown{
 	display:flex;
-	align-items: flex-start !important;
 	flex-direction: column !important;
-	justify-content: flex-start !important;
   
-	margin: 40px 0px 0px 0px;
-	padding: 10px 10px 10px 10px !important;
+	margin: 40px 0px 0px 0px !important;
+	padding: 5px 10px !important;
 	position:absolute !important;
 	z-index: 99999; 
   
@@ -225,11 +223,12 @@
   }
 
   .css-scanner-header-text{
+	width: auto !important;
+	text-align: center;
+	align-items: center !important;
 	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
-	text-align: center !important;
 	font-size: 16px !important;
 	font-weight: 600 !important;
-	padding: 5px !important;
 	color: #fff !important;  
   }
   
@@ -290,10 +289,11 @@
   }
 
 #css-scanner-insert-message{
-	color:rgb(0, 0, 0) !important;
-	background-color:  #4ADC71 !important; 
+	color:rgb(31, 33, 45) !important;
+	background-color: #4ADC71 !important; 
 	border-radius: 5px;
-	padding: 5px 5px 5px 5px !important;
+	position: fixed !important;
+	padding: 2px 5px !important;
 	top: 10px !important;
 	left: 10px !important;
 	z-index: 9999 !important;

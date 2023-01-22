@@ -3,6 +3,56 @@
         <link rel="stylesheet" href="css/cssviewer.css">
     </header>
     <body>
+      <div id="css-scanner-floating-options">
+        <button id="css-scanner-pause-continue" class="css-scanner-menu-button"><span id="css-scanner-span-pause-continue">Pause&nbsp;</span><img id="css-scanner-image-pause-continue" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/pause.svg"></button><button id="css-scanner-move" class="css-scanner-menu-button"><span id="css-scanner-span-move">Move&nbsp;</span><img id="css-scanner-image-move" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/arrow_down.svg"></button>
+        <div id="css-scanner-btn-dropdown-container">
+           <button id="css-scanner-options" class="css-scanner-menu-button"><span id="css-scanner-span-options">Options&nbsp;</span><img id="css-scanner-image-options" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/options.svg"></button>
+           <div id="css-scanner-options-dropdown">
+              <div class="css-scanner-spacing-7">
+                 <div class="css-scanner-header-text">On-Click:</div>
+                 <div id="css-scanner-onclick-copy" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Copy Code</switch>
+                 </div>
+                 <div id="css-scanner-onclick-pin" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Pin the CSS Window</switch>
+                 </div>
+              </div>
+              <div class="css-scanner-spacing-7">
+                 <div class="css-scanner-header-text">Other :</div>
+                 <div id="css-scanner-other-child-css" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Copy Child Element CSS</switch>
+                 </div>
+                 <div id="css-scanner-other-html-copy" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Copy HTML Code (Seperately)</switch>
+                 </div>
+              </div>
+              <div class="css-scanner-spacing-7">
+                 <div class="css-scanner-header-text">Display Behaviour:</div>
+                 <div id="css-scanner-display-grid" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Grid</switch>
+                 </div>
+                 <div id="css-scanner-display-guidelines" class="css-scanner-row-container">
+                    <input class="css-scanner-switch" type="checkbox">
+                    <switch class="css-scanner-simple-text"> Guidelines</switch>
+                 </div>
+              </div>
+              <div class="css-scanner-spacing-7">
+                 <div class="css-scanner-header-text">Shortcuts:</div>
+                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Ctrl+Shift+S:</b> Activate Extension</div>
+                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Alt+Shift+S:</b> Pause/Continue</div>
+                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Ctrl+Shift+X::</b> Toggle Grid</div>
+                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Arrow Keys:</b> Navigate through DOM</div>
+                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>ESC Key:</b> Close the Extension</div>
+              </div>
+           </div>
+        </div>
+        <button id="css-scanner-close" class="css-scanner-menu-button"><span id="css-scanner-span-close">Close the Extension&nbsp;</span><img id="css-scanner-image-close" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/close.svg"></button>
+     </div>
         <div id="css-scanner-insert-message" class="css-scanner-insert-message-font">CSS_Scanner loaded! Hover any element you want to inspect in the page.</div>
         <div class="css-scanner-viewer-block" style="display: flex; left: 65px; top: 130px;">
             <div class="css-scanner-header">

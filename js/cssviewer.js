@@ -171,7 +171,7 @@ function CSS_ScannerMouseOver(e)
 	let propertyMap = getAllStylesOnSingleElement(block, element);
 	UpdateMainPage(propertyMap)
 
-	//cssScannerRemoveElement("css-scanner-insert-message");
+	cssScannerRemoveElement("css-scanner-insert-message");
 
 	e.stopPropagation();
 }
@@ -370,8 +370,8 @@ function CSS_Scanner()
 			// TODO - add back in: block.appendChild(footer);
 		}
 		
-		cssScannerInsertMessage( "CSS_Scanner loaded! Hover any element you want to inspect in the page." );
-
+		cssScannerInsertMessage( "CSS Scanner is loaded, hover over any element you'd like to inspect" );
+  
 		return block;
 	}
 }
@@ -441,10 +441,7 @@ function cssScannerRemoveElement(divid)
 {   
 	//Removes and element from the dom, used to remove the notification message
 	var n = document.getElementById(divid);
-
-	if(n){
-		document.body.removeChild(n); 
-	}
+	if(n){ document.body.removeChild(n);  }
 }
 // #endregion
 
@@ -474,6 +471,9 @@ function CloseCSS_Scanner(){
 	// Remove option menu 
 	var option_menu = document.getElementById("css-scanner-floating-options")
 	option_menu.parentNode.removeChild(option_menu)
+	// Clean up loose ends - grid and notification message
+	ToggleGrid(false)
+	cssScannerRemoveElement("css-scanner-insert-message");
 	CSS_Scanner_is_closed = true
 }
 
@@ -522,8 +522,8 @@ function CssScannerKeyMap(e) {
 	// Close Extension(Escape) - delete custom added elements + event listeners 
 	if(e.keyCode === 27 && e.key == "Escape"){ CloseCSS_Scanner() }
 
-	// Pause/Continue: (Alt+Shift+S)
-	if( e.keyCode === 83 && (e.key === "S" || e.key === "s") && e.shiftKey && e.altKey){
+	// Pause/Continue: (Alt+Shift+S) - Note in macOS s+alt+shift causes a weird symbol to be created - need edgecase of "Í"
+	if( e.keyCode === 83 && (e.key === "S" || e.key === "s" || e.key == "Í") && e.shiftKey && e.altKey){
 		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
 		else{ ContinueCSS_Scanner() }	
 	}
@@ -617,7 +617,7 @@ function floatingHeaderButton(type, inner_text, image_path){
 }
 function dropdownContainer(){
 	var cntr = document.createElement("div")
-	cntr.classList = ["css-scanner-spacing-7", "css-scanner-full-width"]
+	cntr.classList = ["css-scanner-spacing-7"]
 	return cntr
 }
 function dropdownHeader(inner_text){
