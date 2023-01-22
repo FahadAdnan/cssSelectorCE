@@ -171,7 +171,7 @@ function CSS_ScannerMouseOver(e)
 	let propertyMap = getAllStylesOnSingleElement(block, element);
 	UpdateMainPage(propertyMap)
 
-	cssScannerRemoveElement("cssScannerInsertMessage");
+	//cssScannerRemoveElement("css-scanner-insert-message");
 
 	e.stopPropagation();
 }
@@ -409,7 +409,7 @@ CSS_Scanner.prototype.Disable = function()
 	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
-    var insertMessage = document.getElementById("cssScannerInsertMessage");
+    var insertMessage = document.getElementById("css-scanner-insert-message");
         
 	if (block || insertMessage) {
 		if(block) document.body.removeChild(block);
@@ -429,18 +429,11 @@ function cssScannerInsertMessage( msg )
 {
 	// Display the notification message
 	var oNewP = document.createElement("p");
-	var oText = document.createTextNode( msg );
+	var oText = document.createTextNode(msg);
 
 	oNewP.appendChild(oText);
-	oNewP.id                    = 'cssScannerInsertMessage';
-	oNewP.style.backgroundColor = '#b40000';
-	oNewP.style.color           = '#ffffff';
-	oNewP.style.position        = "fixed";
-	oNewP.style.top             = '10px';
-	oNewP.style.left            = '10px';
-	oNewP.style.zIndex          = '9999';
-	oNewP.style.padding         = '3px';
-
+	oNewP.id = 'css-scanner-insert-message';
+	oNewP.className = "css-scanner-insert-message-font"
 	document.body.appendChild(oNewP);
 }
 

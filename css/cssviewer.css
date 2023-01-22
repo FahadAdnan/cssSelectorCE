@@ -11,7 +11,7 @@
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.90) !important;
+	background-color: rgba(31, 33, 45, 0.92) !important;
 	border-radius: 20px !important;
 }
 
@@ -27,7 +27,7 @@
 
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(85, 85, 95, 0.9) !important;
+	background-color: rgba(85, 85, 95, 0.92) !important;
 	border-radius: 15px !important;
 }
 
@@ -288,3 +288,22 @@
 	text-decoration: underline !important;
 	color: inherit !important;
   }
+
+#css-scanner-insert-message{
+	color:rgb(0, 0, 0) !important;
+	background-color:  #4ADC71 !important; 
+	border-radius: 5px;
+	padding: 5px 5px 5px 5px !important;
+	top: 10px !important;
+	left: 10px !important;
+	z-index: 9999 !important;
+}
+
+.css-scanner-insert-message-font{
+	font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif !important; 
+	line-height: 24px ;
+	font-size: 14px;
+	overflow:auto !important;
+	text-align: left !important;
+	font-weight: 400 !important;
+}
