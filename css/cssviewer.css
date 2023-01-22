@@ -32,7 +32,7 @@
 }
 
 .css-scanner-red-outline{
-	outline: rgba(255, 0, 0, .10) solid 1px;
+	outline: rgba(255, 0, 0, .2) solid 1px;
 }
 
 .css-scanner-header, .css-scanner-subheader
