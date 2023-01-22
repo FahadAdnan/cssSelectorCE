@@ -232,6 +232,10 @@
 	color: #fff !important;  
   }
   
+  .css-scanner-initial-style{
+	all: initial;
+  }
+  
   .css-scanner-spacing-7{
 	padding: 7px 7px 7px 7px !important;
   }

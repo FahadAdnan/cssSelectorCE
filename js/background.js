@@ -1,34 +1,35 @@
+
 var cssScannerLoaded              = false; 
 var cssScannerContextMenusParent  = null;
-
-chrome.runtime.onInstalled.addListener(function(details){
-	if(details.reason == "install" || details.reason == "update" ){
-		//chrome.tabs.create( {url: "option.html"} );
-	}
-});
 
 /*
 * Inject cssviewer.js/cssviewer.css into the current page
 */
-function openFromBackgroundScript(info, tab) {
-    chrome.tabs.query({"active": true, "currentWindow": true }, function (tabs) {
-		console.log("Got here")
-	   chrome.tabs.executeScript(tabs[0].id, {code:'OpenCSS_Scanner()'});
-    });
+
+function openCE(tab){
+	console.log("Click occured")
+	try{
+		if( tab.url.indexOf("https://chrome.google.com") == 0 || tab.url.indexOf("chrome://") == 0 ){
+			alert( "CSS Scanner doesn't work on Google Chrome webstore!" );
+			return;
+		}
+		chrome.tabs.sendMessage(tab.id, {text: "are_you_there_content_script?"}, function(msg) {
+			msg = msg || {};
+			if (msg.status != 'yes') { alert("Error Running CSS Scanner - try refreshing your page")}
+		});
+	}catch(e){
+		console.log("CSS Scanner " + e)
+	}
 }
 
-cssScannerContextMenusParent  = chrome.contextMenus.create( { 
-	"title" : "Inspect with CSS Scanner", 
-	"contexts":["all"],
-	"onclick": openFromBackgroundScript
+// #region PORTION OF CODE BREAKING BACKGROUND.JS SERVICE WORKER
+chrome.runtime.onInstalled.addListener(() => {
+	chrome.contextMenus.create({ 
+		"id": "css-scanner-inspect-page-context-menu",
+		"title" : "Inspect with CSS Scanner", 
+		"contexts":["all"],
+	});
 });
 
-chrome.browserAction.onClicked.addListener(function(tab)
-{
-	if( tab.url.indexOf("https://chrome.google.com") == 0 || tab.url.indexOf("chrome://") == 0 ){
-		alert( "CSS Scanner doesn't work on Google Chrome webstore!" );
-		return;
-	}
-	chrome.tabs.executeScript(tab.id, {code:'OpenCSS_Scanner()'});
-	chrome.tabs.insertCSS(tab.id, {file:'css/cssviewer.css'});
-});
+chrome.contextMenus.onClicked.addListener((info, tab) => openCE(tab))
+chrome.action.onClicked.addListener((tab) => { openCE(tab) });
