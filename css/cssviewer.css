@@ -11,7 +11,7 @@
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.92) !important;
+	background-color: rgba(31, 33, 45, 0.94) !important;
 	border-radius: 20px !important;
 }
 
@@ -27,12 +27,12 @@
 
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(85, 85, 95, 0.92) !important;
+	background-color: rgba(85, 85, 95, 0.94) !important;
 	border-radius: 15px !important;
 }
 
 .css-scanner-red-outline{
-	outline: rgba(255, 0, 0, .1) solid 1px;
+	outline: rgba(255, 0, 0, 0.1) solid 1px;
 }
 
 .css-scanner-header, .css-scanner-subheader
@@ -44,8 +44,8 @@
 	min-width:332px !important;
 	width:auto !important;
 	height:auto !important;
-	padding:0px !important;
 	margin:0 !important;
+	padding:0px !important;
 
 	z-index: 9999; 
 	color:#333 !important;
@@ -53,9 +53,9 @@
 	border-radius: 10px !important;
 }
 
-.css-scanner-header { flex-direction: column; }
+.css-scanner-header { flex-direction: column !important; }
 
-.css-scanner-subheader { flex-direction: row; }
+.css-scanner-subheader { flex-direction: row !important; }
 
 
 .css-scanner-primary-text
@@ -111,7 +111,8 @@
 
 .css-scanner-ul
 {
-	padding:0px 0px 0px 0px !important;
+	margin: 0px !important;
+	padding: 5px 0px 0px 0px !important;
 	list-style:none !important;
 	width:332px !important;
 }
@@ -123,17 +124,18 @@
 }
 
 .css-scanner-viewer-btn {
-  background-color: transparent;
-  border: none; /* Remove borders */
-  color: white; /* White text */
-  padding: 5px 8px 5px 8px; /* Some padding */
-  font-size: 16px; /* Set a font size */
-  cursor: pointer; /* Mouse pointer on hover */
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 30% !important;
+  color: white !important;
+  padding: 5px 8px!important;
+  font-size: 16px !important; 
+  cursor: pointer !important;
 }
 
 /* Darker background on mouse-over */
 .css-scanner-viewer-btn:hover {
-  background-color: rgba(46, 50, 71, 0.98)!important; ;
+  background-color: rgba(196, 196, 196, 0.9)!important; ;
 }
 
 /* CSS Displays for the Floating Options Menu*/ 
@@ -279,8 +281,8 @@
   
   .css-scanner-color-preview {
 	border: rgba(255, 255, 255, 0.2) solid 1px;
-	width: 10px !important;
-	height: 10px !important;
+	width: 12px !important;
+	height: 12px !important;
 	border-radius: 2px !important; 
 	display: inline-block !important;
 	color: rgb(255, 255, 255);

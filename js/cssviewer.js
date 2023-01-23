@@ -46,7 +46,9 @@ var CSS_Scanner_has_document_event_listeners = true // Switch to false - should 
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
-var CSS_Scanner_security_issue_occ = false
+var CSS_Scanner_security_issue_occ = false;
+var CSS_Scanner_currently_outlined_item = null 
+var CSS_Scanner_current_viewer_block_filled = false 
 // #endregion
 
 // #region Update Functions 
@@ -154,16 +156,19 @@ function CSS_ScannerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
+		CSS_Scanner_currently_outlined_item = this
 		this.style.outline = '2px dashed #f00';
 		if(CSS_Scanner_current_element) CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
-	var element = document.defaultView.getComputedStyle(this, null);
-	UpdateSubHeadings(element)
+	let element = document.defaultView.getComputedStyle(this, null);
 	let propertyMap = getAllStylesOnSingleElement(block, element);
-	UpdateMainPage(propertyMap)
 
+	UpdateSubHeadings(element)
+	UpdateMainPage(propertyMap)
+	
+	CSS_Scanner_current_viewer_block_filled = true 
 	cssScannerRemoveElement("css-scanner-insert-message");
 
 	e.stopPropagation();
@@ -299,17 +304,17 @@ function CSS_Scanner()
 			// Insert a title for CSS selector
 
 			var header = document.createElement('div');
-			var subheader = document.createElement('div');
-
 			header.classList.add("css-scanner-header");
+
+			var subheader = document.createElement('div');
 			subheader.classList.add("css-scanner-subheader");
 
 			var title = document.createElement('h1');
 			title.classList.add("css-scanner-primary-text", "css-scanner-title")
 			title.id = 'CSS_Scanner_title'; 
 			title.appendChild(document.createTextNode(''));
-			var trash_btn = header_button("../img/trash.svg")
 
+			var trash_btn = header_button("../img/trash.svg")
 			trash_btn.addEventListener("click", function () {
 				RemoveEventListners(block)
 				block.remove();
@@ -413,13 +418,15 @@ CSS_Scanner.prototype.Disable = function()
 function cssScannerInsertMessage( msg )
 {
 	// Display the notification message
-	var oNewP = document.createElement("p");
-	var oText = document.createTextNode(msg);
+	if(document.getElementById('css-scanner-insert-message') == null){
+		var oNewP = document.createElement("p");
+		var oText = document.createTextNode(msg);
 
-	oNewP.appendChild(oText);
-	oNewP.id = 'css-scanner-insert-message';
-	oNewP.className = "css-scanner-insert-message-font"
-	document.body.appendChild(oNewP);
+		oNewP.appendChild(oText);
+		oNewP.id = 'css-scanner-insert-message';
+		oNewP.className = "css-scanner-insert-message-font"
+		document.body.appendChild(oNewP);
+	}
 }
 
 function cssScannerRemoveElement(divid)
@@ -436,7 +443,7 @@ function PauseCSS_Scanner(){
 	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Continue&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
-	if(CSS_Scanner_current_element) CSS_Scanner_current_element.style.outline = '';
+	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
 	cssScanner.Disable();
 }
 
@@ -457,6 +464,7 @@ function CloseCSS_Scanner(){
 	var option_menu = document.getElementById("css-scanner-floating-options")
 	option_menu.parentNode.removeChild(option_menu)
 	// Clean up loose ends - grid and notification message
+	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
 	ToggleGrid(false)
 	cssScannerRemoveElement("css-scanner-insert-message");
 	CSS_Scanner_is_closed = true
@@ -475,8 +483,12 @@ function OpenCSS_Scanner(){
 }
 
 function FreezeCurrentBlock(){
-	cssScanner = new CSS_Scanner();
-	cssScanner.Enable(); 
+	if(CSS_Scanner_current_viewer_block_filled){
+		cssScanner = new CSS_Scanner();
+		cssScanner.Enable(); 
+		console.log("Creating a new CSS block");
+	}
+	CSS_Scanner_current_viewer_block_filled = false;
 }
 
 function ToggleGrid(enable){
@@ -512,9 +524,8 @@ function CssScannerKeyMap(e) {
 	}
 
 	// Freeze Current Block(Space) - create a new one and forget the old one
-	if (e.keyCode === 32 && e.key == " " && CSS_Scanner_has_document_event_listeners){
-		cssScanner = new CSS_Scanner();
-		cssScanner.Enable(); 
+	if (e.keyCode === 32 && e.key === " " && CSS_Scanner_has_document_event_listeners){
+		FreezeCurrentBlock()
 		return false; // Prevent default behaviour of scrolling down
 	}
 
@@ -552,6 +563,7 @@ function AddDocumentEventListeners()
 
 function RemoveDocumentEventListeners()
 {
+	console.log("Removing document event listeners")
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
@@ -725,6 +737,7 @@ function floatingHeaderOptions(){
 	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+S:", "Activate Extension"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Alt+Shift+S:", "Pause/Continue"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+X::", "Toggle Grid"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Spacebar:", "Pin the current block"))
 	shortcuts_sub.appendChild(dropdownShortcuts("ESC Key:", "Close the Extension"))
 
 	innerSubDiv.append(onclick_sub, display_sub, shortcuts_sub)
@@ -795,11 +808,12 @@ function filteredSelectorText(element, cssSelector) {
 
 	var proto = Element.prototype;
 	var matches = Function.call.bind(proto.matchesSelector ||
-		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.mozMatchesSelector || proto.matches ||
 		proto.msMatchesSelector || proto.oMatchesSelector);
 
 	for(let i = 0; i < arrSelectors.length; i++){
-		 if(matches(element, arrSelectors[i])){ return arrSelectors[i]; }
+		// Note: matches sometimes breaks so wrap in a try-catch (i.e empty selector text)
+		try{ if(matches(element, arrSelectors[i])){ return arrSelectors[i]; } } catch(err){ }
 	}
 	return "";
 };
@@ -879,9 +893,11 @@ var MEJSX = function() {
 	var isElementMatchWithCssRule = function(element, cssRule) {
 	  var proto = Element.prototype;
 	  var matches = Function.call.bind(proto.matchesSelector ||
-		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.mozMatchesSelector || proto.matches ||
 		proto.msMatchesSelector || proto.oMatchesSelector);
-	  return matches(element, cssRule.selectorText);
+
+		// Note: matches sometimes breaks so wrap in a try-catch (i.e empty selector text)
+		try{ return matches(element, cssRule.selectorText); } catch(err){ return false; }
 	};
 
 	return {
