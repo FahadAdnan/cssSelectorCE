@@ -18,7 +18,6 @@
 		"js": ["js/cssviewer.js"],
 		"all_frames": true
 	}],
-	"options_page": "option.html",
 	"background": { "service_worker": "js/background.js"},
 	"action": {
 		"default_icon": "img/logo16.png",
