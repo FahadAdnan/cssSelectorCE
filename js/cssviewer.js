@@ -155,7 +155,7 @@ function CSS_ScannerMouseOver(e)
 	// Outline element
 	if (this.tagName != 'body') {
 		this.style.outline = '2px dashed #f00';
-		// CSS_Scanner_current_element = this;
+		if(CSS_Scanner_current_element) CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
@@ -436,8 +436,7 @@ function PauseCSS_Scanner(){
 	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Continue&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
-	// if(CSS_Scanner_current_element) CSS_Scanner_current_element.style.outline = '';
-	CSS_Scanner_current_element.style.outline = '';
+	if(CSS_Scanner_current_element) CSS_Scanner_current_element.style.outline = '';
 	cssScanner.Disable();
 }
 
