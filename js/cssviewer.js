@@ -320,6 +320,29 @@ function CSS_Scanner()
 			var copy_btn = header_button("../img/copy.svg")
 			var trash_btn = header_button("../img/trash.svg")
 
+			var form = document.createElement('form');
+			form.setAttribute('method', 'post');
+			form.setAttribute('action', 'https://codepen.io/pen/define')
+			form.setAttribute('target', '_blank');
+
+			var input = document.createElement('input');
+			input.setAttribute('type', 'hidden')
+			input.setAttribute('name', 'data')
+			input.setAttribute('value', '')
+
+			form.appendChild(input)
+			
+			code_btn.addEventListener("click", function(){
+				console.log("njsdajknsdkjns"); 
+				input.value = JSON.stringify({
+					html: elementMap.get(block).outerHTML.toString(),
+					css: parseStyleSheets(block).toString(),
+					editors: '110',
+					tags: ['CSS Scanner']
+				});
+				form.submit(); 
+			}); 
+
 			//TODO - Add On-Clicks for code_btn and copy_btn
 			trash_btn.addEventListener("click", function () {
 				RemoveEventListners(block)
@@ -328,7 +351,7 @@ function CSS_Scanner()
 			copy_btn.addEventListener("click", function(){
 				parseStyleSheets(block)
 			}); 
-			subheader.append(title, code_btn, copy_btn, trash_btn);
+			subheader.append(title, code_btn, copy_btn, trash_btn, form);
 
 			header.appendChild(subheader); 
 
@@ -823,7 +846,7 @@ function getAllStylesOnSingleElement(block, computedStyles){
 	// Assured list of properties 
 	['font-family','font-size', 'color'].forEach(propName => {
 		let prop_value = computedStyles.getPropertyValue(propName)
-		console.log("Adding property wiht value: " + prop_value)
+		//console.log("Adding property wiht value: " + prop_value)
 		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
 	})
 
@@ -863,11 +886,14 @@ function parseStyleSheets(block){
 		for (var i = 0; i < rules.length; i++) {
 			var default_tab = "";
 			var one_tab_more = "    "		
+			var closingBrace = false; 
 
 			if(rules[i].media.includes('screen')){
-				text += '\n@media ' +  rules[i].media;
+				console.log("media rule:" + rules[i].media); 
+				text += '\n@media ' +  rules[i].media  + '{';
 				default_tab = "    "
 				one_tab_more = "        "
+				closingBrace = true; 
 			}
 
 			text += "\n" + default_tab + rules[i].selectorText + " {"
@@ -877,12 +903,14 @@ function parseStyleSheets(block){
 
 			for(let i = 0; i < propArr.length; i++){
 				if(i == propArr.length-1 && propArr[i].split(":").length < 2) continue;  // Handle edge case where last element is a newline 
-				text += "\n" + one_tab_more + propArr[i]; 
+				text += "\n" + one_tab_more + propArr[i] + ';'; 
 			}
 			text +=  "\n" + default_tab + "}" + "\n"
+			if(closingBrace) text += '}';
 		}	
 	}
-	console.log(text); 
+	//console.log(text); 
+	return text; 
 }
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
