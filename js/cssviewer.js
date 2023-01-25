@@ -68,6 +68,47 @@ function UpdateSubHeadings(element){
 	}
 }
 
+function PropertyRowElement(propName, propValue){
+	var li = document.createElement('li');
+	li.className = "css-scanner-default-white-text"
+
+	var span_property = document.createElement('span');
+	span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
+	span_property.appendChild(document.createTextNode(propName));
+
+	var span_value = document.createElement('span'); 
+	span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
+
+	// Handling spans that include color
+	var span_color = null; 
+
+	if(isRgbValue(propValue)){
+		var hexStr = RGBToHex(propValue)
+		span_color = document.createElement('span')
+		span_color.className = "css-scanner-color-preview"
+		span_color.style.backgroundColor = hexStr
+		span_value.appendChild(document.createTextNode(hexStr));
+	}else if(isRegexValue(propValue)){
+		span_color = document.createElement('span')
+		span_color.className = "css-scanner-color-preview"
+		span_color.style.backgroundColor = propValue
+		span_value.appendChild(document.createTextNode(propValue));
+	}else{
+		span_value.appendChild(document.createTextNode(propValue));
+	}
+
+	li.appendChild(span_property);
+	li.appendChild(document.createTextNode(": "))
+	if(span_color !== null){ 
+		li.appendChild(span_color) 
+		li.appendChild(document.createTextNode(" "))
+	}
+	li.appendChild(span_value)
+	li.appendChild(document.createTextNode(";"))
+	return li; 
+}
+
+
 function UpdateMainPage(propertyMap){
 	
 	// Ul in document currently 
@@ -84,51 +125,50 @@ function UpdateMainPage(propertyMap){
 
 		let propName = propertyArr[i][0];
 		let propValue = propertyArr[i][1];
-		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){
-			continue;
-		}
-		// Add in a new li element
-		var li = document.createElement('li');
-		li.className = "css-scanner-default-white-text"
-
-		var span_property = document.createElement('span');
-		span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
-		span_property.appendChild(document.createTextNode(propName));
-
-		var span_value = document.createElement('span'); 
-		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
-
-		// Handling spans that include color
-		var span_color = null; 
-
-		if(isRgbValue(propValue)){
-			var hexStr = RGBToHex(propValue)
-			span_color = document.createElement('span')
-			span_color.className = "css-scanner-color-preview"
-			span_color.style.backgroundColor = hexStr
-			span_value.appendChild(document.createTextNode(hexStr));
-		}else if(isRegexValue(propValue)){
-			span_color = document.createElement('span')
-			span_color.className = "css-scanner-color-preview"
-			span_color.style.backgroundColor = propValue
-			span_value.appendChild(document.createTextNode(propValue));
-		}else{
-			span_value.appendChild(document.createTextNode(propValue));
-		}
-
-		li.appendChild(span_property);
-		li.appendChild(document.createTextNode(": "))
-		if(span_color !== null){ 
-			li.appendChild(span_color) 
-			li.appendChild(document.createTextNode(" "))
-		}
-		li.appendChild(span_value)
-		li.appendChild(document.createTextNode(";"))
-		ul.appendChild(li);
+		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
+		ul.appendChild(PropertyRowElement(propName, propValue));
 	}
+}
 
+function UpdateSpecialSectionsMainPage(styleMap){
+	
+	// Ul in document currently 
+	let ul = last(document.getElementsByClassName("css-scanner-ul"))
+
+	// Array of property values 
+	let outerArr = new Array(new Array());
+	styleMap.forEach((value, key) => { outerArr.push([key, value])})
+	outerArr = outerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+
+	for(let k = 0; k < outerArr.length-1; k++){
+
+		let innerArr = new Array(new Array());
+		let innerMap = outerArr[k][1];
+		innerMap.forEach((value, key) => { innerArr.push([key, value[0]]); });
+		innerArr = innerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+		
+		let li_parent = document.createElement("li");
+		li_parent.className = "css-scanner-nested-container-style";
+
+		let title_div = document.createElement("div");
+		title_div.className = "css-scanner-pseudo-style-title";
+		title_div.innerHTML = outerArr[k][0];
+		li_parent.appendChild(title_div);
+
+		for(let i = 0; i < innerArr.length-1; i++){
+			let propName = innerArr[i][0];
+			let propValue = innerArr[i][1];
+			if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
+			li_parent.appendChild(PropertyRowElement(propName, propValue));
+		}
+		ul.appendChild(li_parent);
+	}
+}
+
+function updateSecurityNotification(){
+	let ul = last(document.getElementsByClassName("css-scanner-ul"));
 	if(CSS_Scanner_security_issue_occ){
-		ul.appendChild(security_issue_nested_note())
+		ul.appendChild(security_issue_nested_note());
 	}
 }
 // #endregion 
@@ -168,9 +208,25 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	UpdateSubHeadings(element)
-	let propertyMap = getAllStylesOnSingleElement(block, element);
+
+	var elem = elementMap.get(block)
+	var rules = MEJSX.getCustomCssRulesOnElement(elem);
+
+	let defaultRules = rules.filter(rule => (!rule.media.includes('screen') && !rule.isPseudoRule));
+	let mediaRules = rules.filter(rule => (rule.media.includes('screen')  && !rule.isPseudoRule));
+	let pseudoRules = rules.filter(rule => (!rule.media.includes('screen') && rule.isPseudoRule));
+
+	let propertyMap = getAllStylesOnSingleElement(defaultRules, element);
+	let mediaRuleMap = getAllSpecialStylesOnSingleElement(mediaRules);
+	let pseudoRuleMap = getAllSpecialStylesOnSingleElement(pseudoRules);
+
 	UpdateMainPage(propertyMap)
 
+	console.log("Media Rules are: ")
+	console.log(mediaRuleMap);
+	UpdateSpecialSectionsMainPage(mediaRuleMap)
+	//UpdateSpecialSectionsMainPage(pseudoRuleMap)
+	updateSecurityNotification()
 	cssScannerRemoveElement("css-scanner-insert-message");
 
 	e.stopPropagation();
@@ -813,12 +869,9 @@ function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; 
  *   2) !important (overrides everything)
  */
 
-function getAllStylesOnSingleElement(block, computedStyles){
-	var elem = elementMap.get(block)
-	var rules = MEJSX.getCustomCssRulesOnElement(elem);
-
+function getAllStylesOnSingleElement(rules, computedStyles){
 	// e.g font-size: { "12px", Priority_Num }
-	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+	let propertyMap = new Map(String.prototype, [String.prototype]);
 
 	// Assured list of properties 
 	['font-family','font-size', 'color'].forEach(propName => {
@@ -830,7 +883,6 @@ function getAllStylesOnSingleElement(block, computedStyles){
 	for (var i = 0; i < rules.length; i++) {
 		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
 		propArr = properties.split(";");
-		if(rules[i].media.includes('screen')){ continue; } // Special groupings (@media, :after, :hover, :before - handled by other functions)
 
 		for(let i = 0; i < propArr.length; i++){
 			let prop = propArr[i].split(":")
@@ -840,16 +892,33 @@ function getAllStylesOnSingleElement(block, computedStyles){
 
 			// Skip our added property
 			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
-			
 			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
 	return propertyMap
 }
 
-// #region Premium Functions 
-function getAllMediaStylesOnSingleElement(block){}
-function getAllColonStylesOnSingleElement(block){}
+// #region Premium Function
+function getAllSpecialStylesOnSingleElement(rules){
+
+	let stylesMap = new Map(String.prototype,  new Map(String.prototype, [String.prototype]));
+
+	for (var i = 0; i < rules.length; i++) {
+		stylesMap.set(rules[i], new Map());
+		let innerMap = stylesMap.get(rules[i]);
+		var properties = rules[i].content.replace(/.*\{|\}/gi,''); 
+		propArr = properties.split(";");
+
+		for(let i = 0; i < propArr.length; i++){
+			let prop = propArr[i].split(":")
+			if(prop.length < 2) continue;
+			let propertyName = prop[0].toString().trim();
+			let propertyValue = prop[1].toString().trim();
+			innerMap.set(propertyName, filterNotImportantSectionOut(propertyValue));
+		}
+	}	
+	return stylesMap
+}
 // #endregion 
 
 function parseStyleSheets(block){
@@ -901,6 +970,25 @@ function filteredSelectorText(element, cssSelector) {
 	}
 	return "";
 };
+
+function filteredPseudoSelectorText(element, cssSelector){
+	var proto = Element.prototype;
+	var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+
+	var arrSelectors = cssSelector.split(",")
+	for(let i = 0; i < arrSelectors.length; i++){
+		var doubleColon = arrSelectors[i].split('::');
+		if(doubleColon.length == 2){ 
+			if(matches(element, doubleColon[0])){ return doubleColon[0]; }}
+		else{
+			var singleColon = arrSelectors[i].split(':')
+			if(singleColon.length == 2){ if(matches(element, singleColon[0])){ return singleColon[0]; }}
+		}	
+	}
+	return "";
+}
 	
 var MEJSX = function() {
 
@@ -917,6 +1005,7 @@ var MEJSX = function() {
 		return cssRule.getName() === 'CSSMediaRule';
 	  }
   
+	  // Matches all style rules including the :: ones
 	  var isCssStyleRule = function(cssRule) {
 		return cssRule.getName() === 'CSSStyleRule';
 	  }
@@ -934,7 +1023,6 @@ var MEJSX = function() {
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
-  
 	  cssRules = cssRules.filter(isCssStyleRule);
   
 	  cssRules = cssRules.concat(slice(mediaRules).reduce(function(rules, mediaRule) {
@@ -943,15 +1031,18 @@ var MEJSX = function() {
     
 	  // get only the css rules that matches that element
 	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
+	  var pseudoRulesOnElement = cssRules.filter(isElementMatchWithPseudoCssRule.bind(null, elm)); // All ::, : rules
+
 	  var elementRules = [];
 
-	  var elementRule = function(order, content, media, selectorText) {
+	  var elementRule = function(order, content, media, selectorText, isPseudoRule) {
 		if (media === undefined || media == null || media == '') { media = 'all'; }
 		this.order = order;
 		this.content = content;
 		this.media = media;
-		this.selectorText = selectorText
-	  }
+		this.selectorText = selectorText;
+		this.isPseudoRule = isPseudoRule;  
+	}
 
 	  if (rulesOnElement.length) {
 		for (var i = 0; i < rulesOnElement.length; i++) {
@@ -964,9 +1055,24 @@ var MEJSX = function() {
 		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
 		  
-		  var _elementRule = new elementRule(order, content, media, selectorText);
+		  var _elementRule = new elementRule(order, content, media, selectorText, false);
 		  elementRules.push(_elementRule);
 		}
+	  }
+	  if(pseudoRulesOnElement.length) {
+		for (var i = 0; i < pseudoRulesOnElement.length; i++) {
+
+			var e = pseudoRulesOnElement[i];
+			var order = i;
+			var content = e.cssText;
+  
+			var selectorText = filteredPseudoSelectorText(elm, e.selectorText)
+			if(selectorText == "") selectorText = e.selectorText
+			var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
+			
+			var _elementRule = new elementRule(order, content, media, selectorText, true);
+			elementRules.push(_elementRule);
+		  }
 	  }
 	  if (elm.getAttribute('style')) {
 		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}', null, "inline-style")
@@ -982,6 +1088,28 @@ var MEJSX = function() {
 		proto.msMatchesSelector || proto.oMatchesSelector);
 	  return matches(element, cssRule.selectorText);
 	};
+	  
+	var isElementMatchWithPseudoCssRule = function(element, cssRule) {
+		var proto = Element.prototype;
+		var matches = Function.call.bind(proto.matchesSelector ||
+		  proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		  proto.msMatchesSelector || proto.oMatchesSelector);
+
+		var arrSelectors = cssRule.selectorText.split(",")
+		for(let i = 0; i < arrSelectors.length; i++){
+			var doubleColon = arrSelectors[i].split('::');
+			if(doubleColon.length == 2){ 
+				try{ if(matches(element, doubleColon[0])){ return true; }}catch(e){}
+			}
+			else{
+				var singleColon = arrSelectors[i].split(':')
+				if(singleColon.length == 2){ 
+					try{ if(matches(element, singleColon[0])){ return true; }}catch(e){}
+				}
+			}
+	  }
+	  return false; 
+	};	
 
 	return {
 	  getCustomCssRulesOnElement: function(element) {
