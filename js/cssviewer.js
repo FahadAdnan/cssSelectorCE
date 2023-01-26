@@ -144,7 +144,7 @@ function UpdateSpecialSectionsMainPage(styleMap){
 
 		let innerArr = new Array(new Array());
 		let innerMap = outerArr[k][1];
-		innerMap.forEach((value, key) => { innerArr.push([key, value[0]]); });
+		innerMap.forEach((value, key) => { innerArr.push([key, value]); });
 		innerArr = innerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
 		
 		let li_parent = document.createElement("li");
@@ -152,12 +152,13 @@ function UpdateSpecialSectionsMainPage(styleMap){
 
 		let title_div = document.createElement("div");
 		title_div.className = "css-scanner-pseudo-style-title";
-		title_div.innerHTML = outerArr[k][0];
+		title_div.innerHTML = outerArr[k][0].selectorText;
 		li_parent.appendChild(title_div);
 
 		for(let i = 0; i < innerArr.length-1; i++){
 			let propName = innerArr[i][0];
 			let propValue = innerArr[i][1];
+			console.log("Name and value is: " + propName + " " + propValue)
 			if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
 			li_parent.appendChild(PropertyRowElement(propName, propValue));
 		}
