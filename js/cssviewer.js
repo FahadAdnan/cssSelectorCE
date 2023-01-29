@@ -108,26 +108,54 @@ function PropertyRowElement(propName, propValue){
 	return li; 
 }
 
+function generateMediaParentContainer(mediaText){
+	let li_parent = document.createElement("li");
+	li_parent.className = "css-scanner-nested-container-style";
+	let title_div = document.createElement("div");
+	title_div.className = "css-scanner-media-sublock-title";
+	title_div.innerHTML = mediaText;
+	li_parent.appendChild(title_div);
+	return li_parent;
+}
 
-function UpdateMainPage(propertyMap){
+function generatePseudoParentContainer(selectorText){
+	let li_parent = document.createElement("li");
+	li_parent.className = "css-scanner-nested-container-style";
+	let title_div = document.createElement("div");
+	title_div.className = "css-scanner-pseudo-style-title";
+	title_div.innerHTML = selectorText;
+	li_parent.appendChild(title_div);
+	return li_parent
+}
+
+function StyleBlockHelperMainPage(styleMap, trueParentElement){
+	styleMap.forEach((propertyMap, mediaStyle) => {
+
+		let isMediaElement = mediaStyle != "";
+		let parentElement = trueParentElement
+		if(isMediaElement){ parentElement = generateMediaParentContainer(mediaStyle); }
+
+		let propertyArr = new Array(new Array());
+		propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
+		propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+		let propArrLen = propertyArr.length;
+
+		for(let i = 0; i < propArrLen; i++){
 	
-	// Ul in document currently 
+			let propName = propertyArr[i][0];
+			let propValue = propertyArr[i][1];
+			if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
+			parentElement.appendChild(PropertyRowElement(propName, propValue));
+		}
+		if(isMediaElement){ trueParentElement.appendChild(parentElement); }
+	});
+}
+
+function UpdateMainPage(styleMap){
+	// Fetch parent ul and clear it out: 
 	let ul = last(document.getElementsByClassName("css-scanner-ul"))
-
-	// Array of property values 
-	let propertyArr = new Array(new Array());
-	propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
-	propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
-	let propArrLen = propertyArr.length;
-
 	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
-	for(let i = 0; i < propArrLen; i++){
-
-		let propName = propertyArr[i][0];
-		let propValue = propertyArr[i][1];
-		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
-		ul.appendChild(PropertyRowElement(propName, propValue));
-	}
+	StyleBlockHelperMainPage(styleMap, ul)
 }
 
 function UpdateSpecialSectionsMainPage(styleMap){
@@ -135,38 +163,20 @@ function UpdateSpecialSectionsMainPage(styleMap){
 	// Ul in document currently 
 	let ul = last(document.getElementsByClassName("css-scanner-ul"))
 
-	// Array of property values 
 	let outerArr = new Array(new Array());
 	styleMap.forEach((value, key) => { outerArr.push([key, value])})
 	outerArr = outerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
 
 	for(let k = 0; k < outerArr.length-1; k++){
-
-		let innerArr = new Array(new Array());
-		let innerMap = outerArr[k][1];
-		innerMap.forEach((value, key) => { innerArr.push([key, value]); });
-		innerArr = innerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
-		
-		let li_parent = document.createElement("li");
-		li_parent.className = "css-scanner-nested-container-style";
-
-		let title_div = document.createElement("div");
-		title_div.className = "css-scanner-pseudo-style-title";
-		title_div.innerHTML = outerArr[k][0].selectorText;
-		li_parent.appendChild(title_div);
-
-		for(let i = 0; i < innerArr.length-1; i++){
-			let propName = innerArr[i][0];
-			let propValue = innerArr[i][1];
-			console.log("Name and value is: " + propName + " " + propValue)
-			if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
-			li_parent.appendChild(PropertyRowElement(propName, propValue));
-		}
+		console.log("The outer array is:");
+		console.log(outerArr);
+		let li_parent = generatePseudoParentContainer(outerArr[k][0]);
+		StyleBlockHelperMainPage(outerArr[k][1], li_parent);
 		ul.appendChild(li_parent);
 	}
 }
 
-function updateSecurityNotification(){
+function UpdateSecurityNotification(){
 	let ul = last(document.getElementsByClassName("css-scanner-ul"));
 	if(CSS_Scanner_security_issue_occ){
 		ul.appendChild(security_issue_nested_note());
@@ -211,23 +221,24 @@ function CSS_ScannerMouseOver(e)
 	UpdateSubHeadings(element)
 
 	var elem = elementMap.get(block)
-	var rules = MEJSX.getCustomCssRulesOnElement(elem);
 
-	let defaultRules = rules.filter(rule => (!rule.media.includes('screen') && !rule.isPseudoRule));
-	let mediaRules = rules.filter(rule => (rule.media.includes('screen')  && !rule.isPseudoRule));
-	let pseudoRules = rules.filter(rule => (!rule.media.includes('screen') && rule.isPseudoRule));
+	var rules = MEJSX.getCustomCssRulesOnElement(elem);
+	let defaultRules = rules.filter(rule => !rule.isPseudoRule);
+	let pseudoRules = rules.filter(rule => rule.isPseudoRule);
 
 	let propertyMap = getAllStylesOnSingleElement(defaultRules, element);
-	let mediaRuleMap = getAllSpecialStylesOnSingleElement(mediaRules);
 	let pseudoRuleMap = getAllSpecialStylesOnSingleElement(pseudoRules);
 
-	UpdateMainPage(propertyMap)
+	console.log("propertyMap")
+	console.log(propertyMap)
 
-	console.log("Media Rules are: ")
-	console.log(mediaRuleMap);
-	UpdateSpecialSectionsMainPage(mediaRuleMap)
-	//UpdateSpecialSectionsMainPage(pseudoRuleMap)
-	updateSecurityNotification()
+	console.log("pseudoRuleMap")
+	console.log(pseudoRuleMap)
+
+	UpdateMainPage(propertyMap)
+	UpdateSpecialSectionsMainPage(pseudoRuleMap)
+	UpdateSecurityNotification()
+
 	cssScannerRemoveElement("css-scanner-insert-message");
 
 	e.stopPropagation();
@@ -863,26 +874,24 @@ function floatingHeaderOptions(){
 //#region StyleSheet Functions 
 
 function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; }
-
-/** 
- *  CSS Specificity Exceptions: 
- *   1) inline-styles: (should take priority)
- *   2) !important (overrides everything)
- */
+function isOurCustomRedOutline(parentMedia, propertyName, propertyValue){ return (parentMedia == "" && propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"); }
 
 function getAllStylesOnSingleElement(rules, computedStyles){
-	// e.g font-size: { "12px", Priority_Num }
-	let propertyMap = new Map(String.prototype, [String.prototype]);
+
+	// Map: {MediaType -> Map of {Property  -> [Value, Priority]}}
+	let stylesMap = new Map(String.prototype, new Map(String.prototype, [String.prototype]));
+	stylesMap.set("", new Map(String.prototype, [String.prototype]));
 
 	// Assured list of properties 
 	['font-family','font-size', 'color'].forEach(propName => {
 		let prop_value = computedStyles.getPropertyValue(propName)
-		console.log("Adding property wiht value: " + prop_value)
-		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
+		stylesMap.get("").set(propName,  [filterNotImportantSectionOut(prop_value), 0])
 	})
 
 	for (var i = 0; i < rules.length; i++) {
-		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+		let parentMedia = ((rules[i].media.includes('screen')) ? rules[i].media : "");
+		if(!stylesMap.has(parentMedia)){ stylesMap.set(parentMedia, new Map(String.prototype, [String.prototype]))}
+		let properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
 		propArr = properties.split(";");
 
 		for(let i = 0; i < propArr.length; i++){
@@ -890,24 +899,28 @@ function getAllStylesOnSingleElement(rules, computedStyles){
 			if(prop.length < 2) continue;
 			let propertyName = prop[0].toString().trim();
 			let propertyValue = prop[1].toString().trim();
-
-			// Skip our added property
-			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
-			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
+			if(isOurCustomRedOutline(parentMedia, propertyName, propertyValue)){ continue; }
+			stylesMap.get(parentMedia).set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
-	return propertyMap
+	return stylesMap;
 }
 
 // #region Premium Function
 function getAllSpecialStylesOnSingleElement(rules){
 
-	let stylesMap = new Map(String.prototype,  new Map(String.prototype, [String.prototype]));
+	let stylesMap = new Map(String.prototype, new Map(String.prototype, new Map(String.prototype, [String.prototype])));
 
 	for (var i = 0; i < rules.length; i++) {
-		stylesMap.set(rules[i], new Map());
-		let innerMap = stylesMap.get(rules[i]);
-		var properties = rules[i].content.replace(/.*\{|\}/gi,''); 
+		let ruleSelectorText = rules[i].selectorText; 
+		let parentMedia = ((rules[i].media.includes('screen')) ? rules[i].media : "");
+
+		// Populating the Map
+		if(!stylesMap.has(ruleSelectorText)){ stylesMap.set(ruleSelectorText, new Map(String.prototype, new Map(String.prototype, [String.prototype]))); }
+		if(!stylesMap.get(ruleSelectorText).has(parentMedia)){ stylesMap.get(ruleSelectorText).set(parentMedia, new Map(String.prototype, [String.prototype]))}
+	
+		let innerMap = stylesMap.get(ruleSelectorText).get(parentMedia);
+		let properties = rules[i].content.replace(/.*\{|\}/gi,''); 
 		propArr = properties.split(";");
 
 		for(let i = 0; i < propArr.length; i++){
@@ -915,10 +928,10 @@ function getAllSpecialStylesOnSingleElement(rules){
 			if(prop.length < 2) continue;
 			let propertyName = prop[0].toString().trim();
 			let propertyValue = prop[1].toString().trim();
-			innerMap.set(propertyName, filterNotImportantSectionOut(propertyValue));
+			innerMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
-	return stylesMap
+	return stylesMap;
 }
 // #endregion 
 
@@ -952,7 +965,6 @@ function parseStyleSheets(block){
 			text +=  "\n" + default_tab + "}" + "\n"
 		}	
 	}
-	console.log(text); 
 }
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
@@ -982,10 +994,10 @@ function filteredPseudoSelectorText(element, cssSelector){
 	for(let i = 0; i < arrSelectors.length; i++){
 		var doubleColon = arrSelectors[i].split('::');
 		if(doubleColon.length == 2){ 
-			if(matches(element, doubleColon[0])){ return doubleColon[0]; }}
+			if(matches(element, doubleColon[0])){ return arrSelectors[i]; }}
 		else{
 			var singleColon = arrSelectors[i].split(':')
-			if(singleColon.length == 2){ if(matches(element, singleColon[0])){ return singleColon[0]; }}
+			if(singleColon.length == 2){ if(matches(element, singleColon[0])){ return arrSelectors[i]; }}
 		}	
 	}
 	return "";
