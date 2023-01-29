@@ -109,7 +109,7 @@ function PropertyRowElement(propName, propValue){
 }
 
 function generateMediaParentContainer(mediaText){
-	let li_parent = document.createElement("li");
+	let li_parent = document.createElement("div");
 	li_parent.className = "css-scanner-nested-container-style";
 	let title_div = document.createElement("div");
 	title_div.className = "css-scanner-media-sublock-title";
@@ -119,7 +119,7 @@ function generateMediaParentContainer(mediaText){
 }
 
 function generatePseudoParentContainer(selectorText){
-	let li_parent = document.createElement("li");
+	let li_parent = document.createElement("div");
 	li_parent.className = "css-scanner-nested-container-style";
 	let title_div = document.createElement("div");
 	title_div.className = "css-scanner-pseudo-style-title";

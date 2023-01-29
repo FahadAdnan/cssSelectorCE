@@ -3,97 +3,66 @@
         <link rel="stylesheet" href="css/cssviewer.css">
     </header>
     <body>
-      <div id="css-scanner-floating-options">
-        <button id="css-scanner-pause-continue" class="css-scanner-menu-button"><span id="css-scanner-span-pause-continue">Pause&nbsp;</span><img id="css-scanner-image-pause-continue" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/pause.svg"></button><button id="css-scanner-move" class="css-scanner-menu-button"><span id="css-scanner-span-move">Move&nbsp;</span><img id="css-scanner-image-move" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/arrow_down.svg"></button>
-        <div id="css-scanner-btn-dropdown-container">
-           <button id="css-scanner-options" class="css-scanner-menu-button"><span id="css-scanner-span-options">Options&nbsp;</span><img id="css-scanner-image-options" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/options.svg"></button>
-           <div id="css-scanner-options-dropdown">
-              <div class="css-scanner-spacing-7">
-                 <div class="css-scanner-header-text">On-Click:</div>
-                 <div id="css-scanner-onclick-copy" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Copy Code</switch>
-                 </div>
-                 <div id="css-scanner-onclick-pin" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Pin the CSS Window</switch>
-                 </div>
-              </div>
-              <div class="css-scanner-spacing-7">
-                 <div class="css-scanner-header-text">Other :</div>
-                 <div id="css-scanner-other-child-css" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Copy Child Element CSS</switch>
-                 </div>
-                 <div id="css-scanner-other-html-copy" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Copy HTML Code (Seperately)</switch>
-                 </div>
-              </div>
-              <div class="css-scanner-spacing-7">
-                 <div class="css-scanner-header-text">Display Behaviour:</div>
-                 <div id="css-scanner-display-grid" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Grid</switch>
-                 </div>
-                 <div id="css-scanner-display-guidelines" class="css-scanner-row-container">
-                    <input class="css-scanner-switch" type="checkbox">
-                    <switch class="css-scanner-simple-text"> Guidelines</switch>
-                 </div>
-              </div>
-              <div class="css-scanner-spacing-7">
-                 <div class="css-scanner-header-text">Shortcuts:</div>
-                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Ctrl+Shift+S:</b> Activate Extension</div>
-                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Alt+Shift+S:</b> Pause/Continue</div>
-                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Ctrl+Shift+X::</b> Toggle Grid</div>
-                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>Arrow Keys:</b> Navigate through DOM</div>
-                 <div class="css-scanner-simple-text css-scanner-spacing-3"><b>ESC Key:</b> Close the Extension</div>
-              </div>
-           </div>
-        </div>
-        <button id="css-scanner-close" class="css-scanner-menu-button"><span id="css-scanner-span-close">Close the Extension&nbsp;</span><img id="css-scanner-image-close" src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/close.svg"></button>
-     </div>
-        <div id="css-scanner-insert-message" class="css-scanner-insert-message-font">CSS_Scanner loaded! Hover any element you want to inspect in the page.</div>
-        <div class="css-scanner-viewer-block" style="display: flex; left: 65px; top: 130px;">
-            <div class="css-scanner-header">
-               <div class="css-scanner-subheader">
-                  <h1 class="css-scanner-primary-text css-scanner-title" id="CSS_Scanner_title">&lt;section&gt;</h1>
-                  <button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/code.svg"></button><button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/copy.svg"></button><button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/trash.svg" class=""></button>
-               </div>
-               <div class="css-scanner-primary-text css-scanner-subheading-text css-scanner-flex-subheading"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/size.svg"><span>&nbsp;617.7px 1050px</span></div>
-               <div class="css-scanner-primary-text css-scanner-subheading-text css-scanner-flex-subheading"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/font.svg"><span>&nbsp;CerebriSans-Regular, 16px</span></div>
+      <div class="css-scanner-viewer-block" style="display: flex; left: 10px; top: 10px;">
+         <div class="css-scanner-header">
+            <div class="css-scanner-subheader">
+               <h1 class="css-scanner-primary-text css-scanner-title" id="CSS_Scanner_title">&lt;section&gt;</h1>
+               <button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/code.svg"></button><button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/copy.svg"></button><button class="css-scanner-viewer-btn"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/trash.svg"></button>
             </div>
-            <div class="">
-               <ul class="css-scanner-ul">
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> -webkit-box-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value"> normal</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> -webkit-box-orient</span>: <span class="css-scanner-primary-text css-scanner-property-value"> vertical</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value"> border-box</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> display</span>: <span class="css-scanner-primary-text css-scanner-property-value"> flex</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> flex-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value"> column</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> margin-left</span>: <span class="css-scanner-primary-text css-scanner-property-value"> auto</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> margin-right</span>: <span class="css-scanner-primary-text css-scanner-property-value"> auto</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> margin-top</span>: <span class="css-scanner-primary-text css-scanner-property-value"> 2em</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> padding</span>: <span class="css-scanner-primary-text css-scanner-property-value"> 0px 10%</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> width</span>: <span class="css-scanner-primary-text css-scanner-property-value"> 100%</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">color</span>: <span class="css-scanner-color-preview" style="background-color: rgb(51, 51, 51);"></span> <span class="css-scanner-primary-text css-scanner-property-value">#333333</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">font-family</span>: <span class="css-scanner-primary-text css-scanner-property-value">CerebriSans-Regular, -apple-system, "system-ui", Roboto, sans-serif</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">font-size</span>: <span class="css-scanner-primary-text css-scanner-property-value">16px</span>;</li>
-                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">outline</span>: <span class="css-scanner-color-preview" style="background-color: rgb(255, 0, 0);"></span> <span class="css-scanner-primary-text css-scanner-property-value">#FF0000</span>;</li>
-
-                  <li class="css-scanner-nested-container-style">
-                    <ul class="css-scanner-ul">
-                        <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> -webkit-box-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value"> normal</span>;</li>
-                        <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> -webkit-box-orient</span>: <span class="css-scanner-primary-text css-scanner-property-value"> vertical</span>;</li>
-                        <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name"> box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value"> border-box</span>;</li>      
-                    </ul>
-                  </li>
-
-                  <li class="css-scanner-nested-container-style">
-                    <span class="css-scanner-default-white-text css-scanner-security-disclaimer"><b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing</span>
-                  </li>
-
-                </ul>
+            <div class="css-scanner-primary-text css-scanner-subheading-text css-scanner-flex-subheading"><img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/size.svg"><span>&nbsp;641.898px 882.406px</span></div>
+            <div class="css-scanner-primary-text css-scanner-subheading-text css-scanner-flex-subheading">
+               <img src="chrome-extension://lolcokcdnediigdhpjmfjogbiefekmpn/../img/font.svg">
+               <div>&nbsp;</div>
+               <a class="css-scanner-font-link-style" href="https://www.google.com/search?q=CerebriSans-Regular+font">CerebriSans-Regular</a><span>, 16px</span>
             </div>
          </div>
+         <div>
+            <ul class="css-scanner-ul">
+               <div class="css-scanner-nested-container-style">
+                  <div class="css-scanner-media-sublock-title">screen and (min-width: 768px)</div>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-top</span>: <span class="css-scanner-primary-text css-scanner-property-value">4em</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">max-width</span>: <span class="css-scanner-primary-text css-scanner-property-value">1050px</span>;</li>
+               </div>
+               <div class="css-scanner-nested-container-style">
+                  <div class="css-scanner-media-sublock-title">screen and (min-width: 1024px)</div>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">-webkit-box-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value">normal</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">-webkit-box-orient</span>: <span class="css-scanner-primary-text css-scanner-property-value">horizontal</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value">initial</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">flex-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value">row</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">width</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+               </div>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">-webkit-box-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value">normal</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">-webkit-box-orient</span>: <span class="css-scanner-primary-text css-scanner-property-value">vertical</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value">border-box</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">color</span>: <span class="css-scanner-color-preview" style="background-color: rgb(51, 51, 51);"></span> <span class="css-scanner-primary-text css-scanner-property-value">#333333</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">display</span>: <span class="css-scanner-primary-text css-scanner-property-value">flex</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">flex-direction</span>: <span class="css-scanner-primary-text css-scanner-property-value">column</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">font-family</span>: <span class="css-scanner-primary-text css-scanner-property-value">CerebriSans-Regular, -apple-system, "system-ui", Roboto, sans-serif</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">font-size</span>: <span class="css-scanner-primary-text css-scanner-property-value">16px</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-left</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-right</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-top</span>: <span class="css-scanner-primary-text css-scanner-property-value">2em</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">padding</span>: <span class="css-scanner-primary-text css-scanner-property-value">0px 10%</span>;</li>
+               <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">width</span>: <span class="css-scanner-primary-text css-scanner-property-value">100%</span>;</li>
+               <div class="css-scanner-nested-container-style">
+                  <div class="css-scanner-pseudo-style-title">body &gt; section:not(.buy-cta)</div>
+                  <div class="css-scanner-nested-container-style">
+                     <div class="css-scanner-media-sublock-title">screen and (min-width: 768px)</div>
+                     <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">max-width</span>: <span class="css-scanner-primary-text css-scanner-property-value">1050px</span>;</li>
+                  </div>
+                  <div class="css-scanner-nested-container-style">
+                     <div class="css-scanner-media-sublock-title">screen and (min-width: 1024px)</div>
+                     <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value">initial</span>;</li>
+                     <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">width</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+                  </div>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">box-sizing</span>: <span class="css-scanner-primary-text css-scanner-property-value">border-box</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-left</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">margin-right</span>: <span class="css-scanner-primary-text css-scanner-property-value">auto</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">padding</span>: <span class="css-scanner-primary-text css-scanner-property-value">0px 10%</span>;</li>
+                  <li class="css-scanner-default-white-text"><span class="css-scanner-primary-text css-scanner-property-name">width</span>: <span class="css-scanner-primary-text css-scanner-property-value">100%</span>;</li>
+               </div>
+            </ul>
+         </div>
+      </div>
     </body>
 </html>
