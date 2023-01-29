@@ -68,67 +68,127 @@ function UpdateSubHeadings(element){
 	}
 }
 
-function UpdateMainPage(propertyMap){
-	
-	// Ul in document currently 
-	let ul = last(document.getElementsByClassName("css-scanner-ul"))
+function PropertyRowElement(propName, propValue){
+	var li = document.createElement('li');
+	li.className = "css-scanner-default-white-text"
 
-	// Array of property values 
+	var span_property = document.createElement('span');
+	span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
+	span_property.appendChild(document.createTextNode(propName));
+
+	var span_value = document.createElement('span'); 
+	span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
+
+	// Handling spans that include color
+	var span_color = null; 
+
+	if(isRgbValue(propValue)){
+		var hexStr = RGBToHex(propValue)
+		span_color = document.createElement('span')
+		span_color.className = "css-scanner-color-preview"
+		span_color.style.backgroundColor = hexStr
+		span_value.appendChild(document.createTextNode(hexStr));
+	}else if(isRegexValue(propValue)){
+		span_color = document.createElement('span')
+		span_color.className = "css-scanner-color-preview"
+		span_color.style.backgroundColor = propValue
+		span_value.appendChild(document.createTextNode(propValue));
+	}else{
+		span_value.appendChild(document.createTextNode(propValue));
+	}
+
+	li.appendChild(span_property);
+	li.appendChild(document.createTextNode(": "))
+	if(span_color !== null){ 
+		li.appendChild(span_color) 
+		li.appendChild(document.createTextNode(" "))
+	}
+	li.appendChild(span_value)
+	li.appendChild(document.createTextNode(";"))
+	return li; 
+}
+
+function generateMediaParentContainer(mediaText){
+	let li_parent = document.createElement("div");
+	li_parent.className = "css-scanner-nested-container-style";
+	let title_div = document.createElement("div");
+	title_div.className = "css-scanner-media-sublock-title";
+	title_div.innerHTML = mediaText;
+	li_parent.appendChild(title_div);
+	return li_parent;
+}
+
+function generatePseudoParentContainer(selectorText){
+	let li_parent = document.createElement("div");
+	li_parent.className = "css-scanner-nested-container-style";
+	let title_div = document.createElement("div");
+	title_div.className = "css-scanner-pseudo-style-title";
+	title_div.innerHTML = selectorText;
+	li_parent.appendChild(title_div);
+	return li_parent
+}
+
+function StyleBlockHelperMainPage(propertyMap, mediaStyle, trueParentElement){
+
+	let isMediaElement = mediaStyle != "";
+	let parentElement = trueParentElement
+	if(isMediaElement){ parentElement = generateMediaParentContainer(mediaStyle); }
+
 	let propertyArr = new Array(new Array());
 	propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
 	propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
 	let propArrLen = propertyArr.length;
 
-	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
 	for(let i = 0; i < propArrLen; i++){
 
 		let propName = propertyArr[i][0];
 		let propValue = propertyArr[i][1];
-		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){
-			continue;
-		}
-		// Add in a new li element
-		var li = document.createElement('li');
-		li.className = "css-scanner-default-white-text"
-
-		var span_property = document.createElement('span');
-		span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
-		span_property.appendChild(document.createTextNode(propName));
-
-		var span_value = document.createElement('span'); 
-		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
-
-		// Handling spans that include color
-		var span_color = null; 
-
-		if(isRgbValue(propValue)){
-			var hexStr = RGBToHex(propValue)
-			span_color = document.createElement('span')
-			span_color.className = "css-scanner-color-preview"
-			span_color.style.backgroundColor = hexStr
-			span_value.appendChild(document.createTextNode(hexStr));
-		}else if(isRegexValue(propValue)){
-			span_color = document.createElement('span')
-			span_color.className = "css-scanner-color-preview"
-			span_color.style.backgroundColor = propValue
-			span_value.appendChild(document.createTextNode(propValue));
-		}else{
-			span_value.appendChild(document.createTextNode(propValue));
-		}
-
-		li.appendChild(span_property);
-		li.appendChild(document.createTextNode(": "))
-		if(span_color !== null){ 
-			li.appendChild(span_color) 
-			li.appendChild(document.createTextNode(" "))
-		}
-		li.appendChild(span_value)
-		li.appendChild(document.createTextNode(";"))
-		ul.appendChild(li);
+		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
+		parentElement.appendChild(PropertyRowElement(propName, propValue));
 	}
+	if(isMediaElement){ trueParentElement.appendChild(parentElement); }
+}
 
+function UpdateMainPage(styleMap){
+	// Fetch parent ul and clear it out: 
+	let ul = last(document.getElementsByClassName("css-scanner-ul"))
+	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
+
+	// All @Media styles and then all inline styles
+	styleMap.forEach((propertyMap, mediaStyle) => { 
+		if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, ul); }
+	});
+	if(styleMap.has("")){ StyleBlockHelperMainPage(styleMap.get(""), "", ul)}
+
+}
+
+function UpdateSpecialSectionsMainPage(styleMap){
+	
+	// Ul in document currently 
+	let ul = last(document.getElementsByClassName("css-scanner-ul"))
+
+	let outerArr = new Array(new Array());
+	styleMap.forEach((value, key) => { outerArr.push([key, value])})
+	outerArr = outerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+
+	for(let k = 0; k < outerArr.length-1; k++){
+		let li_parent = generatePseudoParentContainer(outerArr[k][0]);
+
+		let currMap = outerArr[k][1];
+	
+		// All @Media styles and then all inline styles
+		currMap.forEach((propertyMap, mediaStyle) => { 
+			if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, li_parent); }
+		});
+		if(currMap.has("")){ StyleBlockHelperMainPage(currMap.get(""), "", li_parent)}
+		ul.appendChild(li_parent);
+	}
+}
+
+function UpdateSecurityNotification(){
+	let ul = last(document.getElementsByClassName("css-scanner-ul"));
 	if(CSS_Scanner_security_issue_occ){
-		ul.appendChild(security_issue_nested_note())
+		ul.appendChild(security_issue_nested_note());
 	}
 }
 // #endregion 
@@ -168,8 +228,25 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	UpdateSubHeadings(element)
-	let propertyMap = getAllStylesOnSingleElement(block, element);
+
+	var elem = elementMap.get(block)
+
+	var rules = MEJSX.getCustomCssRulesOnElement(elem);
+	let defaultRules = rules.filter(rule => !rule.isPseudoRule);
+	let pseudoRules = rules.filter(rule => rule.isPseudoRule);
+
+	let propertyMap = getAllStylesOnSingleElement(defaultRules, element);
+	let pseudoRuleMap = getAllSpecialStylesOnSingleElement(pseudoRules);
+
+	console.log("propertyMap")
+	console.log(propertyMap)
+
+	console.log("pseudoRuleMap")
+	console.log(pseudoRuleMap)
+
 	UpdateMainPage(propertyMap)
+	UpdateSpecialSectionsMainPage(pseudoRuleMap)
+	UpdateSecurityNotification()
 
 	cssScannerRemoveElement("css-scanner-insert-message");
 
@@ -829,50 +906,65 @@ function floatingHeaderOptions(){
 //#region StyleSheet Functions 
 
 function filterNotImportantSectionOut(str){ return str.split(" !important")[0]; }
+function isOurCustomRedOutline(parentMedia, propertyName, propertyValue){ return (parentMedia == "" && propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"); }
 
-/** 
- *  CSS Specificity Exceptions: 
- *   1) inline-styles: (should take priority)
- *   2) !important (overrides everything)
- */
+function getAllStylesOnSingleElement(rules, computedStyles){
 
-function getAllStylesOnSingleElement(block, computedStyles){
-	var elem = elementMap.get(block)
-	var rules = MEJSX.getCustomCssRulesOnElement(elem);
-
-	// e.g font-size: { "12px", Priority_Num }
-	let propertyMap = new Map([[String.prototype, [String.prototype]]]);
+	// Map: {MediaType -> Map of {Property  -> [Value, Priority]}}
+	let stylesMap = new Map(String.prototype, new Map(String.prototype, [String.prototype]));
+	stylesMap.set("", new Map(String.prototype, [String.prototype]));
 
 	// Assured list of properties 
 	['font-family','font-size', 'color'].forEach(propName => {
 		let prop_value = computedStyles.getPropertyValue(propName)
-		//console.log("Adding property wiht value: " + prop_value)
-		propertyMap.set(propName,  [filterNotImportantSectionOut(prop_value), 0])
+		stylesMap.get("").set(propName,  [filterNotImportantSectionOut(prop_value), 0])
 	})
 
 	for (var i = 0; i < rules.length; i++) {
-		var properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
+		let parentMedia = ((rules[i].media.includes('screen')) ? rules[i].media : "");
+		if(!stylesMap.has(parentMedia)){ stylesMap.set(parentMedia, new Map(String.prototype, [String.prototype]))}
+		let properties = rules[i].content.replace(/.*\{|\}/gi,''); // REGEX: all items within curly braces
 		propArr = properties.split(";");
-		if(rules[i].media.includes('screen')){ continue; } // Special groupings (@media, :after, :hover, :before - handled by other functions)
 
 		for(let i = 0; i < propArr.length; i++){
 			let prop = propArr[i].split(":")
 			if(prop.length < 2) continue;
 			let propertyName = prop[0].toString().trim();
 			let propertyValue = prop[1].toString().trim();
-
-			// Skip our added property
-			if(propertyName == "outline" && propertyValue == "rgb(255, 0, 0) dashed 2px"){ continue; }
-			
-			propertyMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
+			if(isOurCustomRedOutline(parentMedia, propertyName, propertyValue)){ continue; }
+			stylesMap.get(parentMedia).set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
 		}
 	}	
-	return propertyMap
+	return stylesMap;
 }
 
-// #region Premium Functions 
-function getAllMediaStylesOnSingleElement(block){}
-function getAllColonStylesOnSingleElement(block){}
+// #region Premium Function
+function getAllSpecialStylesOnSingleElement(rules){
+
+	let stylesMap = new Map(String.prototype, new Map(String.prototype, new Map(String.prototype, [String.prototype])));
+
+	for (var i = 0; i < rules.length; i++) {
+		let ruleSelectorText = rules[i].selectorText; 
+		let parentMedia = ((rules[i].media.includes('screen')) ? rules[i].media : "");
+
+		// Populating the Map
+		if(!stylesMap.has(ruleSelectorText)){ stylesMap.set(ruleSelectorText, new Map(String.prototype, new Map(String.prototype, [String.prototype]))); }
+		if(!stylesMap.get(ruleSelectorText).has(parentMedia)){ stylesMap.get(ruleSelectorText).set(parentMedia, new Map(String.prototype, [String.prototype]))}
+	
+		let innerMap = stylesMap.get(ruleSelectorText).get(parentMedia);
+		let properties = rules[i].content.replace(/.*\{|\}/gi,''); 
+		propArr = properties.split(";");
+
+		for(let i = 0; i < propArr.length; i++){
+			let prop = propArr[i].split(":")
+			if(prop.length < 2) continue;
+			let propertyName = prop[0].toString().trim();
+			let propertyValue = prop[1].toString().trim();
+			innerMap.set(propertyName, [filterNotImportantSectionOut(propertyValue), 0]);
+		}
+	}	
+	return stylesMap;
+}
 // #endregion 
 
 function parseStyleSheets(block){
@@ -929,6 +1021,25 @@ function filteredSelectorText(element, cssSelector) {
 	}
 	return "";
 };
+
+function filteredPseudoSelectorText(element, cssSelector){
+	var proto = Element.prototype;
+	var matches = Function.call.bind(proto.matchesSelector ||
+		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.msMatchesSelector || proto.oMatchesSelector);
+
+	var arrSelectors = cssSelector.split(",")
+	for(let i = 0; i < arrSelectors.length; i++){
+		var doubleColon = arrSelectors[i].split('::');
+		if(doubleColon.length == 2){ 
+			if(matches(element, doubleColon[0])){ return arrSelectors[i]; }}
+		else{
+			var singleColon = arrSelectors[i].split(':')
+			if(singleColon.length == 2){ if(matches(element, singleColon[0])){ return arrSelectors[i]; }}
+		}	
+	}
+	return "";
+}
 	
 var MEJSX = function() {
 
@@ -945,6 +1056,7 @@ var MEJSX = function() {
 		return cssRule.getName() === 'CSSMediaRule';
 	  }
   
+	  // Matches all style rules including the :: ones
 	  var isCssStyleRule = function(cssRule) {
 		return cssRule.getName() === 'CSSStyleRule';
 	  }
@@ -962,7 +1074,6 @@ var MEJSX = function() {
 	  }, []);
   
 	  var mediaRules = cssRules.filter(isCssMediaRule);
-  
 	  cssRules = cssRules.filter(isCssStyleRule);
   
 	  cssRules = cssRules.concat(slice(mediaRules).reduce(function(rules, mediaRule) {
@@ -971,15 +1082,18 @@ var MEJSX = function() {
     
 	  // get only the css rules that matches that element
 	  var rulesOnElement = cssRules.filter(isElementMatchWithCssRule.bind(null, elm));
+	  var pseudoRulesOnElement = cssRules.filter(isElementMatchWithPseudoCssRule.bind(null, elm)); // All ::, : rules
+
 	  var elementRules = [];
 
-	  var elementRule = function(order, content, media, selectorText) {
+	  var elementRule = function(order, content, media, selectorText, isPseudoRule) {
 		if (media === undefined || media == null || media == '') { media = 'all'; }
 		this.order = order;
 		this.content = content;
 		this.media = media;
-		this.selectorText = selectorText
-	  }
+		this.selectorText = selectorText;
+		this.isPseudoRule = isPseudoRule;  
+	}
 
 	  if (rulesOnElement.length) {
 		for (var i = 0; i < rulesOnElement.length; i++) {
@@ -992,9 +1106,24 @@ var MEJSX = function() {
 		  if(selectorText == "") selectorText = e.selectorText
 		  var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
 		  
-		  var _elementRule = new elementRule(order, content, media, selectorText);
+		  var _elementRule = new elementRule(order, content, media, selectorText, false);
 		  elementRules.push(_elementRule);
 		}
+	  }
+	  if(pseudoRulesOnElement.length) {
+		for (var i = 0; i < pseudoRulesOnElement.length; i++) {
+
+			var e = pseudoRulesOnElement[i];
+			var order = i;
+			var content = e.cssText;
+  
+			var selectorText = filteredPseudoSelectorText(elm, e.selectorText)
+			if(selectorText == "") selectorText = e.selectorText
+			var media = e.parentRule == null ? e.parentStyleSheet == null ? 'all' : e.parentStyleSheet.media.mediaText : e.parentRule.media.mediaText;
+			
+			var _elementRule = new elementRule(order, content, media, selectorText, true);
+			elementRules.push(_elementRule);
+		  }
 	  }
 	  if (elm.getAttribute('style')) {
 		var _elementRule = new elementRule(rulesOnElement.length, 'style {' + elm.getAttribute('style') + '}', null, "inline-style")
@@ -1010,6 +1139,28 @@ var MEJSX = function() {
 		proto.msMatchesSelector || proto.oMatchesSelector);
 	  return matches(element, cssRule.selectorText);
 	};
+	  
+	var isElementMatchWithPseudoCssRule = function(element, cssRule) {
+		var proto = Element.prototype;
+		var matches = Function.call.bind(proto.matchesSelector ||
+		  proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		  proto.msMatchesSelector || proto.oMatchesSelector);
+
+		var arrSelectors = cssRule.selectorText.split(",")
+		for(let i = 0; i < arrSelectors.length; i++){
+			var doubleColon = arrSelectors[i].split('::');
+			if(doubleColon.length == 2){ 
+				try{ if(matches(element, doubleColon[0])){ return true; }}catch(e){}
+			}
+			else{
+				var singleColon = arrSelectors[i].split(':')
+				if(singleColon.length == 2){ 
+					try{ if(matches(element, singleColon[0])){ return true; }}catch(e){}
+				}
+			}
+	  }
+	  return false; 
+	};	
 
 	return {
 	  getCustomCssRulesOnElement: function(element) {

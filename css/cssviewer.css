@@ -84,6 +84,20 @@
 	flex: 3;
 }
 
+.css-scanner-pseudo-style-title
+{
+	font-size: 14px !important;
+	color: #4ADC71 !important; 
+	font-weight: 500 !important;
+}
+
+.css-scanner-media-sublock-title
+{
+	font-size: 14px !important;
+	color: #FF80BF !important; 
+	font-weight: 500 !important;
+}
+
 .css-scanner-flex-subheading {
 	display: flex;
 	flex-direction: row;
