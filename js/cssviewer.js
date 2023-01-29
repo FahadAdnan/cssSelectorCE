@@ -128,34 +128,38 @@ function generatePseudoParentContainer(selectorText){
 	return li_parent
 }
 
-function StyleBlockHelperMainPage(styleMap, trueParentElement){
-	styleMap.forEach((propertyMap, mediaStyle) => {
+function StyleBlockHelperMainPage(propertyMap, mediaStyle, trueParentElement){
 
-		let isMediaElement = mediaStyle != "";
-		let parentElement = trueParentElement
-		if(isMediaElement){ parentElement = generateMediaParentContainer(mediaStyle); }
+	let isMediaElement = mediaStyle != "";
+	let parentElement = trueParentElement
+	if(isMediaElement){ parentElement = generateMediaParentContainer(mediaStyle); }
 
-		let propertyArr = new Array(new Array());
-		propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
-		propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
-		let propArrLen = propertyArr.length;
+	let propertyArr = new Array(new Array());
+	propertyMap.forEach((value, key) => { propertyArr.push([key, value[0]]); });
+	propertyArr = propertyArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
+	let propArrLen = propertyArr.length;
 
-		for(let i = 0; i < propArrLen; i++){
-	
-			let propName = propertyArr[i][0];
-			let propValue = propertyArr[i][1];
-			if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
-			parentElement.appendChild(PropertyRowElement(propName, propValue));
-		}
-		if(isMediaElement){ trueParentElement.appendChild(parentElement); }
-	});
+	for(let i = 0; i < propArrLen; i++){
+
+		let propName = propertyArr[i][0];
+		let propValue = propertyArr[i][1];
+		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
+		parentElement.appendChild(PropertyRowElement(propName, propValue));
+	}
+	if(isMediaElement){ trueParentElement.appendChild(parentElement); }
 }
 
 function UpdateMainPage(styleMap){
 	// Fetch parent ul and clear it out: 
 	let ul = last(document.getElementsByClassName("css-scanner-ul"))
 	while(ul.childNodes.length > 0){ ul.removeChild(ul.firstChild) }
-	StyleBlockHelperMainPage(styleMap, ul)
+
+	// All @Media styles and then all inline styles
+	styleMap.forEach((propertyMap, mediaStyle) => { 
+		if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, ul); }
+	});
+	if(styleMap.has("")){ StyleBlockHelperMainPage(styleMap.get(""), "", ul)}
+
 }
 
 function UpdateSpecialSectionsMainPage(styleMap){
@@ -168,10 +172,15 @@ function UpdateSpecialSectionsMainPage(styleMap){
 	outerArr = outerArr.sort((a, b) =>  ('' + a[0]).localeCompare(b[0]));
 
 	for(let k = 0; k < outerArr.length-1; k++){
-		console.log("The outer array is:");
-		console.log(outerArr);
 		let li_parent = generatePseudoParentContainer(outerArr[k][0]);
-		StyleBlockHelperMainPage(outerArr[k][1], li_parent);
+
+		let currMap = outerArr[k][1];
+	
+		// All @Media styles and then all inline styles
+		currMap.forEach((propertyMap, mediaStyle) => { 
+			if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, li_parent); }
+		});
+		if(currMap.has("")){ StyleBlockHelperMainPage(currMap.get(""), "", li_parent)}
 		ul.appendChild(li_parent);
 	}
 }
