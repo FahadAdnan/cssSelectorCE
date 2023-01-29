@@ -5,13 +5,14 @@
 	flex-direction: column;
 	justify-content: flex-start !important;
 
-	min-width:332px !important;
-	padding: 10px 10px 10px 10px;
+	min-width: 332px !important;
+
+	padding: 10px 10px 10px 10px !important;
 	position:absolute !important;
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.92) !important;
+	background-color: rgba(30, 32, 44, 0.95) !important;
 	border-radius: 20px !important;
 }
 
@@ -35,13 +36,18 @@
 	outline: rgba(255, 0, 0, .2) solid 1px;
 }
 
+.css-scanner-padding-10{
+	padding-left: 10px !important; 
+	padding-right: 10px !important;
+}
+
+
 .css-scanner-header, .css-scanner-subheader
 {
 	display:flex !important;
 	align-items: flex-start !important;
 	justify-content: flex-start !important;
 
-	min-width:332px !important;
 	width:auto !important;
 	height:auto !important;
 	padding:0px !important;
@@ -72,7 +78,6 @@
 
 	width:auto !important;
 	height:auto !important;
-	padding:0 !important;
 	margin:0 !important;
 	z-index:9999 !important;
 }
@@ -127,7 +132,6 @@
 {
 	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
-	width:332px !important;
 }
 
 .css-scanner-nested-ul

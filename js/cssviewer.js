@@ -68,9 +68,10 @@ function UpdateSubHeadings(element){
 	}
 }
 
-function PropertyRowElement(propName, propValue){
+function PropertyRowElement(propName, propValue, isInline){
 	var li = document.createElement('li');
 	li.className = "css-scanner-default-white-text"
+	if(isInline){ li.classList.add("css-scanner-padding-10")}
 
 	var span_property = document.createElement('span');
 	span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
@@ -112,8 +113,8 @@ function generateMediaParentContainer(mediaText){
 	let li_parent = document.createElement("div");
 	li_parent.className = "css-scanner-nested-container-style";
 	let title_div = document.createElement("div");
-	title_div.className = "css-scanner-media-sublock-title";
-	title_div.innerHTML = mediaText;
+	title_div.classList.add("css-scanner-primary-text", "css-scanner-media-sublock-title");
+	title_div.innerHTML = "@media " + mediaText;
 	li_parent.appendChild(title_div);
 	return li_parent;
 }
@@ -122,7 +123,7 @@ function generatePseudoParentContainer(selectorText){
 	let li_parent = document.createElement("div");
 	li_parent.className = "css-scanner-nested-container-style";
 	let title_div = document.createElement("div");
-	title_div.className = "css-scanner-pseudo-style-title";
+	title_div.classList.add("css-scanner-primary-text", "css-scanner-pseudo-style-title");
 	title_div.innerHTML = selectorText;
 	li_parent.appendChild(title_div);
 	return li_parent
@@ -130,7 +131,7 @@ function generatePseudoParentContainer(selectorText){
 
 function StyleBlockHelperMainPage(propertyMap, mediaStyle, trueParentElement){
 
-	let isMediaElement = mediaStyle != "";
+	let isMediaElement = (mediaStyle != "");
 	let parentElement = trueParentElement
 	if(isMediaElement){ parentElement = generateMediaParentContainer(mediaStyle); }
 
@@ -144,7 +145,7 @@ function StyleBlockHelperMainPage(propertyMap, mediaStyle, trueParentElement){
 		let propName = propertyArr[i][0];
 		let propValue = propertyArr[i][1];
 		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
-		parentElement.appendChild(PropertyRowElement(propName, propValue));
+		parentElement.appendChild(PropertyRowElement(propName, propValue, !isMediaElement));
 	}
 	if(isMediaElement){ trueParentElement.appendChild(parentElement); }
 }
