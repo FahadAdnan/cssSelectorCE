@@ -220,12 +220,6 @@ function CSS_ScannerMouseOver(e)
 	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
 
-	//GETTING HTML::: 
-	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
-	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
-	
-	//console.log('zayd' + this.classList)
-	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	var title = block.firstChild.firstChild.firstChild
 	title.firstChild.innerHTML =  '&lt;' + this.tagName.toLowerCase() + '&gt;'
 	title.lastChild.innerHTML = (this.className == '' ? '' : ' .' + this.className.toString().split(' ')[0]);
