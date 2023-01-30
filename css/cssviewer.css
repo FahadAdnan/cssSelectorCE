@@ -5,13 +5,15 @@
 	flex-direction: column;
 	justify-content: flex-start !important;
 
-	min-width:332px !important;
-	padding: 10px 10px 10px 10px;
+	min-width: 332px !important;
+	max-width: 380px !important;
+
+	padding: 15px 15px 15px 15px !important;
 	position:absolute !important;
 	
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(31, 33, 45, 0.92) !important;
+	background-color: rgba(30, 32, 44, 0.95) !important;
 	border-radius: 20px !important;
 }
 
@@ -22,13 +24,16 @@
 	flex-direction: column;
 	justify-content: flex-start !important;
 
+	box-sizing: border-box !important;
+	width: 100% !important;
+
 	padding: 10px 10px 10px 10px !important;
-	margin: 10px !important;
+	margin-top: 10px;
 
 	z-index: 9999; 
 	color:#555 !important;
-	background-color: rgba(85, 85, 95, 0.92) !important;
-	border-radius: 15px !important;
+	background-color: rgba(255, 255, 255, 0.067) !important;
+	border-radius: 10px !important;
 }
 
 .css-scanner-red-outline{
@@ -38,11 +43,9 @@
 .css-scanner-header, .css-scanner-subheader
 {
 	display:flex !important;
-	align-items: flex-start !important;
-	justify-content: flex-start !important;
 
-	min-width:332px !important;
-	width:auto !important;
+	box-sizing: border-box !important;
+	width: 100% !important;
 	height:auto !important;
 	padding:0px !important;
 	margin:0 !important;
@@ -53,9 +56,17 @@
 	border-radius: 10px !important;
 }
 
-.css-scanner-header { flex-direction: column; }
+.css-scanner-header { 
+	flex-direction: column !important; 
+	justify-content: flex-start !important;
+	align-items: flex-start !important;
+}
 
-.css-scanner-subheader { flex-direction: row; }
+.css-scanner-subheader { 
+	flex-direction: row !important;
+	justify-content: space-between !important;
+
+ }
 
 
 .css-scanner-primary-text
@@ -72,7 +83,6 @@
 
 	width:auto !important;
 	height:auto !important;
-	padding:0 !important;
 	margin:0 !important;
 	z-index:9999 !important;
 }
@@ -80,30 +90,24 @@
 .css-scanner-title
 {
 	font-size: 16px !important;
-	color: #4ADC71 !important; 
-	flex: 3;
+	color: rgb(74, 220, 113) !important; 
+	font-weight: 700 !important;
 }
 
 .css-scanner-pseudo-style-title
 {
 	font-size: 14px !important;
-	color: #4ADC71 !important; 
-	font-weight: 500 !important;
+	color: rgb(74, 220, 113) !important; 
+	font-weight: 700 !important;
 }
 
 .css-scanner-media-sublock-title
 {
 	font-size: 14px !important;
 	color: #FF80BF !important; 
-	font-weight: 500 !important;
+	font-weight: 700 !important;
 }
 
-.css-scanner-flex-subheading {
-	display: flex;
-	flex-direction: row;
-	align-items: center; 
-	align-content: flex-start;
-}
 .css-scanner-property-name { 
 	color: #61cbe0 !important; 
 	display: contents !important;
@@ -120,14 +124,20 @@
 .css-scanner-subheading-text {
 	line-height: 20px !important;
 	font-size: 13px !important;
+	padding: 1px !important;
 	color: #dfdfdf !important;
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important; 
+	align-content: flex-start !important;
 }
 
 .css-scanner-ul
 {
+	margin-top: 10px !important; 
+	margin-bottom: 5px !important; 
 	padding:0px 0px 0px 0px !important;
 	list-style:none !important;
-	width:332px !important;
 }
 
 .css-scanner-nested-ul
@@ -190,7 +200,7 @@
   }
   
   .css-scanner-menu-button:hover{
-	background-color:  #4ADC71  !important;
+	background-color:  rgb(74, 220, 113)  !important;
   }
   
   #css-scanner-btn-dropdown-container{
@@ -230,10 +240,10 @@
   }
   
   .css-scanner-default-white-text{
-	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-	font-size: 14px;
-	font-weight: 500;
-	color: #fff; 
+	font-family: CerebriSans-Regular, -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	color: #fff !important; 
   }
 
   .css-scanner-header-text{
@@ -304,7 +314,7 @@
 
 #css-scanner-insert-message{
 	color:rgb(31, 33, 45) !important;
-	background-color: #4ADC71 !important; 
+	background-color: rgb(74, 220, 113) !important; 
 	border-radius: 5px;
 	position: fixed !important;
 	padding: 2px 5px !important;
