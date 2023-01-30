@@ -1,7 +1,7 @@
 
 var const_google_search = "https://www.google.com/search?q="
 
-// #region RGB Helper Functions 
+// #region RGB/Regex Helper Functions 
 var CSS_Scanner_hexa = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
 
 function isRgbValue(value) {
@@ -31,7 +31,10 @@ function RGBToHex(str)
 	if( hexStr == "#00000000" ){ hexStr = "#FFFFFF"; }
 	return hexStr;
 }
-
+function containsNumbers(str) {
+	return /\d/.test(str);
+}
+  
 // #endregion
 
 // #region General Util Functoins
@@ -77,8 +80,13 @@ function PropertyRowElement(propName, propValue){
 	span_property.appendChild(document.createTextNode(propName));
 
 	var span_value = document.createElement('span'); 
-	span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
 
+	if(containsNumbers(propValue)){
+		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value-wnum");
+	}else{
+		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
+
+	}
 	// Handling spans that include color
 	var span_color = null; 
 

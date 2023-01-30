@@ -112,8 +112,12 @@
 	color: #61cbe0 !important; 
 	display: contents !important;
  }  
-.css-scanner-property-value { 
+.css-scanner-property-value-wnum { 
 	color: #BD93F9 !important;
+	display: contents !important;
+}
+.css-scanner-property-value { 
+	color: rgb(184, 205, 209) !important;
 	display: contents !important;
 }
 .css-scanner-security-disclaimer {
