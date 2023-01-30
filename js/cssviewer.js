@@ -68,10 +68,9 @@ function UpdateSubHeadings(element){
 	}
 }
 
-function PropertyRowElement(propName, propValue, isInline){
+function PropertyRowElement(propName, propValue){
 	var li = document.createElement('li');
 	li.className = "css-scanner-default-white-text"
-	if(isInline){ li.classList.add("css-scanner-padding-10")}
 
 	var span_property = document.createElement('span');
 	span_property.classList.add("css-scanner-primary-text", "css-scanner-property-name");
@@ -83,20 +82,21 @@ function PropertyRowElement(propName, propValue, isInline){
 	// Handling spans that include color
 	var span_color = null; 
 
-	if(isRgbValue(propValue)){
-		var hexStr = RGBToHex(propValue)
-		span_color = document.createElement('span')
-		span_color.className = "css-scanner-color-preview"
-		span_color.style.backgroundColor = hexStr
-		span_value.appendChild(document.createTextNode(hexStr));
-	}else if(isRegexValue(propValue)){
-		span_color = document.createElement('span')
-		span_color.className = "css-scanner-color-preview"
-		span_color.style.backgroundColor = propValue
-		span_value.appendChild(document.createTextNode(propValue));
-	}else{
-		span_value.appendChild(document.createTextNode(propValue));
-	}
+	// TODO - Inline colors are broken - need to find a way to find and replace rgb( x, y, z) - rgba( x, y, z, a) - #AAAAAA
+	// if(isRgbValue(propValue)){
+	// 	var hexStr = RGBToHex(propValue)
+	// 	span_color = document.createElement('span')
+	// 	span_color.className = "css-scanner-color-preview"
+	// 	span_color.style.backgroundColor = hexStr
+	// 	span_value.appendChild(document.createTextNode(hexStr));
+	// }else if(isRegexValue(propValue)){
+	// 	span_color = document.createElement('span')
+	// 	span_color.className = "css-scanner-color-preview"
+	// 	span_color.style.backgroundColor = propValue
+	// 	span_value.appendChild(document.createTextNode(propValue));
+	// }else{
+	
+	span_value.appendChild(document.createTextNode(propValue));
 
 	li.appendChild(span_property);
 	li.appendChild(document.createTextNode(": "))
@@ -145,7 +145,7 @@ function StyleBlockHelperMainPage(propertyMap, mediaStyle, trueParentElement){
 		let propName = propertyArr[i][0];
 		let propValue = propertyArr[i][1];
 		if(propName == undefined || propValue == undefined || propName.length == 0 || propValue.length == 0){ continue; }
-		parentElement.appendChild(PropertyRowElement(propName, propValue, !isMediaElement));
+		parentElement.appendChild(PropertyRowElement(propName, propValue));
 	}
 	if(isMediaElement){ trueParentElement.appendChild(parentElement); }
 }
@@ -218,7 +218,9 @@ function CSS_ScannerMouseOver(e)
 	
 	//console.log('zayd' + this.classList)
 	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
-	block.firstChild.firstChild.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;';
+	var title = block.firstChild.firstChild.firstChild
+	title.firstChild.innerHTML =  '&lt;' + this.tagName.toLowerCase() + '&gt;'
+	title.lastChild.innerHTML = (this.className == '' ? '' : ' .' + this.className.toString().split(' ')[0]);
 
 	// Outline element
 	if (this.tagName != 'body') {
@@ -238,12 +240,6 @@ function CSS_ScannerMouseOver(e)
 
 	let propertyMap = getAllStylesOnSingleElement(defaultRules, element);
 	let pseudoRuleMap = getAllSpecialStylesOnSingleElement(pseudoRules);
-
-	console.log("propertyMap")
-	console.log(propertyMap)
-
-	console.log("pseudoRuleMap")
-	console.log(pseudoRuleMap)
 
 	UpdateMainPage(propertyMap)
 	UpdateSpecialSectionsMainPage(pseudoRuleMap)
@@ -277,23 +273,17 @@ function CSS_ScannerMouseMove(e)
 	block.style.display = 'flex';
 	
 	var pageWidth = window.innerWidth;
-	var pageHeight = window.innerHeight;
 	var blockWidth = 332;
 	var blockHeight = document.defaultView.getComputedStyle(block, null).getPropertyValue('height');
 
 	blockHeight = blockHeight.substr(0, blockHeight.length - 2) * 1;
 
 	if ((e.pageX + blockWidth) > pageWidth) {
-		if ((e.pageX - blockWidth - 10) > 0)
-			block.style.left = e.pageX - blockWidth - 40 + 'px';
-		else
-			block.style.left = 0 + 'px';
+		if ((e.pageX - blockWidth - 10) > 0) block.style.left = e.pageX - blockWidth - 40 + 'px';
+		else block.style.left = 0 + 'px';
 	}
-	else
-		block.style.left = (e.pageX + 20) + 'px';
-
+	else block.style.left = (e.pageX + 20) + 'px';
 	block.style.top = e.pageY + 'px';
-
 	e.stopPropagation();
 }
 
@@ -360,11 +350,11 @@ function header_button(image_path){
 
 function sub_headings_text(image_path){
 	var div = document.createElement('div');
-	div.classList.add("css-scanner-primary-text", "css-scanner-subheading-text", "css-scanner-flex-subheading");
+	div.classList.add("css-scanner-primary-text", "css-scanner-subheading-text");
 	var img = document.createElement("img")
 	img.src = chrome.runtime.getURL(image_path)
 	div.appendChild(img)
-	return div
+	return div;
 }
 //#endregion
 
@@ -389,11 +379,14 @@ function CSS_Scanner()
 			header.classList.add("css-scanner-header");
 			subheader.classList.add("css-scanner-subheader");
 
-			var title = document.createElement('h1');
-			title.classList.add("css-scanner-primary-text", "css-scanner-title")
-			title.id = 'CSS_Scanner_title'; 
-			title.appendChild(document.createTextNode(''));
-			
+			var title = document.createElement('div');
+			let tagName = document.createElement('span');
+			let className = document.createElement('span')
+			tagName.classList.add("css-scanner-primary-text", "css-scanner-title");
+			className.classList.add("css-scanner-primary-text", "css-scanner-pseudo-style-title");
+			title.append(tagName, className);
+
+			var btnContainer = document.createElement("div");
 			var code_btn = header_button("../img/code.svg")
 			var copy_btn = header_button("../img/copy.svg")
 			var trash_btn = header_button("../img/trash.svg")
@@ -407,8 +400,9 @@ function CSS_Scanner()
 			input.setAttribute('type', 'hidden')
 			input.setAttribute('name', 'data')
 			input.setAttribute('value', '')
-
 			form.appendChild(input)
+
+			btnContainer.append(code_btn, copy_btn, trash_btn, form);
 			
 			code_btn.addEventListener("click", function(){
 				console.log("njsdajknsdkjns"); 
@@ -420,8 +414,6 @@ function CSS_Scanner()
 				});
 				form.submit(); 
 			}); 
-
-			//TODO - Add On-Clicks for code_btn and copy_btn
 			trash_btn.addEventListener("click", function () {
 				RemoveEventListners(block)
 				block.remove();
@@ -429,8 +421,8 @@ function CSS_Scanner()
 			copy_btn.addEventListener("click", function(){
 				parseStyleSheets(block)
 			}); 
-			subheader.append(title, code_btn, copy_btn, trash_btn, form);
 
+			subheader.append(title, btnContainer);
 			header.appendChild(subheader); 
 
  			var size_sub_heading = sub_headings_text("../img/size.svg")
@@ -460,15 +452,6 @@ function CSS_Scanner()
 			ul.classList.add("css-scanner-ul")
 			center.appendChild(ul)
 			block.appendChild(center);
-
-			// Insert a footer
-			var footer = document.createElement('div');
-
-			footer.className = 'CSS_Scanner_footer';
-
-			//< 
-			footer.appendChild( document.createTextNode('CSS_Scanner 1.7. keys: [f] Un/Freeze. [c] Css. [Esc] Close.') ); 
-			// TODO - add back in: block.appendChild(footer);
 		}
 		
 		cssScannerInsertMessage( "CSS Scanner is loaded, hover over any element you'd like to inspect" );
