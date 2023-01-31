@@ -914,6 +914,15 @@ function createUpgradeDialog(){
 		container.append(closeSpan, logo, titletext, inner_container)
 		parent.append(container);
 		document.body.appendChild(parent);
+
+		// Add in onclicks
+		closeSpan.addEventListener("click", function(){
+			if(document.getElementById(parentId) != null){ 
+				document.getElementById(parentId).remove()
+				console.log("removing als;kdfjalsdkfjla;kdjsf")
+			}
+		}); 
+
 	}
 }
 
