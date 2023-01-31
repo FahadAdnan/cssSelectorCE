@@ -695,16 +695,37 @@ function floatingHeaderButton(type, inner_text, image_path){
 	btn.id = "css-scanner-" + type
 	btn.className = "css-scanner-menu-button"
 
-	var inner_span = document.createElement("span")
-	inner_span.id = "css-scanner-span-" + type
-	inner_span.innerHTML = inner_text +  "&nbsp;"
+	var inner_div = document.createElement("span")
+	inner_div.className = "css-scanner-primary-text";
+	inner_div.id = "css-scanner-span-" + type
+	inner_div.innerHTML = inner_text +  "&nbsp;"
 
-	var inner_img = document.createElement("img")
-	inner_img.id = "css-scanner-image-" + type
-	inner_img.src = chrome.runtime.getURL(image_path)
+	var inner_img = document.createElement("img");
+	inner_img.id = "css-scanner-image-" + type;
+	inner_img.src = chrome.runtime.getURL(image_path);
 
-	btn.appendChild(inner_span);
+	btn.appendChild(inner_div);
 	btn.appendChild(inner_img);
+	return btn
+}
+
+function floatingUpgradeHeaderButton(){
+
+	var btn = document.createElement("button")
+	btn.id = "css-scanner-upgrade"
+	btn.className = "css-scanner-menu-button-upgrade"
+	
+	var inner_img = document.createElement("img")
+	inner_img.id = "css-scanner-image-upgrade"
+	inner_img.src = chrome.runtime.getURL("../img/lightning.svg")
+
+	var inner_div = document.createElement("div")
+	inner_div.className = "css-scanner-primary-text";
+	inner_div.id = "css-scanner-span-upgrade";
+	inner_div.innerHTML = "&nbsp; Upgrade"
+
+	btn.appendChild(inner_img);
+	btn.appendChild(inner_div);
 	return btn
 }
 function dropdownContainer(){
@@ -839,9 +860,61 @@ function setOnClicksOfDropDown(){
 		if(dropdown.style.display == 'none'){ dropdown.style.display = 'flex'; } else { dropdown.style.display = 'none'}
 	})
 	// Close Button
+	document.getElementById("css-scanner-upgrade").addEventListener("click", function(){
+		//Upgrade Dialog
+		PauseCSS_Scanner();
+		createUpgradeDialog();
+	})	
+	// Close Button
 	document.getElementById("css-scanner-close").addEventListener("click", function(){
 		CloseCSS_Scanner();
 	})	
+}
+
+function createUpgradeDialog(){
+	let parentId =  "css-scanner-license-modal"
+
+	if(document.getElementById(parentId) == null){
+
+		let parent = document.createElement("div");
+		parent.id = "css-scanner-license-modal";
+
+		let container = document.createElement("div");
+		container.id = "css-scanner-license-modal-content";
+
+		let closeSpan = document.createElement("span");
+		closeSpan.innerHTML = "×"
+		closeSpan.id = "css-scanner-license-modal-close"
+
+		let logo = document.createElement("img");
+		logo.src = chrome.runtime.getURL("../img/logo128.png");
+		logo.id = "css-scanner-license-modal-img"
+
+		let titletext = document.createElement("h1");
+		titletext.id = "css-scanner-license-modal-h1"
+		titletext.innerHTML = "CSS Scanner - License check"
+		let inner_container = document.createElement("div");
+		
+		let message = document.createElement("p");
+		message.innerHTML = "Please check <a class=\"css-scanner-font-link-style\" href=\"https://mycssscan.com\" target=\"_blank\">MyCssScan.com</a> or your receipt and enter your license key to continue:"
+		
+		let input = document.createElement("input");
+		input.id = "css-scanner-license-input"
+
+		let principal_btn = document.createElement("button");
+		principal_btn.id = "css-scanner-check-license-btn"
+		principal_btn.innerHTML = "Check license key"
+
+		let contact_us = document.createElement("a");
+		contact_us.id = "css-scanner-license-modal-contact"
+		contact_us.href= "https://airtable.com/shrsDQGBd3xRdCV2k" 
+		contact_us.innerHTML = "Contact Us"
+
+		inner_container.append(message, input, principal_btn, contact_us);
+		container.append(closeSpan, logo, titletext, inner_container)
+		parent.append(container);
+		document.body.appendChild(parent);
+	}
 }
 
 function floatingHeaderOptions(){
@@ -886,6 +959,8 @@ function floatingHeaderOptions(){
 	innerSubDiv.append(onclick_sub, other_sub, display_sub, shortcuts_sub)
 	dropdownDiv.appendChild(innerSubDiv)
 	parent_container.appendChild(dropdownDiv)
+
+	parent_container.appendChild(floatingUpgradeHeaderButton())
 	parent_container.appendChild(floatingHeaderButton("close", "Close the Extension", "../img/close.svg"))
 
 	document.body.appendChild(parent_container)
