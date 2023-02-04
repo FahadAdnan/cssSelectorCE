@@ -220,12 +220,6 @@ function CSS_ScannerMouseOver(e)
 	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
 	else{ block.style.display = "flex" }
 
-	//GETTING HTML::: 
-	//console.log('zayd::: ' + this.tagName + " ::: "+ this.outerHTML);  
-	//note: css scanner also adds inherited-styles-for-exported-element <- figure out why 
-	
-	//console.log('zayd' + this.classList)
-	//block.firstChild.innerHTML = '&lt;' + this.tagName.toLowerCase() + '&gt;' + (this.id == '' ? '' : ' #' + this.id) + (this.className == '' ? '' : ' .' + this.className);
 	var title = block.firstChild.firstChild.firstChild
 	title.firstChild.innerHTML =  '&lt;' + this.tagName.toLowerCase() + '&gt;'
 	title.lastChild.innerHTML = (this.className == '' ? '' : ' .' + this.className.toString().split(' ')[0]);
@@ -892,25 +886,39 @@ function createUpgradeDialog(){
 
 		let titletext = document.createElement("h1");
 		titletext.id = "css-scanner-license-modal-h1"
-		titletext.innerHTML = "CSS Scanner - License check"
+		titletext.innerHTML = "CSS Scanner - Tell us what you'd like to see"
 		let inner_container = document.createElement("div");
 		
 		let message = document.createElement("p");
-		message.innerHTML = "Please check <a class=\"css-scanner-font-link-style\" href=\"https://mycssscan.com\" target=\"_blank\">MyCssScan.com</a> or your receipt and enter your license key to continue:"
+		message.innerHTML = "Please shoot us a message on what upgrades you'd like to see!"
 		
-		let input = document.createElement("input");
-		input.id = "css-scanner-license-input"
+		// let input = document.createElement("input");
+		// input.id = "css-scanner-license-input"
 
-		let principal_btn = document.createElement("button");
+		let parentButtons = document.createElement("div");
+		parentButtons.className = "css-scanner-custom-upgrade-row"
+
+		let principal_btn = document.createElement("a");
 		principal_btn.id = "css-scanner-check-license-btn"
-		principal_btn.innerHTML = "Check license key"
+		principal_btn.innerHTML = "Send A Message"
+		principal_btn.href= "https://airtable.com/shrlRsJyEB4px29Gp" 
 
-		let contact_us = document.createElement("a");
-		contact_us.id = "css-scanner-license-modal-contact"
-		contact_us.href= "https://airtable.com/shrsDQGBd3xRdCV2k" 
-		contact_us.innerHTML = "Contact Us"
+		let buy_me_coffee = document.createElement("a");
+		let coffee_img = document.createElement("img")
+		coffee_img.src = chrome.runtime.getURL("../img/bmc-button.svg")
+		buy_me_coffee.appendChild(coffee_img);
+		buy_me_coffee.href = "https://www.buymeacoffee.com/tldralgos"
+		buy_me_coffee.id = "css-scanner-buy-me-a-coffee"
 
-		inner_container.append(message, input, principal_btn, contact_us);
+		parentButtons.append(principal_btn, buy_me_coffee)
+
+		// let contact_us = document.createElement("a");
+		// contact_us.id = "css-scanner-license-modal-contact"
+		// contact_us.href= "https://airtable.com/shrlRsJyEB4px29Gp" 
+		// contact_us.innerHTML = "Contact Us"
+
+		// inner_container.append(message, input, principal_btn, contact_us);
+		inner_container.append(message, parentButtons);
 		container.append(closeSpan, logo, titletext, inner_container)
 		parent.append(container);
 		document.body.appendChild(parent);

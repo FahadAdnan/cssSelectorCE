@@ -203,7 +203,11 @@
 	background-color: rgba(30, 32, 44, .9) !important;
   }
 
-
+  .css-scanner-custom-upgrade-row{
+	display: flex !important;
+	flex-direction: row !important;
+	width: 100% !important;
+  }
 
   .css-scanner-menu-button-upgrade {
 
@@ -486,6 +490,21 @@
     opacity: 1 !important;
     position: initial !important;
 }
+
+#css-scanner-buy-me-a-coffee {
+	border: none !important;
+    margin-left: 10px !important;
+    margin-top: 25px !important;
+	padding: 0 25px !important;
+    line-height: 50px !important;
+    height: 50px !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    position: initial !important;
+}
+
 
 #css-scanner-license-modal-contact {
 	color: #ccc !important;
