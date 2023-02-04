@@ -407,13 +407,9 @@ function CSS_Scanner()
 			btnContainer.append(code_btn, copy_btn, trash_btn, form);
 			
 			code_btn.addEventListener("click", function(){
-				console.log("njsdajknsdkjns"); 
-				let htmlText = elementMap.get(block).outerHTML.toString()
-				let cssText = parseStyleSheets(block).toString()
-
 				input.value = JSON.stringify({
-					html: htmlText,
-					css: cssText,
+					html: parseHTML(block),
+					css: parseStyleSheets(block).toString(),
 					editors: '110',
 					tags: ['CSS Scanner']
 				});
@@ -940,7 +936,8 @@ function createUpgradeDialog(){
 function floatingHeaderOptions(){
 	var parent_container = document.createElement("div")
 	parent_container.id = "css-scanner-floating-options"
-	
+	parent_container.classList.add("css-scanner-parent-container");
+
 	parent_container.appendChild(floatingHeaderButton("pause-continue", "Pause", "../img/pause.svg"))
 	parent_container.appendChild(floatingHeaderButton("move", "Move", "../img/arrow_down.svg"))
 
@@ -1090,6 +1087,20 @@ function parseStyleSheets(block){
 	}
 	//console.log(text); 
 	return text; 
+}
+
+function parseHTML(block){
+	var blockval = (elementMap.get(block)); 
+	var tmp = blockval.cloneNode(true)
+	var classes = ["css-scanner-parent-container", "css-scanner-viewer-block"]; 
+
+	classes.forEach(item => {
+		const elements = tmp.getElementsByClassName(item);
+		while(elements.length > 0){
+			elements[0].parentNode.removeChild(elements[0]);
+		}
+		});
+	return tmp.outerHTML.toString();
 }
 
 // If isElementMatchWithCssRule - filter the selector text to only include relevant values (used later for ordering css rules)
