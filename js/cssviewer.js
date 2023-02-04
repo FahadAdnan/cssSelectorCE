@@ -408,9 +408,12 @@ function CSS_Scanner()
 			
 			code_btn.addEventListener("click", function(){
 				console.log("njsdajknsdkjns"); 
+				let htmlText = elementMap.get(block).outerHTML.toString()
+				let cssText = parseStyleSheets(block).toString()
+
 				input.value = JSON.stringify({
-					html: elementMap.get(block).outerHTML.toString(),
-					css: parseStyleSheets(block).toString(),
+					html: htmlText,
+					css: cssText,
 					editors: '110',
 					tags: ['CSS Scanner']
 				});
@@ -1230,6 +1233,7 @@ var MEJSX = function() {
 		  proto.mozMatchesSelector || proto.webkitMatchesSelector ||
 		  proto.msMatchesSelector || proto.oMatchesSelector);
 
+		if(cssRule == undefined || cssRule.selectorText == undefined){ return false; }
 		var arrSelectors = cssRule.selectorText.split(",")
 		for(let i = 0; i < arrSelectors.length; i++){
 			var doubleColon = arrSelectors[i].split('::');
