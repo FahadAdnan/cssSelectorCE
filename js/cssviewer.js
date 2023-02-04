@@ -1244,6 +1244,7 @@ var MEJSX = function() {
 		  proto.mozMatchesSelector || proto.webkitMatchesSelector ||
 		  proto.msMatchesSelector || proto.oMatchesSelector);
 
+		if(cssRule == undefined || cssRule.selectorText == undefined){ return false; }
 		var arrSelectors = cssRule.selectorText.split(",")
 		for(let i = 0; i < arrSelectors.length; i++){
 			var doubleColon = arrSelectors[i].split('::');
