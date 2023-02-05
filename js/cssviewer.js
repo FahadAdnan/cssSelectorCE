@@ -184,13 +184,15 @@ function UpdateSpecialSectionsMainPage(styleMap){
 		let li_parent = generatePseudoParentContainer(outerArr[k][0]);
 
 		let currMap = outerArr[k][1];
-	
-		// All @Media styles and then all inline styles
-		currMap.forEach((propertyMap, mediaStyle) => { 
-			if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, li_parent); }
-		});
-		if(currMap.has("")){ StyleBlockHelperMainPage(currMap.get(""), "", li_parent)}
-		ul.appendChild(li_parent);
+
+		if(currMap){
+			// All @Media styles and then all inline styles
+			currMap.forEach((propertyMap, mediaStyle) => { 
+				if(mediaStyle != ""){ StyleBlockHelperMainPage(propertyMap, mediaStyle, li_parent); }
+			});
+			if(currMap.has("")){ StyleBlockHelperMainPage(currMap.get(""), "", li_parent)}
+			ul.appendChild(li_parent);
+		}
 	}
 }
 

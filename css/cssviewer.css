@@ -161,7 +161,7 @@
 
 /* Darker background on mouse-over */
 .css-scanner-viewer-btn:hover {
-  background-color: rgba(46, 50, 71, 0.98)!important; ;
+  background-color: rgb(74, 220, 113) !important;
 }
 
 /* CSS Displays for the Floating Options Menu*/ 
