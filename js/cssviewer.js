@@ -420,7 +420,10 @@ function CSS_Scanner()
 				block.remove();
 			});
 			copy_btn.addEventListener("click", function(){
-				parseStyleSheets(block)
+				navigator.clipboard.writeText(parseStyleSheets(block));
+				cssScannerInsertMessage('Copied CSS');
+                setTimeout(function () { cssScannerRemoveElement("css-scanner-insert-message");}, 2500);
+
 			}); 
 
 			subheader.append(title, btnContainer);
@@ -453,10 +456,7 @@ function CSS_Scanner()
 			ul.classList.add("css-scanner-ul")
 			center.appendChild(ul)
 			block.appendChild(center);
-		}
-		
-		cssScannerInsertMessage( "CSS Scanner is loaded, hover over any element you'd like to inspect" );
-  
+		}  
 		return block;
 	}
 }
@@ -1054,6 +1054,7 @@ function getAllSpecialStylesOnSingleElement(rules){
 function parseStyleSheets(block){
 	var arr = GetAllSubElements(elementMap.get(block));
 	var text = ""; 
+    const seenItems = new Set();
 
 	for(let j = 0; j < arr.length; j++){
 		var elem = arr[j];
@@ -1063,6 +1064,8 @@ function parseStyleSheets(block){
 			var default_tab = "";
 			var one_tab_more = "    "		
 			var closingBrace = false; 
+            if (!seenItems.has(rules[i].selectorText) || rules[i].media.includes('screen')) {
+                seenItems.add(rules[i].selectorText);
 
 			if(rules[i].media.includes('screen')){
 				console.log("media rule:" + rules[i].media); 
@@ -1084,6 +1087,7 @@ function parseStyleSheets(block){
 			text +=  "\n" + default_tab + "}" + "\n"
 			if(closingBrace) text += '}';
 		}	
+	}
 	}
 	//console.log(text); 
 	return text; 
