@@ -45,13 +45,13 @@ function last(array) { return array[array.length - 1]; }
 
 // #region Globals variables
 var CSS_Scanner_current_element = null
-var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
 var CSS_Scanner_security_issue_occ = false
 var CSS_Scanner_currently_outlined_item = null 
 var CSS_Scanner_current_viewer_block_filled = false 
+var CSS_Scanner_in_paused_state = false
 // #endregion
 
 // #region Update Functions 
@@ -210,6 +210,9 @@ function UpdateSecurityNotification(){
 
 function CSS_ScannerMouseOver(e)
 {
+	// State
+	if(CSS_Scanner_in_paused_state) return; 
+
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
@@ -217,7 +220,7 @@ function CSS_ScannerMouseOver(e)
 	elementMap.set(block, this)
 
 	// Initial Logic to decide whether to show the popup:
-	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" || this.id == "css-scanner-license-modal-content")){
 		CSS_Scanner_on_custom_element = true 
 		block.style.display = "none"
 		return;
@@ -259,7 +262,10 @@ function CSS_ScannerMouseOver(e)
 
 function CSS_ScannerMouseOut(e)
 {
-	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options")){
+	// State
+	if(CSS_Scanner_in_paused_state) return; 
+
+	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" || this.id == "css-scanner-license-modal-content")){
 		CSS_Scanner_on_custom_element = false 
 		return;
 	}
@@ -270,6 +276,9 @@ function CSS_ScannerMouseOut(e)
 
 function CSS_ScannerMouseMove(e)
 {
+	// State
+	if(CSS_Scanner_in_paused_state) return; 
+
 	if(this == undefined || CSS_Scanner_on_custom_element || this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" ){return;}
 	
 	var document = GetCurrentDocument();
@@ -426,7 +435,7 @@ function CSS_Scanner()
 			});
 			copy_btn.addEventListener("click", function(){
 				navigator.clipboard.writeText(parseStyleSheets(block));
-				cssScannerInsertMessage('Copied CSS to your Clipboard');
+				cssScannerInsertMessage('Copied CSS to your Clipboard!');
                 setTimeout(function () { cssScannerRemoveElement("css-scanner-insert-message");}, 2500);
 			}); 
 
@@ -478,20 +487,20 @@ CSS_Scanner.prototype.IsEnabled = function()
 }
 
 // Enable CSS_Scanner
-CSS_Scanner.prototype.Enable = function()
+CSS_Scanner.prototype.Enable = function(addEventListners)
 {
 	var document = GetCurrentDocument();
 	let new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
 	setElementToBeDraggable(new_block);
 	AddEventListners(new_block);	
-	AddDocumentEventListeners();
+	if(addEventListners){ AddDocumentEventListeners(); }
 
 	return true;
 }
 
 // Disable CSS_Scanner
-CSS_Scanner.prototype.Disable = function()
+CSS_Scanner.prototype.Disable = function(removeEventListeners)
 {
 	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
@@ -501,7 +510,7 @@ CSS_Scanner.prototype.Disable = function()
 	if (block || insertMessage) {
 		if(block) document.body.removeChild(block);
         if(insertMessage) document.body.removeChild(insertMessage);
-		RemoveDocumentEventListeners();
+		if(removeEventListeners) RemoveDocumentEventListeners();
 		return true;
 	}
 
@@ -541,8 +550,9 @@ function PauseCSS_Scanner(){
 	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Continue&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
-	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
-	cssScanner.Disable();
+	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = '';
+	CSS_Scanner_in_paused_state = true
+	cssScanner.Disable(false);
 }
 
 function ContinueCSS_Scanner(){
@@ -550,11 +560,12 @@ function ContinueCSS_Scanner(){
 	state_btn.firstChild.innerHTML = "Pause&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/pause.svg")
 	cssScanner = new CSS_Scanner();
-	cssScanner.Enable(); 
+	CSS_Scanner_in_paused_state = false
+	cssScanner.Enable(false); 
 }
 
 function CloseCSS_Scanner(){
-	PauseCSS_Scanner()
+	cssScanner.Disable(true);
 	// Remove all the Blocks 
 	var blocks = document.getElementsByClassName("css-scanner-viewer-block")
     while(blocks.length > 0){ blocks[0].parentNode.removeChild(blocks[0]); }
@@ -565,7 +576,9 @@ function CloseCSS_Scanner(){
 	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
 	ToggleGrid(false)
 	cssScannerRemoveElement("css-scanner-insert-message");
+	cssScannerRemoveElement("css-scanner-license-modal");
 	CSS_Scanner_is_closed = true
+	CSS_Scanner_in_paused_state = false
 }
 
 function OpenCSS_Scanner(){
@@ -573,8 +586,8 @@ function OpenCSS_Scanner(){
 		console.log("Reopening extension")
 		floatingHeaderOptions()
 		cssScanner = new CSS_Scanner();
-		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(); }
-		else{ cssScanner.Enable(); }
+		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(true); }
+		else{ cssScanner.Enable(true); }
 		CSS_Scanner_is_closed = false
 	} 
 }
@@ -582,7 +595,7 @@ function OpenCSS_Scanner(){
 function FreezeCurrentBlock(){
 	if(CSS_Scanner_current_viewer_block_filled){
 		cssScanner = new CSS_Scanner();
-		cssScanner.Enable(); 
+		cssScanner.Enable(false); 
 		console.log("Creating a new CSS block");
 	}
 	CSS_Scanner_current_viewer_block_filled = false;
@@ -599,7 +612,7 @@ function ToggleGrid(enable){
 // #region Click Event and Key Mapping 
 
 function ClickEvent(e){
-	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
+	if(CSS_Scanner_is_closed || CSS_Scanner_in_paused_state) return 
 	var isPinEnabled= (document.getElementById('css-scanner-onclick-pin').firstChild.checked == true);
 	if(isPinEnabled){ FreezeCurrentBlock()}
 	
@@ -619,12 +632,11 @@ function CssScannerKeyMap(e) {
 
 	// Pause/Continue: (Alt+Shift+S) - Note in macOS s+alt+shift causes a weird symbol to be created - need edgecase of "Í"
 	if( e.keyCode === 83 && (e.key === "S" || e.key === "s" || e.key == "Í") && e.shiftKey && e.altKey){
-		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
-		else{ ContinueCSS_Scanner() }	
+		if(CSS_Scanner_in_paused_state){ ContinueCSS_Scanner() }
+		else{ PauseCSS_Scanner() }	
 	}
-
 	// Freeze Current Block(Space) - create a new one and forget the old one
-	if (e.keyCode === 32 && e.key == " " && CSS_Scanner_has_document_event_listeners){
+	if (e.keyCode === 32 && e.key == " " && !CSS_Scanner_in_paused_state){
 		FreezeCurrentBlock()
 		return false; // Prevent default behaviour of scrolling down
 	}
@@ -640,6 +652,7 @@ function CssScannerKeyMap(e) {
 //#region Document Functions 
 
 function AddEventListners(element){
+	console.log("Adding Event Listener")
 	element.addEventListener("mouseover", CSS_ScannerMouseOver, false);
 	element.addEventListener("mouseout", CSS_ScannerMouseOut, false);
 	element.addEventListener("mousemove", CSS_ScannerMouseMove, false);
@@ -657,7 +670,6 @@ function AddDocumentEventListeners()
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 	for (var i = 0; i < elements.length; i++){ AddEventListners(elements[i]) }	
-	CSS_Scanner_has_document_event_listeners = true
 }
 
 function RemoveDocumentEventListeners()
@@ -665,7 +677,6 @@ function RemoveDocumentEventListeners()
 	var document = GetCurrentDocument();
 	var elements = GetAllSubElements(document.body);
 	for (var i = 0; i < elements.length; i++){ RemoveEventListners(elements[i]) }
-	CSS_Scanner_has_document_event_listeners = false
 }
 
 function GetAllSubElements (element)
@@ -676,7 +687,7 @@ function GetAllSubElements (element)
 	if (element && element.hasChildNodes()) {
 
 		elemArr.push(element);
-		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options") return elemArr;
+		if(element.classList.contains("css-scanner-viewer-block") || element.id == "css-scanner-floating-options" || element.id == "css-scanner-license-modal-content") return elemArr;
 		var childs = element.childNodes;
 
 		for (var i = 0; i < childs.length; i++) {
@@ -832,8 +843,8 @@ function setStateOfSwitches(){ addEventListener
 function setOnClicksOfDropDown(){
 	// Pause/Continue Button: 
 	document.getElementById("css-scanner-pause-continue").addEventListener("click", function(){
-		if(CSS_Scanner_has_document_event_listeners){ PauseCSS_Scanner() }
-		else{ ContinueCSS_Scanner() }
+		if(CSS_Scanner_in_paused_state){  ContinueCSS_Scanner() }
+		else{  PauseCSS_Scanner() }
 	})
 	// Move Button: 
 	document.getElementById("css-scanner-move").addEventListener("click", function(){
@@ -919,13 +930,6 @@ function createUpgradeDialog(){
 		buy_me_coffee.id = "css-scanner-buy-me-a-coffee"
 
 		parentButtons.append(principal_btn, buy_me_coffee)
-
-		// let contact_us = document.createElement("a");
-		// contact_us.id = "css-scanner-license-modal-contact"
-		// contact_us.href= "https://airtable.com/shrlRsJyEB4px29Gp" 
-		// contact_us.innerHTML = "Contact Us"
-
-		// inner_container.append(message, input, principal_btn, contact_us);
 		inner_container.append(message, parentButtons);
 		container.append(closeSpan, logo, titletext, inner_container)
 		parent.append(container);
@@ -935,10 +939,11 @@ function createUpgradeDialog(){
 		closeSpan.addEventListener("click", function(){
 			if(document.getElementById(parentId) != null){ 
 				document.getElementById(parentId).remove()
-				console.log("removing als;kdfjalsdkfjla;kdjsf")
+				ContinueCSS_Scanner();
 			}
+			CSS_Scanner_in_paused_state = false
 		}); 
-
+		CSS_Scanner_in_paused_state = true 
 	}
 }
 

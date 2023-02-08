@@ -426,6 +426,7 @@
     font-size: 20px !important;
     color: #fff !important;
     border-radius: 20px !important;
+	backdrop-filter: blur(6px) !important;
     box-shadow: 0 7px 29px 0 rgb(100 100 111 / 20%) !important;
 }
 
