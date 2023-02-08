@@ -386,6 +386,7 @@ function CSS_Scanner()
 			// Create a div block
 			block = document.createElement('div');
 			block.classList.add("css-scanner-viewer-block")
+			block.style.display = "none"
 			
 			// Insert a title for CSS selector
 
@@ -403,6 +404,7 @@ function CSS_Scanner()
 			title.append(tagName, className);
 
 			var btnContainer = document.createElement("div");
+			btnContainer.className = "css-scanner-header-button-row"
 			var code_btn = header_button("../img/code.svg")
 			var copy_btn = header_button("../img/copy.svg")
 			var trash_btn = header_button("../img/trash.svg")
