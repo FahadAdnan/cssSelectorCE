@@ -44,12 +44,14 @@ function last(array) { return array[array.length - 1]; }
 // #endregion
 
 // #region Globals variables
-var CSS_Scanner_current_element
+var CSS_Scanner_current_element = null
 var CSS_Scanner_has_document_event_listeners = true // Switch to false - should set to true/false once start/pause are implemented
 var CSS_Scanner_on_custom_element = false
 var CSS_Scanner_is_closed = true 
 var elementMap = new Map([]); 
 var CSS_Scanner_security_issue_occ = false
+var CSS_Scanner_currently_outlined_item = null 
+var CSS_Scanner_current_viewer_block_filled = false 
 // #endregion
 
 // #region Update Functions 
@@ -67,7 +69,7 @@ function UpdateSubHeadings(element){
 		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
 		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
 	} catch(err) {
-		console.log("Error: CSS_Scanner: error setting subtitles " + err);
+		// console.log("Error: CSS_Scanner: error setting subtitles " + err);
 	}
 }
 
@@ -228,14 +230,13 @@ function CSS_ScannerMouseOver(e)
 
 	// Outline element
 	if (this.tagName != 'body') {
+		CSS_Scanner_currently_outlined_item = this
 		this.style.outline = '2px dashed #f00';
-		CSS_Scanner_current_element = this;
+		if(CSS_Scanner_current_element) CSS_Scanner_current_element = this;
 	}
 	
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
-	UpdateSubHeadings(element)
-
 	var elem = elementMap.get(block)
 
 	var rules = MEJSX.getCustomCssRulesOnElement(elem);
@@ -245,9 +246,11 @@ function CSS_ScannerMouseOver(e)
 	let propertyMap = getAllStylesOnSingleElement(defaultRules, element);
 	let pseudoRuleMap = getAllSpecialStylesOnSingleElement(pseudoRules);
 
+	UpdateSubHeadings(element)
 	UpdateMainPage(propertyMap)
 	UpdateSpecialSectionsMainPage(pseudoRuleMap)
 	UpdateSecurityNotification()
+	CSS_Scanner_current_viewer_block_filled = true 
 
 	cssScannerRemoveElement("css-scanner-insert-message");
 
@@ -338,7 +341,7 @@ function security_issue_nested_note(){
 	li_parent.className = "css-scanner-nested-container-style";
 	let security_err_span = document.createElement("span");
 	security_err_span.classList.add("css-scanner-default-white-text", "css-scanner-security-disclaimer");
-	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets - some properties may be missing"
+	security_err_span.innerHTML = "<b>Note:</b> Chrome Security is blocking access to external CSS Stylesheets, properties may be missing"
 	li_parent.appendChild(security_err_span);
 	return li_parent;
 }
@@ -423,9 +426,8 @@ function CSS_Scanner()
 			});
 			copy_btn.addEventListener("click", function(){
 				navigator.clipboard.writeText(parseStyleSheets(block));
-				cssScannerInsertMessage('Copied CSS');
+				cssScannerInsertMessage('Copied CSS to your Clipboard');
                 setTimeout(function () { cssScannerRemoveElement("css-scanner-insert-message");}, 2500);
-
 			}); 
 
 			subheader.append(title, btnContainer);
@@ -479,9 +481,7 @@ CSS_Scanner.prototype.IsEnabled = function()
 CSS_Scanner.prototype.Enable = function()
 {
 	var document = GetCurrentDocument();
-	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
-
-	new_block = this.CreateBlock();
+	let new_block = this.CreateBlock();
 	document.body.appendChild(new_block);
 	setElementToBeDraggable(new_block);
 	AddEventListners(new_block);	
@@ -514,14 +514,17 @@ CSS_Scanner.prototype.Disable = function()
 
 function cssScannerInsertMessage( msg )
 {
-	// Display the notification message
-	var oNewP = document.createElement("p");
-	var oText = document.createTextNode(msg);
+	if(document.getElementById('css-scanner-insert-message') == null){
 
-	oNewP.appendChild(oText);
-	oNewP.id = 'css-scanner-insert-message';
-	oNewP.className = "css-scanner-insert-message-font"
-	document.body.appendChild(oNewP);
+		// Display the notification message
+		var oNewP = document.createElement("p");
+		var oText = document.createTextNode(msg);
+
+		oNewP.appendChild(oText);
+		oNewP.id = 'css-scanner-insert-message';
+		oNewP.className = "css-scanner-insert-message-font"
+		document.body.appendChild(oNewP);
+	}
 }
 
 function cssScannerRemoveElement(divid)
@@ -538,7 +541,7 @@ function PauseCSS_Scanner(){
 	var state_btn = document.getElementById("css-scanner-pause-continue")
 	state_btn.firstChild.innerHTML = "Continue&nbsp;"
 	state_btn.lastChild.src = chrome.runtime.getURL("../img/play.svg")
-	CSS_Scanner_current_element.style.outline = '';
+	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
 	cssScanner.Disable();
 }
 
@@ -559,6 +562,7 @@ function CloseCSS_Scanner(){
 	var option_menu = document.getElementById("css-scanner-floating-options")
 	option_menu.parentNode.removeChild(option_menu)
 	// Clean up loose ends - grid and notification message
+	if(CSS_Scanner_currently_outlined_item) CSS_Scanner_currently_outlined_item.style.outline = ''
 	ToggleGrid(false)
 	cssScannerRemoveElement("css-scanner-insert-message");
 	CSS_Scanner_is_closed = true
@@ -576,8 +580,12 @@ function OpenCSS_Scanner(){
 }
 
 function FreezeCurrentBlock(){
-	cssScanner = new CSS_Scanner();
-	cssScanner.Enable(); 
+	if(CSS_Scanner_current_viewer_block_filled){
+		cssScanner = new CSS_Scanner();
+		cssScanner.Enable(); 
+		console.log("Creating a new CSS block");
+	}
+	CSS_Scanner_current_viewer_block_filled = false;
 }
 
 function ToggleGrid(enable){
@@ -592,11 +600,11 @@ function ToggleGrid(enable){
 
 function ClickEvent(e){
 	if(CSS_Scanner_is_closed || !CSS_Scanner_has_document_event_listeners) return 
-	var isCopyEnabled= (document.getElementById('css-scanner-onclick-copy').firstChild.checked == true);
 	var isPinEnabled= (document.getElementById('css-scanner-onclick-pin').firstChild.checked == true);
-
-	if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
 	if(isPinEnabled){ FreezeCurrentBlock()}
+	
+	// var isCopyEnabled= (document.getElementById('css-scanner-onclick-copy').firstChild.checked == true);
+	// if(isCopyEnabled){ /* TODO - Add Code to copy css to clipboard */ }
 }
 
 function CssScannerKeyMap(e) {
@@ -617,8 +625,7 @@ function CssScannerKeyMap(e) {
 
 	// Freeze Current Block(Space) - create a new one and forget the old one
 	if (e.keyCode === 32 && e.key == " " && CSS_Scanner_has_document_event_listeners){
-		cssScanner = new CSS_Scanner();
-		cssScanner.Enable(); 
+		FreezeCurrentBlock()
 		return false; // Prevent default behaviour of scrolling down
 	}
 
@@ -752,22 +759,22 @@ function dropdownSwitch(type, inner_text){
 }
 function dropdownShortcuts(command, inner_text){
 	var divShortcut = document.createElement("div")
-	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-3"
+	divShortcut.className = "css-scanner-simple-text css-scanner-spacing-2"
 	divShortcut.innerHTML = "<b>" + command + "</b> " + inner_text
 	return divShortcut
 }
 
 function setStateOfSwitches(){ addEventListener
-	chrome.storage.sync.get('onclick_copy', function(result) {
-        var perf= document.getElementById('css-scanner-onclick-copy').firstChild;
-	    var tmp = result.onclick_copy; 
-        perf.checked = tmp;
+	// chrome.storage.sync.get('onclick_copy', function(result) {
+    //     var perf= document.getElementById('css-scanner-onclick-copy').firstChild;
+	//     var tmp = result.onclick_copy; 
+    //     perf.checked = tmp;
         
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
-        });
-    })
+    //     perf.addEventListener("change", function() {
+    //         if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'onclick_copy': false}); }
+    //         else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_copy': true}); }
+    //     });
+    // })
 	chrome.storage.sync.get('onclick_pin', function(result) {
         var perf= document.getElementById('css-scanner-onclick-pin').firstChild;
 	    var tmp = result.onclick_pin; 
@@ -778,26 +785,26 @@ function setStateOfSwitches(){ addEventListener
             else { perf.checked = true; tmp = true; chrome.storage.sync.set({'onclick_pin': true}); }
         });
     })
-	chrome.storage.sync.get('other_child_css', function(result) {
-        var perf= document.getElementById('css-scanner-other-child-css').firstChild;
-	    var tmp = result.other_child_css; 
-        perf.checked = tmp;
+	// chrome.storage.sync.get('other_child_css', function(result) {
+    //     var perf= document.getElementById('css-scanner-other-child-css').firstChild;
+	//     var tmp = result.other_child_css; 
+    //     perf.checked = tmp;
         
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
-        });
-    })
-	chrome.storage.sync.get('other_html_copy', function(result) {
-        var perf= document.getElementById('css-scanner-other-html-copy').firstChild;
-	    var tmp = result.other_html_copy; 
-        perf.checked = tmp;
+    //     perf.addEventListener("change", function() {
+    //         if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_child_css': false}); }
+    //         else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_child_css': true}); }
+    //     });
+    // })
+	// chrome.storage.sync.get('other_html_copy', function(result) {
+    //     var perf= document.getElementById('css-scanner-other-html-copy').firstChild;
+	//     var tmp = result.other_html_copy; 
+    //     perf.checked = tmp;
         
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
-        });
-    })
+    //     perf.addEventListener("change", function() {
+    //         if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'other_html_copy': false}); }
+    //         else { perf.checked = true; tmp = true; chrome.storage.sync.set({'other_html_copy': true}); }
+    //     });
+    // })
 	chrome.storage.sync.get('display_grid', function(result) {
         var perf= document.getElementById('css-scanner-display-grid').firstChild;
 	    var tmp = result.display_grid; 
@@ -810,16 +817,16 @@ function setStateOfSwitches(){ addEventListener
 			ToggleGrid(perf.checked)
         });
     })
-	chrome.storage.sync.get('display_guidelines', function(result) {
-        var perf= document.getElementById('css-scanner-display-guidelines').firstChild;
-	    var tmp = result.display_guidelines; 
-        perf.checked = tmp;
+	// chrome.storage.sync.get('display_guidelines', function(result) {
+    //     var perf= document.getElementById('css-scanner-display-guidelines').firstChild;
+	//     var tmp = result.display_guidelines; 
+    //     perf.checked = tmp;
         
-        perf.addEventListener("change", function() {
-            if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
-            else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
-        });
-    })
+    //     perf.addEventListener("change", function() {
+    //         if(tmp) { perf.checked = false; tmp = false; chrome.storage.sync.set({'display_guidelines': false}); }
+    //         else { perf.checked = true; tmp = true; chrome.storage.sync.set({'display_guidelines': true}); }
+    //     });
+    // })
 }
 
 function setOnClicksOfDropDown(){
@@ -954,28 +961,29 @@ function floatingHeaderOptions(){
 
 	var onclick_sub = dropdownContainer()
 	onclick_sub.appendChild(dropdownHeader("On-Click Behaviour:"))
-	onclick_sub.appendChild(dropdownSwitch("onclick-copy", " Copy Code"))
-	onclick_sub.appendChild(dropdownSwitch("onclick-pin", " Pin the CSS Window"))
+	// onclick_sub.appendChild(dropdownSwitch("onclick-copy", "&nbsp;Copy Code"))
+	onclick_sub.appendChild(dropdownSwitch("onclick-pin", "&nbsp;Pin the CSS Window"))
 
-	var other_sub = dropdownContainer()
-	other_sub.appendChild(dropdownHeader("Other Behaviour:"))
-	other_sub.appendChild(dropdownSwitch("other-child-css", " Copy Child Element CSS"))
-	other_sub.appendChild(dropdownSwitch("other-html-copy", " Copy HTML Code (Seperately)"))
+	// var other_sub = dropdownContainer()
+	// other_sub.appendChild(dropdownHeader("Other Behaviour:"))
+	// other_sub.appendChild(dropdownSwitch("other-child-css", " Copy Child Element CSS"))
+	// other_sub.appendChild(dropdownSwitch("other-html-copy", " Copy HTML Code (Seperately)"))
 
 	var display_sub = dropdownContainer()
 	display_sub.appendChild(dropdownHeader("Display Behaviour:"))
-	display_sub.appendChild(dropdownSwitch("display-grid", " Grid"))
-	display_sub.appendChild(dropdownSwitch("display-guidelines", " Guidelines"))
+	display_sub.appendChild(dropdownSwitch("display-grid", "&nbsp;Grid"))
+	// display_sub.appendChild(dropdownSwitch("display-guidelines", " Guidelines"))
 
 	var shortcuts_sub = dropdownContainer()
 	shortcuts_sub.appendChild(dropdownHeader("Shortcuts:"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+S:", "Activate Extension"))
 	shortcuts_sub.appendChild(dropdownShortcuts("Alt+Shift+S:", "Pause/Continue"))
-	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+X::", "Toggle Grid"))
-	shortcuts_sub.appendChild(dropdownShortcuts("Arrow Keys:", "Navigate through DOM"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Ctrl+Shift+X:", "Toggle Grid"))
+	// shortcuts_sub.appendChild(dropdownShortcuts("Arrow Keys:", "Navigate through DOM"))
+	shortcuts_sub.appendChild(dropdownShortcuts("Spacebar:", "Pin the current block"))
 	shortcuts_sub.appendChild(dropdownShortcuts("ESC Key:", "Close the Extension"))
 
-	innerSubDiv.append(onclick_sub, other_sub, display_sub, shortcuts_sub)
+	innerSubDiv.append(onclick_sub, display_sub, shortcuts_sub)
 	dropdownDiv.appendChild(innerSubDiv)
 	parent_container.appendChild(dropdownDiv)
 
@@ -1117,11 +1125,11 @@ function filteredSelectorText(element, cssSelector) {
 
 	var proto = Element.prototype;
 	var matches = Function.call.bind(proto.matchesSelector ||
-		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.mozMatchesSelector || proto.matches ||
 		proto.msMatchesSelector || proto.oMatchesSelector);
 
 	for(let i = 0; i < arrSelectors.length; i++){
-		 if(matches(element, arrSelectors[i])){ return arrSelectors[i]; }
+		try{ if(matches(element, arrSelectors[i])){ return arrSelectors[i]; } }catch(e){}
 	}
 	return "";
 };
@@ -1129,17 +1137,19 @@ function filteredSelectorText(element, cssSelector) {
 function filteredPseudoSelectorText(element, cssSelector){
 	var proto = Element.prototype;
 	var matches = Function.call.bind(proto.matchesSelector ||
-		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.mozMatchesSelector || proto.matches ||
 		proto.msMatchesSelector || proto.oMatchesSelector);
 
 	var arrSelectors = cssSelector.split(",")
 	for(let i = 0; i < arrSelectors.length; i++){
 		var doubleColon = arrSelectors[i].split('::');
 		if(doubleColon.length == 2){ 
-			if(matches(element, doubleColon[0])){ return arrSelectors[i]; }}
-		else{
+			try{ if(matches(element, doubleColon[0])){ return arrSelectors[i]; } }catch(e){}
+		}else{
 			var singleColon = arrSelectors[i].split(':')
-			if(singleColon.length == 2){ if(matches(element, singleColon[0])){ return arrSelectors[i]; }}
+			if(singleColon.length == 2){ 
+				try{ if(matches(element, singleColon[0])){ return arrSelectors[i]; } }catch(e){}
+			}
 		}	
 	}
 	return "";
@@ -1239,15 +1249,15 @@ var MEJSX = function() {
 	var isElementMatchWithCssRule = function(element, cssRule) {
 	  var proto = Element.prototype;
 	  var matches = Function.call.bind(proto.matchesSelector ||
-		proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		proto.mozMatchesSelector || proto.matches ||
 		proto.msMatchesSelector || proto.oMatchesSelector);
-	  return matches(element, cssRule.selectorText);
+		try{ return matches(element, cssRule.selectorText); } catch(err){ return false; }
 	};
 	  
 	var isElementMatchWithPseudoCssRule = function(element, cssRule) {
 		var proto = Element.prototype;
 		var matches = Function.call.bind(proto.matchesSelector ||
-		  proto.mozMatchesSelector || proto.webkitMatchesSelector ||
+		  proto.mozMatchesSelector || proto.matches ||
 		  proto.msMatchesSelector || proto.oMatchesSelector);
 
 		if(cssRule == undefined || cssRule.selectorText == undefined){ return false; }
