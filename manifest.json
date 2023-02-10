@@ -1,9 +1,9 @@
 {
 	"name": "CSS Scanner",
-	"manifest_version": 2,
-	"version": "1.7",
+	"manifest_version": 3,
+	"version": "3.0",
 
-	"description": "A simple CSS property viewer.",
+	"description": "The simplest css property viewer.",
 
 	"icons": {
 		"16": "img/logo16.png",
@@ -18,26 +18,32 @@
 		"js": ["js/cssviewer.js"],
 		"all_frames": true
 	}],
-	"options_page": "option.html",
-	"background": { "page":"background.html" },
-
-	"browser_action": {
+	"background": { 
+		"service_worker": "js/background.js"
+	},
+	"action": {
 		"default_icon": "img/logo16.png",
-		"default_title": "CSSViewer"
+		"default_title": "Click to Run CSS Scanner"
 	},
 	"permissions": [
 		"tabs",
+		"contextMenus",
+		"storage",
+		"scripting"
+	],
+	"host_permissions": [
 		"http://*/*",
 		"https://*/*",
 		"file://*/*",
-		"contextMenus",
-		"storage"
-	],
-	"web_accessible_resources": [
+		"file://*/*"
+	], 
+	"web_accessible_resources": [{
+		"resources": [
 		"img/trash.svg", "img/copy.svg", "img/code.svg",
 		"img/size.svg", "img/font.svg", "img/close.svg",
 		"img/options.svg", "img/pause.svg", "img/play.svg",
 		"img/arrow_down.svg", "img/lightning.svg", "img/logo128.png",
-		"img/bmc-button.svg"
-	]
+		"img/bmc-button.svg"], 
+		"matches": ["<all_urls>"]	
+	}]
 }

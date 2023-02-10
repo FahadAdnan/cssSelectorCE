@@ -210,22 +210,32 @@ function UpdateSecurityNotification(){
 
 function CSS_ScannerMouseOver(e)
 {
+
+	console.log("State is: " + CSS_Scanner_in_paused_state)
 	// State
 	if(CSS_Scanner_in_paused_state) return; 
 
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
-	if( ! block ){ return; }
+	console.log("Block is: " + !block)
+
+	if(!block){ return; }
 	elementMap.set(block, this)
 
 	// Initial Logic to decide whether to show the popup:
+	console.log("This is: " + this)
+	console.log(this.classList)
+	console.log(this.id)
+	console.log(CSS_Scanner_on_custom_element)
+
 	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" || this.id == "css-scanner-license-modal-content")){
 		CSS_Scanner_on_custom_element = true 
 		block.style.display = "none"
 		return;
-	}else if(CSS_Scanner_on_custom_element){ return; } // Ignore all elements while you're on a custom element
-	else{ block.style.display = "flex" }
+	} else{ 
+		block.style.display = "flex" 
+	}
 
 	var title = block.firstChild.firstChild.firstChild
 	title.firstChild.innerHTML =  '&lt;' + this.tagName.toLowerCase() + '&gt;'
@@ -237,10 +247,13 @@ function CSS_ScannerMouseOver(e)
 		this.style.outline = '2px dashed #f00';
 		if(CSS_Scanner_current_element) CSS_Scanner_current_element = this;
 	}
-	
+
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	var elem = elementMap.get(block)
+
+	console.log(this)
+	console.log(elementMap.get(block))
 
 	var rules = MEJSX.getCustomCssRulesOnElement(elem);
 	let defaultRules = rules.filter(rule => !rule.isPseudoRule);
@@ -279,7 +292,7 @@ function CSS_ScannerMouseMove(e)
 	// State
 	if(CSS_Scanner_in_paused_state) return; 
 
-	if(this == undefined || CSS_Scanner_on_custom_element || this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" ){return;}
+	if(this == undefined || CSS_Scanner_on_custom_element){ return; }
 	
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
@@ -588,8 +601,7 @@ function OpenCSS_Scanner(){
 		console.log("Reopening extension")
 		floatingHeaderOptions()
 		cssScanner = new CSS_Scanner();
-		if ( cssScanner.IsEnabled() ){ cssScanner.Disable(true); }
-		else{ cssScanner.Enable(true); }
+		cssScanner.Enable(true);
 		CSS_Scanner_is_closed = false
 	} 
 }
@@ -1294,3 +1306,10 @@ var MEJSX = function() {
 
 // Handle Clicks
 document.onkeydown = CssScannerKeyMap;
+
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    if (msg.text === 'are_you_there_content_script_css_scanner?') {
+      sendResponse({status: "yes"});
+	  OpenCSS_Scanner() 
+    }
+});
