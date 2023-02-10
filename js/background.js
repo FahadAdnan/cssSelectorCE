@@ -19,11 +19,9 @@ function openCE(tab){
 
 			chrome.tabs.sendMessage(tab.id, {text: "are_you_there_content_script_css_scanner?"}, function(msg) {
 				msg = msg || {};
-				if (msg.status != 'yes') { alert("Error Running CSS Scanner - try refreshing your page")}
-				console.log("Message status is: " + msg + " " + msg.status)
 			});
 	}catch(e){ 
-		console.log("Could not connect to content script!!")
+		console.log("CSS Scanner - Could not connect to content script, try refreshing your page")
 	 }
 }
 

@@ -33,8 +33,7 @@ function RGBToHex(str)
 }
 function containsNumbers(str) {
 	return /\d/.test(str);
-}
-  
+}  
 // #endregion
 
 // #region General Util Functoins
@@ -68,9 +67,7 @@ function UpdateSubHeadings(element){
 		header.childNodes[2].childNodes[2].innerHTML = fontStyle;
 		header.childNodes[2].childNodes[2].href = const_google_search + fontStyle + "+font"
 		header.childNodes[2].lastChild.innerHTML = ", " + fontSize
-	} catch(err) {
-		// console.log("Error: CSS_Scanner: error setting subtitles " + err);
-	}
+	} catch(err) {}
 }
 
 function PropertyRowElement(propName, propValue){
@@ -89,31 +86,9 @@ function PropertyRowElement(propName, propValue){
 		span_value.classList.add("css-scanner-primary-text", "css-scanner-property-value");
 
 	}
-	// Handling spans that include color
-	var span_color = null; 
-
-	// TODO - Inline colors are broken - need to find a way to find and replace rgb( x, y, z) - rgba( x, y, z, a) - #AAAAAA
-	// if(isRgbValue(propValue)){
-	// 	var hexStr = RGBToHex(propValue)
-	// 	span_color = document.createElement('span')
-	// 	span_color.className = "css-scanner-color-preview"
-	// 	span_color.style.backgroundColor = hexStr
-	// 	span_value.appendChild(document.createTextNode(hexStr));
-	// }else if(isRegexValue(propValue)){
-	// 	span_color = document.createElement('span')
-	// 	span_color.className = "css-scanner-color-preview"
-	// 	span_color.style.backgroundColor = propValue
-	// 	span_value.appendChild(document.createTextNode(propValue));
-	// }else{
-	
 	span_value.appendChild(document.createTextNode(propValue));
-
 	li.appendChild(span_property);
 	li.appendChild(document.createTextNode(": "))
-	if(span_color !== null){ 
-		li.appendChild(span_color) 
-		li.appendChild(document.createTextNode(" "))
-	}
 	li.appendChild(span_value)
 	li.appendChild(document.createTextNode(";"))
 	return li; 
@@ -208,32 +183,32 @@ function UpdateSecurityNotification(){
 
 // #region Event Handlers
 
+function isOurCustomElement(currelem){
+	return currelem != undefined && (
+		currelem.classList.contains("css-scanner-viewer-block") || 
+		currelem.id == "css-scanner-floating-options" ||
+		currelem.id == "css-scanner-license-modal-content"
+	)
+}
+
 function CSS_ScannerMouseOver(e)
 {
-
-	console.log("State is: " + CSS_Scanner_in_paused_state)
 	// State
 	if(CSS_Scanner_in_paused_state) return; 
 
 	// Block
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
-	console.log("Block is: " + !block)
 
 	if(!block){ return; }
 	elementMap.set(block, this)
 
 	// Initial Logic to decide whether to show the popup:
-	console.log("This is: " + this)
-	console.log(this.classList)
-	console.log(this.id)
-	console.log(CSS_Scanner_on_custom_element)
-
-	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" || this.id == "css-scanner-license-modal-content")){
+	if(isOurCustomElement(this) || CSS_Scanner_on_custom_element){
 		CSS_Scanner_on_custom_element = true 
 		block.style.display = "none"
 		return;
-	} else{ 
+	}else{ 
 		block.style.display = "flex" 
 	}
 
@@ -251,9 +226,6 @@ function CSS_ScannerMouseOver(e)
 	// Updating CSS properties
 	var element = document.defaultView.getComputedStyle(this, null);
 	var elem = elementMap.get(block)
-
-	console.log(this)
-	console.log(elementMap.get(block))
 
 	var rules = MEJSX.getCustomCssRulesOnElement(elem);
 	let defaultRules = rules.filter(rule => !rule.isPseudoRule);
@@ -278,7 +250,7 @@ function CSS_ScannerMouseOut(e)
 	// State
 	if(CSS_Scanner_in_paused_state) return; 
 
-	if(this != undefined && (this.classList.contains("css-scanner-viewer-block") || this.id == "css-scanner-floating-options" || this.id == "css-scanner-license-modal-content")){
+	if(isOurCustomElement(this)){
 		CSS_Scanner_on_custom_element = false 
 		return;
 	}
@@ -517,7 +489,6 @@ CSS_Scanner.prototype.Enable = function(addEventListners)
 // Disable CSS_Scanner
 CSS_Scanner.prototype.Disable = function(removeEventListeners)
 {
-	console.log("Disabling the CSS Block")
 	var document = GetCurrentDocument();
 	var block = last(document.getElementsByClassName('css-scanner-viewer-block'));
     var insertMessage = document.getElementById("css-scanner-insert-message");
@@ -598,7 +569,6 @@ function CloseCSS_Scanner(){
 
 function OpenCSS_Scanner(){
 	if(CSS_Scanner_is_closed){
-		console.log("Reopening extension")
 		floatingHeaderOptions()
 		cssScanner = new CSS_Scanner();
 		cssScanner.Enable(true);
@@ -610,13 +580,11 @@ function FreezeCurrentBlock(){
 	if(CSS_Scanner_current_viewer_block_filled){
 		cssScanner = new CSS_Scanner();
 		cssScanner.Enable(false); 
-		console.log("Creating a new CSS block");
 	}
 	CSS_Scanner_current_viewer_block_filled = false;
 }
 
 function ToggleGrid(enable){
-	console.log("Toggling the grid " + enable)
 	let elements = GetAllSubElements(document.body)
 	if(enable){ for (var i = 0; i < elements.length; i++){ elements[i].classList.add("css-scanner-red-outline") }}
 	else { for (var i = 0; i < elements.length; i++){ elements[i].classList.remove("css-scanner-red-outline") }}
@@ -666,7 +634,6 @@ function CssScannerKeyMap(e) {
 //#region Document Functions 
 
 function AddEventListners(element){
-	console.log("Adding Event Listener")
 	element.addEventListener("mouseover", CSS_ScannerMouseOver, false);
 	element.addEventListener("mouseout", CSS_ScannerMouseOut, false);
 	element.addEventListener("mousemove", CSS_ScannerMouseMove, false);
@@ -1097,7 +1064,6 @@ function parseStyleSheets(block){
                 seenItems.add(rules[i].selectorText);
 
 			if(rules[i].media.includes('screen')){
-				console.log("media rule:" + rules[i].media); 
 				text += '\n@media ' +  rules[i].media  + '{';
 				default_tab = "    "
 				one_tab_more = "        "
@@ -1118,7 +1084,6 @@ function parseStyleSheets(block){
 		}	
 	}
 	}
-	//console.log(text); 
 	return text; 
 }
 
@@ -1201,7 +1166,6 @@ var MEJSX = function() {
 			return rules.concat(slice(styleSheet.cssRules));
 		}catch(err) {
 			CSS_Scanner_security_issue_occ = true;
-			console.log("Error: couldn't read cssRules from stylesheet: " + err + "stylesheet is: " + styleSheet);
 			return rules
 		}
 	  }, []);
