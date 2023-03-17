@@ -1,19 +1,35 @@
+
+:root {
+  --main-bg-dark: rgba(30, 30, 30, .95);
+  --main-bg-dark-highlight: rgba(54, 53, 53, 0.95);
+  --main-bg-light: rgba(255, 255, 255, 0.067);
+  --main-title-color: rgb(114, 243, 148);
+  --main-color-green: #7dffb3;
+  --main-color-highlight: #9CDCFD;
+
+
+  --main-color-sublock-title: #ff8676;
+  --main-color-property-name: #9CDCFD;
+  --main-color-property-value-w-num: #fff3bc;
+  --main-color-property-value: rgb(184, 205, 209);
+  --main-color-red:rgb(254, 84, 84);
+  --main-color-subheading: #dfdfdf;
+}
+
+
+
 .css-scanner-viewer-block
 {
 	display:flex;
 	align-items: flex-start !important;
 	flex-direction: column !important;
 	justify-content: flex-start !important;
-
 	min-width: 332px !important;
 	max-width: 380px !important;
-
 	padding: 15px 15px 15px 15px !important;
 	position:absolute !important;
-	
 	z-index: 9999 !important;  
-	color:#555 !important;
-	background-color: rgba(30, 32, 44, .95) !important;
+	background-color: var(--main-bg-dark) !important;
 	box-shadow: rgb(0 0 0 / 12%) 0px 0px 8px 0px, rgb(0 0 0 / 24%) 0px 4px 8px 0px !important;
 	backdrop-filter: blur(6px) !important;
 	border-radius: 20px !important;
@@ -25,16 +41,12 @@
 	align-items: flex-start !important;
 	flex-direction: column;
 	justify-content: flex-start !important;
-
 	box-sizing: border-box !important;
 	width: 100% !important;
-
 	padding: 10px 10px 10px 10px !important;
 	margin-top: 10px;
-
 	z-index: 9999; 
-	color:#555 !important;
-	background-color: rgba(255, 255, 255, 0.067) !important;
+	background-color: var(--main-bg-light) !important;
 	border-radius: 10px !important;
 }
 
@@ -51,8 +63,8 @@
 	height:auto !important;
 	padding:0px !important;
 	margin:0 !important;
-
 	z-index: 9999; 
+	
 	color:#333 !important;
 	background-color: transparent !important;
 	border-radius: 10px !important;
@@ -98,38 +110,38 @@
 .css-scanner-title
 {
 	font-size: 16px !important;
-	color: rgb(74, 220, 113) !important; 
+	color: var(--main-title-color) !important; 
 	font-weight: 700 !important;
 }
 
 .css-scanner-pseudo-style-title
 {
 	font-size: 14px !important;
-	color: rgb(74, 220, 113) !important; 
+	color: var(--main-title-color) !important; 
 	font-weight: 700 !important;
 }
 
 .css-scanner-media-sublock-title
 {
 	font-size: 14px !important;
-	color: #FF80BF !important; 
+	color: var(---main-color-sublock-title) !important; 
 	font-weight: 700 !important;
 }
 
 .css-scanner-property-name { 
-	color: #61cbe0 !important; 
+	color: var(--main-color-property-name) !important; 
 	display: contents !important;
  }  
 .css-scanner-property-value-wnum { 
-	color: #BD93F9 !important;
+	color: var(--main-color-property-value-w-num) !important;
 	display: contents !important;
 }
 .css-scanner-property-value { 
-	color: rgb(184, 205, 209) !important;
+	color: var(--main-color-property-value) !important;
 	display: contents !important;
 }
 .css-scanner-security-disclaimer {
-	color:rgb(254, 84, 84) !important;
+	color: var(--main-color-red) !important;
 	font-weight: 500 !important;
 }
 
@@ -137,7 +149,7 @@
 	line-height: 20px !important;
 	font-size: 13px !important;
 	padding: 1px !important;
-	color: #dfdfdf !important;
+	color: var(--main-color-subheading) !important;
 	display: flex !important;
 	flex-direction: row !important;
 	align-items: center !important; 
@@ -171,9 +183,8 @@
   cursor: pointer !important;
 }
 
-/* Darker background on mouse-over */
 .css-scanner-viewer-btn:hover {
-  background-color: rgb(74, 220, 113) !important;
+  background-color: var(--main-bg-dark-highlight) !important;
 }
 
 /* CSS Displays for the Floating Options Menu*/ 
@@ -212,7 +223,7 @@
   
 	z-index: 99999 !important;
 	color: #fff !important; 
-	background-color: rgba(30, 32, 44, .95) !important;
+	background-color: var(--main-bg-dark) !important;
 	box-shadow: rgb(0 0 0 / 12%) 0px 0px 8px 0px, rgb(0 0 0 / 24%) 0px 4px 8px 0px !important;
 	backdrop-filter: blur(6px) !important;
   }
@@ -282,7 +293,7 @@
   }
 
   .css-scanner-menu-button:hover{
-	background-color:  rgb(74, 220, 113)  !important;
+	background-color: var(--main-bg-dark-highlight) !important;
   }
   
   #css-scanner-btn-dropdown-container{
@@ -300,8 +311,7 @@
 	position:absolute !important;
 	z-index: 99999; 
   
-	color:#555 !important;
-	background-color: rgba(30, 32, 44, .95) !important;
+	background-color: var(--main-bg-dark) !important;
 	box-shadow: rgb(0 0 0 / 12%) 0px 0px 8px 0px, rgb(0 0 0 / 24%) 0px 4px 8px 0px !important;
 	backdrop-filter: blur(6px) !important;
 	border-radius: 20px !important;
@@ -379,7 +389,7 @@
   }
   
   .css-scanner-switch:checked {
-	background: #7dffb3 !important;
+	background: var(--main-color-green) !important;
   }
   
   .css-scanner-color-preview {
@@ -399,7 +409,7 @@
 
 #css-scanner-insert-message{
 	color:rgb(31, 33, 45) !important;
-	background-color: rgb(74, 220, 113) !important; 
+	background-color: var(--main-color-green) !important; 
 	border-radius: 5px;
 	position: fixed !important;
 	padding: 2px 5px !important;

@@ -55,7 +55,8 @@ var CSS_Scanner_in_paused_state = false
 
 // #region Update Functions 
 function UpdateSubHeadings(element){
-	var fontStyle = element.getPropertyValue('font-family').split(" ")[0].slice(0, -1); 
+	var fontStyle = element.getPropertyValue('font-family');
+	try{ fontStyle = fontStyle.split(",")[0]; }catch{};
 	var fontSize = element.getPropertyValue('font-size');
 
 	var height = ((element.naturalHeight == undefined) ? element.getPropertyValue('height') : element.naturalHeight + "px");
@@ -890,11 +891,8 @@ function createUpgradeDialog(){
 		let inner_container = document.createElement("div");
 		
 		let message = document.createElement("p");
-		message.innerHTML = "Please shoot us a message on what upgrades you'd like to see!"
+		message.innerHTML = "Shoot us a message on what upgrades you'd like to see!"
 		
-		// let input = document.createElement("input");
-		// input.id = "css-scanner-license-input"
-
 		let parentButtons = document.createElement("div");
 		parentButtons.className = "css-scanner-custom-upgrade-row"
 
