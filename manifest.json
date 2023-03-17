@@ -1,9 +1,9 @@
 {
-	"name": "CSS Scanner",
+	"name": "css scanner",
 	"manifest_version": 3,
-	"version": "3.0",
+	"version": "4.0",
 
-	"description": "The simplest css property viewer.",
+	"description": "The fastest, cleanest free css property viewer.",
 
 	"icons": {
 		"16": "img/logo16.png",
@@ -23,7 +23,7 @@
 	},
 	"action": {
 		"default_icon": "img/logo16.png",
-		"default_title": "Click to Run CSS Scanner"
+		"default_title": "Click to Run css scanner"
 	},
 	"permissions": [
 		"tabs",
